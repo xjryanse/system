@@ -30,8 +30,7 @@ class ColumnLogic
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换
-        $info2 = self::scolumnCov($info2);
-        return $this->dataReturn('获取字段',$info2);
+        return self::scolumnCov($info2);
     }
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
@@ -40,11 +39,9 @@ class ColumnLogic
     {
         $con[]  = ['table_name','=',Request::param('table_name','')];
         $info   = ScolumnService::find($con);
-        self::debug('lastSql',ScolumnService::mainModel() ->getLastSql());
         $info2  = $this->getDetail($info);   
         //字段转换
-        $info2  = self::scolumnCov($info2);        
-        return $this->dataReturn('获取字段',$info2);        
+        return self::scolumnCov($info2);
     }
     
     public function tableHasRecord()
@@ -52,7 +49,7 @@ class ColumnLogic
         $tableName  = Request::param('tableName','');
         $con[]      = ['table_name','=',$tableName];
         $info       = ScolumnService::find($con);
-        return $this->dataReturn('获取字段',$info);
+        return $info;
     }
     /**
      * 信息
@@ -61,8 +58,7 @@ class ColumnLogic
     {
         $id     = Request::param('id','');
         $info   = ScolumnService::getInstance($id)->get();
-        $info2  = $this->getDetail($info);      
-        return $this->dataReturn('获取字段',$info2);
+        return $this->getDetail($info);      
     }
     /*
      * 取详细信息
