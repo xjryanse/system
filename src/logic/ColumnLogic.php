@@ -1,7 +1,7 @@
 <?php
 namespace xjryanse\system\logic;
 
-use think\facade\Request;
+use xjryanse\logic\Arrays;
 use xjryanse\system\service\SystemColumnService as ScolumnService;
 use xjryanse\system\service\SystemColumnBtnService as ScolumnBtnService;
 use xjryanse\system\service\SystemColumnListService as ScolumnListService;
@@ -14,11 +14,11 @@ use xjryanse\system\service\SystemColumnBlockService as ScolumnBlockService;
 class ColumnLogic
 {
     //controller，table_key，取字段信息；getDefaultTable
-    public function defaultColumn()
+    public function defaultColumn( $param )
     {
-        $controller = Request::param('controller','');
-        $tableKey   = Request::param('table_key','');
-        $companyId  = Request::param('company_id','');
+        $controller = Arrays::value( $param, 'controller'); 
+        $tableKey   = Arrays::value( $param, 'table_key'); 
+        $companyId  = Arrays::value( $param, 'company_id');
 
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
@@ -35,18 +35,18 @@ class ColumnLogic
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
-    public function tableNameColumn()
+    public function tableNameColumn( $param )
     {
-        $con[]  = ['table_name','=',Request::param('table_name','')];
+        $con[]  = ['table_name','=',Arrays::value( $param, 'table_name')];
         $info   = ScolumnService::find($con);
         $info2  = $this->getDetail($info);   
         //字段转换
         return self::scolumnCov($info2);
     }
     
-    public function tableHasRecord()
+    public function tableHasRecord( $param )
     {
-        $tableName  = Request::param('tableName','');
+        $tableName  = Arrays::value( $param, 'tableName');
         $con[]      = ['table_name','=',$tableName];
         $info       = ScolumnService::find($con);
         return $info;
@@ -54,9 +54,9 @@ class ColumnLogic
     /**
      * 信息
      */
-    public function info()
+    public function info( $param )
     {
-        $id     = Request::param('id','');
+        $id     = Arrays::value( $param, 'id');
         $info   = ScolumnService::getInstance($id)->get();
         return $this->getDetail($info);      
     }
