@@ -15,8 +15,8 @@ class CompanyLogic
     {
         //从checkCompany搬过来-开始
         $comKey = Arrays::value( $param, 'comKey'); 
-        if( !$comKey ){
-            return $this->errReturn('未指定comKey');
+        if(!$comKey){
+            throw new Exception('comKey必须');
         }
         $con[] = ['app_id','=',session('scopeAppId')];
         $con[] = ['key','=',$comKey];
