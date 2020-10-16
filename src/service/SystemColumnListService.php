@@ -1,5 +1,5 @@
 <?php
-namespace app\scolumn\service;
+namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 

@@ -1,5 +1,5 @@
 <?php
-namespace app\file\service;
+namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use think\facade\Request;
