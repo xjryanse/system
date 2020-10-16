@@ -14,7 +14,7 @@ use xjryanse\system\service\SystemColumnBlockService as ScolumnBlockService;
 class ColumnLogic
 {
     //controller，table_key，取字段信息；getDefaultTable
-    public function defaultColumn( $param )
+    public static function defaultColumn( $param )
     {
         $controller = Arrays::value( $param, 'controller'); 
         $tableKey   = Arrays::value( $param, 'table_key'); 
@@ -26,7 +26,7 @@ class ColumnLogic
             $con[] = ['company_id','in',['',$companyId]];
         }
         $info = ScolumnService::find($con);
-        $info2 = $this->getDetail($info);      
+        $info2 = self::getDetail($info);      
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换
@@ -35,16 +35,16 @@ class ColumnLogic
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
-    public function tableNameColumn( $param )
+    public static function tableNameColumn( $param )
     {
         $con[]  = ['table_name','=',Arrays::value( $param, 'table_name')];
         $info   = ScolumnService::find($con);
-        $info2  = $this->getDetail($info);   
+        $info2  = self::getDetail($info);   
         //字段转换
         return self::scolumnCov($info2);
     }
     
-    public function tableHasRecord( $param )
+    public static function tableHasRecord( $param )
     {
         $tableName  = Arrays::value( $param, 'tableName');
         $con[]      = ['table_name','=',$tableName];
@@ -54,16 +54,16 @@ class ColumnLogic
     /**
      * 信息
      */
-    public function info( $param )
+    public static function info( $param )
     {
         $id     = Arrays::value( $param, 'id');
         $info   = ScolumnService::getInstance($id)->get();
-        return $this->getDetail($info);      
+        return self::getDetail($info);      
     }
     /*
      * 取详细信息
      */
-    private function getDetail( $info )
+    private static function getDetail( $info )
     {
         if(!$info){
             return false;
