@@ -19,7 +19,7 @@ class SystemColumnBlockService implements MainModelInterface
         foreach($info as &$v){
             $con1               = [];
             $con1[]             = ['block_id','=',$v['id']];
-            $tablesInfo         = SystemColumnBlockTableFieldsService::column("*","table_name");
+            $tablesInfo         = SystemColumnBlockTableFieldsService::mainModel()->where($con1)->column("*","table_name");
             $v['tablesInfo']    = $tablesInfo;
         }
         return $info;
