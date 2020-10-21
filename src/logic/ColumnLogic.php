@@ -83,7 +83,7 @@ class ColumnLogic
         //页面板块布局
         $con4[] = ['column_id','=',$info['id']];
         $con4[] = ['status','=',1];
-        $info['blockInfo']    = ScolumnBlockService::lists( $con4 );        
+        $info['blockInfo']    = ScolumnBlockService::listsInfo( $con4 );        
         
         return $info;
     }
