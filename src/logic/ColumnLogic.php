@@ -1,13 +1,16 @@
 <?php
 namespace xjryanse\system\logic;
 
+use Exception;
+use think\Db;
+use think\facade\Request;
 use xjryanse\logic\Arrays;
-use xjryanse\system\service\SystemColumnService as ScolumnService;
-use xjryanse\system\service\SystemColumnBtnService as ScolumnBtnService;
-use xjryanse\system\service\SystemColumnListService as ScolumnListService;
-use xjryanse\system\service\SystemColumnOperateService as ScolumnOperateService;
-use xjryanse\system\service\SystemColumnBlockService as ScolumnBlockService;
-
+use xjryanse\logic\SnowFlake;
+use xjryanse\system\service\SystemColumnService;
+use xjryanse\system\service\SystemColumnBtnService;
+use xjryanse\system\service\SystemColumnListService;
+use xjryanse\system\service\SystemColumnOperateService;
+use xjryanse\system\service\SystemColumnBlockService;
 /**
  * 字段逻辑
  */
@@ -25,7 +28,7 @@ class ColumnLogic
         if($companyId){
             $con[] = ['company_id','in',['',$companyId]];
         }
-        $info = ScolumnService::find($con);
+        $info = SystemColumnService::find($con);
         $info2 = self::getDetail($info);      
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
@@ -38,7 +41,7 @@ class ColumnLogic
     public static function tableNameColumn( $param )
     {
         $con[]  = ['table_name','=',Arrays::value( $param, 'table_name')];
-        $info   = ScolumnService::find($con);
+        $info   = SystemColumnService::find($con);
         $info2  = self::getDetail($info);   
         //字段转换
         return self::scolumnCov($info2);
@@ -48,7 +51,7 @@ class ColumnLogic
     {
         $tableName  = Arrays::value( $param, 'tableName');
         $con[]      = ['table_name','=',$tableName];
-        $info       = ScolumnService::find($con);
+        $info       = SystemColumnService::find($con);
         return $info;
     }
     /**
@@ -57,7 +60,7 @@ class ColumnLogic
     public static function info( $param )
     {
         $id     = Arrays::value( $param, 'id');
-        $info   = ScolumnService::getInstance($id)->get();
+        $info   = SystemColumnService::getInstance($id)->get();
         return self::getDetail($info);      
     }
     /*
@@ -71,19 +74,19 @@ class ColumnLogic
         //字段列
         $con1[] = ['column_id','=',$info['id']];
         $con1[] = ['status','=',1];
-        $info['listInfo']       = ScolumnListService::lists( $con1 );
+        $info['listInfo']       = SystemColumnListService::lists( $con1 );
         //按钮
         $con2[] = ['column_id','=',$info['id']];
         $con2[] = ['status','=',1];
-        $info['btnInfo']        = ScolumnBtnService::lists( $con2 );
+        $info['btnInfo']        = SystemColumnBtnService::lists( $con2 );
         //操作
         $con3[] = ['column_id','=',$info['id']];
         $con3[] = ['status','=',1];
-        $info['operateInfo']    = ScolumnOperateService::lists( $con3 );        
+        $info['operateInfo']    = SystemColumnOperateService::lists( $con3 );        
         //页面板块布局
         $con4[] = ['column_id','=',$info['id']];
         $con4[] = ['status','=',1];
-        $info['blockInfo']    = ScolumnBlockService::listsInfo( $con4 );        
+        $info['blockInfo']    = SystemColumnBlockService::listsInfo( $con4 );        
         
         return $info;
     }
@@ -93,12 +96,58 @@ class ColumnLogic
         if(isset( $res['listInfo'] )){
             //字段
             foreach($res['listInfo'] as $k=>&$v){
-                $v['option'] = ScolumnListService::optionCov( $v['type'], $v['option'] );
+                $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
             }
             //按钮
             foreach($res['btnInfo'] as $k=>&$v){
-                $v = ScolumnBtnService::btnCov( $v );
+                $v = SystemColumnBtnService::btnCov( $v );
             }
+        }
+        return $res;
+    }
+    /**
+     * 生成表信息
+     */
+    public static function generate( $table )
+    {
+        $param['tableName'] = $table;
+        if( self::tableHasRecord( $param ) ){
+            throw new Exception('数据表已存在，不支持重复生成');
+        }
+        //取数据表字段
+        $columns    = Db::table('information_schema.columns')->field('column_name')->where('table_name',$table)->column('column_name');
+        if(!$columns){
+            throw new Exception('数据表不存在，或没有字段，不能生成');
+        }
+        //总表
+        $data['tableName']  = self::$columnTable;
+        $data['table_name'] = $table;
+        $data['app_id']     = session('scopeAppId');
+        $res = SystemColumnService::save( $data );
+        //字段
+        $tmp = [];
+        foreach($columns as $k=>$v){
+            $tmp[$k]['app_id']      = session('scopeAppId');
+            $tmp[$k]['column_id']   = $res['id'];
+            $tmp[$k]['name']        = $v;
+            $tmp[$k]['label']       = $v;
+            $tmp[$k]['type']    = ($v == 'id') ? 0 :'text';   //id隐藏域
+            $tmp[$k]['is_add']  = (in_array($v, ['id','create_time','update_time'])) ? 0 :1;   
+            $tmp[$k]['is_edit'] = (in_array($v, ['create_time','update_time'])) ? 0 :1;
+            //TODO优化
+            SystemColumnListService::save( $tmp[$k] );
+        }
+
+        //保存默认的操作信息
+        $operateKeys    = ['add'=>'添加','edit'=>'编辑','delete'=>'删除','copy'=>'复制','export'=>'导出','import'=>'导入'];
+        foreach( $operateKeys as $k=>$v){
+            $tmpp = [];
+            $tmpp['app_id']         = session('scopeAppId');
+            $tmpp['id']             = SnowFlake::generateParticle();
+            $tmpp['column_id']      = $res['id'];
+            $tmpp['operate_key']    = $k;
+            $tmpp['operate_name']   = $v;
+            SystemColumnOperateService::save( $tmpp );
         }
         return $res;
     }
