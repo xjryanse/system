@@ -3,7 +3,6 @@ namespace xjryanse\system\logic;
 
 use Exception;
 use think\Db;
-use xjryanse\logic\Arrays;
 use xjryanse\system\service\SystemColumnService;
 use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
@@ -52,9 +51,9 @@ class ColumnLogic
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
-    public static function tableNameColumn( $param )
+    public static function tableNameColumn( $tableName )
     {
-        $con[]  = ['table_name','=',Arrays::value( $param, 'table_name')];
+        $con[]  = ['table_name','=',$tableName];
         $info   = SystemColumnService::find($con);
         $info2  = self::getDetail($info);   
         //字段转换
@@ -70,9 +69,8 @@ class ColumnLogic
     /**
      * 信息
      */
-    public static function info( $param )
+    public static function info( $id )
     {
-        $id     = Arrays::value( $param, 'id');
         $info   = SystemColumnService::getInstance($id)->get();
         return self::getDetail($info);      
     }
