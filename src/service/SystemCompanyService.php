@@ -24,4 +24,32 @@ class SystemCompanyService implements MainModelInterface
         $con[] = ['key','=',$key ];
         return self::find($con);
     }
+    /**
+     * key转id
+     * @param type $comKey
+     * @return type
+     */
+    public static function keyToId( $comKey )
+    {
+        $con[]      = [ 'key' , '=' , $comKey ];
+        $company    = self::find($con);
+        return $company ? $company['id'] : '' ;
+    }
+    /**
+     * 默认访问小程序acid
+     */
+    public function fWeAppId()
+    {
+        $info = $this->get();
+        return $info ? $info['we_app_id']: '';
+    }    
+    /**
+     * 默认访问公众号acid
+     */
+    public function fWePubId()
+    {
+        $info = $this->get();
+        return $info ? $info['we_pub_id']: '';
+    }
+
 }
