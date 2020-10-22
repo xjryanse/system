@@ -3,9 +3,7 @@ namespace xjryanse\system\logic;
 
 use Exception;
 use think\Db;
-use think\facade\Request;
 use xjryanse\logic\Arrays;
-use xjryanse\logic\SnowFlake;
 use xjryanse\system\service\SystemColumnService;
 use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
@@ -16,25 +14,41 @@ use xjryanse\system\service\SystemColumnBlockService;
  */
 class ColumnLogic
 {
-    //controller，table_key，取字段信息；getDefaultTable
-    public static function defaultColumn( $param )
+    /**
+     * 取默认表
+     * @param type $controller  控制器
+     * @param type $tableKey    表键
+     * @param type $companyId   公司id
+     * @return type
+     */
+    public static function defaultColumn(  $controller, $tableKey , $companyId = '')
     {
-        $controller = Arrays::value( $param, 'controller'); 
-        $tableKey   = Arrays::value( $param, 'table_key'); 
-        $companyId  = Arrays::value( $param, 'company_id');
-
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
         if($companyId){
             $con[] = ['company_id','in',['',$companyId]];
         }
-        $info = SystemColumnService::find($con);
-        $info2 = self::getDetail($info);      
+        $info   = SystemColumnService::find($con);
+        $info2  = self::getDetail($info);
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换
         return self::scolumnCov($info2);
     }
+    /**
+     * 获取搜索字段
+     */
+    public static function getSearchFields( $columnInfo )
+    {
+        $searchFields = [];
+        foreach($columnInfo['listInfo'] as $v) {
+            if($v['search_type'] >=0){
+                $searchFields[$v['search_type']][] = $v['name'];
+            }
+        }
+        return $searchFields;
+    }
+    
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
@@ -47,9 +61,8 @@ class ColumnLogic
         return self::scolumnCov($info2);
     }
     
-    public static function tableHasRecord( $param )
+    public static function tableHasRecord( $tableName )
     {
-        $tableName  = Arrays::value( $param, 'tableName');
         $con[]      = ['table_name','=',$tableName];
         $info       = SystemColumnService::find($con);
         return $info;
@@ -120,14 +133,11 @@ class ColumnLogic
             throw new Exception('数据表不存在，或没有字段，不能生成');
         }
         //总表
-        $data['tableName']  = self::$columnTable;
         $data['table_name'] = $table;
-        $data['app_id']     = session('scopeAppId');
         $res = SystemColumnService::save( $data );
         //字段
         $tmp = [];
         foreach($columns as $k=>$v){
-            $tmp[$k]['app_id']      = session('scopeAppId');
             $tmp[$k]['column_id']   = $res['id'];
             $tmp[$k]['name']        = $v;
             $tmp[$k]['label']       = $v;
@@ -142,8 +152,6 @@ class ColumnLogic
         $operateKeys    = ['add'=>'添加','edit'=>'编辑','delete'=>'删除','copy'=>'复制','export'=>'导出','import'=>'导入'];
         foreach( $operateKeys as $k=>$v){
             $tmpp = [];
-            $tmpp['app_id']         = session('scopeAppId');
-            $tmpp['id']             = SnowFlake::generateParticle();
             $tmpp['column_id']      = $res['id'];
             $tmpp['operate_key']    = $k;
             $tmpp['operate_name']   = $v;
