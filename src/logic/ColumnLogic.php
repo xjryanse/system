@@ -123,8 +123,7 @@ class ColumnLogic
      */
     public static function generate( $table )
     {
-        $param['tableName'] = $table;
-        if( self::tableHasRecord( $param ) ){
+        if( self::tableHasRecord( $table ) ){
             throw new Exception('数据表已存在，不支持重复生成');
         }
         //取数据表字段
