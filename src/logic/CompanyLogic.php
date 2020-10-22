@@ -18,10 +18,8 @@ class CompanyLogic
         if(!$comKey){
             throw new Exception('comKey必须');
         }
-        $con[] = ['app_id','=',session('scopeAppId')];
-        $con[] = ['key','=',$comKey];
-
-        return SystemCompanyService::find( $con );
+        
+        return SystemCompanyService::getByKey( $key );
     }
 
 

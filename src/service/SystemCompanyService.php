@@ -14,4 +14,14 @@ class SystemCompanyService implements MainModelInterface
     protected static $mainModel;
     protected static $mainModelClass    = '\\xjryanse\\system\\model\\SystemCompany';
 
+    /**
+     * 根据key取值
+     * @param type $key
+     * @return type
+     */
+    public static function getByKey( $key )
+    {
+        $con[] = ['key','=',$key ];
+        return self::find($con);
+    }
 }
