@@ -156,5 +156,16 @@ class ColumnLogic
         }
         return $res;
     }
-
+    
+    /**
+     * 表名，查询条件
+     * @param type $tableName
+     * @param type $con
+     */
+    public static function dynamicColumn( $tableName ,$field, $key ,$con = [])
+    {
+        //替换资源链接
+        $list = Db::table( $tableName )->where( $con )->column( $field, $key );
+        return $list;
+    }
 }
