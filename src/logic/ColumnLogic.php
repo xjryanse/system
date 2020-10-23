@@ -104,15 +104,33 @@ class ColumnLogic
     
     //字段转换
     private static function scolumnCov( &$res ){
-        if(isset( $res['listInfo'] )){
-            //字段
-            foreach($res['listInfo'] as $k=>&$v){
-                $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
+        if(!isset( $res['listInfo'] )){
+            return $res;
+        }
+        //字段
+        foreach($res['listInfo'] as $k=>&$v){
+            $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
+            //动态枚举项
+            if($v['type'] == 'dynenum'){
+                $arr            = $v['option'];
+                $arr['option']  = self::dynamicColumn( $arr['table_name'] ,$arr['value'], $arr['key']);
+                $v['option']    = $arr;
             }
-            //按钮
-            foreach($res['btnInfo'] as $k=>&$v){
-                $v = SystemColumnBtnService::btnCov( $v );
+            //联表数据
+            if( $v['type'] == 'union' ){
+                //参数
+                $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,false);
             }
+            //一级复选
+            if( $v['type'] == 'check'){
+                $arr            = $v['option'];
+                $arr['option']  = self::dynamicLists( $arr['table_name'] );
+                $v['option']    = $arr;
+            }
+        }
+        //按钮
+        foreach($res['btnInfo'] as $k=>&$v){
+            $v = SystemColumnBtnService::btnCov( $v );
         }
         return $res;
     }
@@ -168,4 +186,15 @@ class ColumnLogic
         $list = Db::table( $tableName )->where( $con )->column( $field, $key );
         return $list;
     }
+    
+    /**
+     * 表名，查询条件
+     * @param type $tableName
+     * @param type $con
+     */
+    public static function dynamicLists( $tableName ,$con = [])
+    {
+        $list = Db::table( $tableName )->where( $con )->select();
+        return $list;
+    }    
 }
