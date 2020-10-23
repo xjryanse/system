@@ -196,5 +196,5 @@ class ColumnLogic
     {
         $list = Db::table( $tableName )->where( $con )->select();
         return $list;
-    }    
+    }
 }
