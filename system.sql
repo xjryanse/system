@@ -1,12 +1,5 @@
 
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for w_system_app
--- ----------------------------
-DROP TABLE IF EXISTS `w_system_app`;
-CREATE TABLE `w_system_app`  (
+CREATE TABLE `ydzb_system_app`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用名称',
   `appid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用id',
@@ -25,10 +18,10 @@ CREATE TABLE `w_system_app`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务应用表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_code
+-- Table structure for ydzb_system_code
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_code`;
-CREATE TABLE `w_system_code`  (
+
+CREATE TABLE `ydzb_system_code`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` int(11) NULL DEFAULT 0,
   `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -39,10 +32,10 @@ CREATE TABLE `w_system_code`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '返回码清单' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_column
+-- Table structure for ydzb_system_column
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_column`;
-CREATE TABLE `w_system_column`  (
+
+CREATE TABLE `ydzb_system_column`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -71,10 +64,10 @@ CREATE TABLE `w_system_column`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_column_block
+-- Table structure for ydzb_system_column_block
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_column_block`;
-CREATE TABLE `w_system_column_block`  (
+
+CREATE TABLE `ydzb_system_column_block`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -101,20 +94,47 @@ CREATE TABLE `w_system_column_block`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据块表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_column_btn
+-- Table structure for ydzb_system_column_block_table_fields
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_column_btn`;
-CREATE TABLE `w_system_column_btn`  (
+
+CREATE TABLE `ydzb_system_column_block_table_fields`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `block_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '字段id',
+  `main_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '主表字段',
+  `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联表名',
+  `table_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '关联字段',
+  `fields` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '展示字段，逗号分隔',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '表字段' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for ydzb_system_column_btn
+-- ----------------------------
+
+CREATE TABLE `ydzb_system_column_btn`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `column_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '表id',
+  `block_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'block_id，具体板块的操作按钮',
   `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '按钮名',
   `confirm` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '操作确认',
-  `o_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT 'jump:本页跳链，mainpop本页弹窗，blank新窗口\r\nlistpop:列表按钮弹窗',
+  `o_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT 'jump:本页跳链，\r\nmainpop本页弹窗，\r\nblank新窗口\r\nlistpop:列表弹窗\r\nlistoperate:列表操作（带确认）',
   `style` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '按钮样式：eg:layui-btn-normal',
   `icon` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '按钮图标：eg:fa-user',
-  `url` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '地址',
+  `url` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '地址:内嵌参数拿主表数据',
   `param` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '参数json',
   `show_condition` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '显示条件',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
@@ -131,10 +151,10 @@ CREATE TABLE `w_system_column_btn`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段按钮表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_column_list
+-- Table structure for ydzb_system_column_list
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_column_list`;
-CREATE TABLE `w_system_column_list`  (
+
+CREATE TABLE `ydzb_system_column_list`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -153,6 +173,7 @@ CREATE TABLE `w_system_column_list`  (
   `is_import_must` tinyint(1) NULL DEFAULT 0 COMMENT '是否导入必填，0否，1是，导入时，需要表单预填的基础信息',
   `is_span_company` tinyint(1) NULL DEFAULT NULL COMMENT '是否跨公司？0否，1是。用于跨公司查询数据',
   `width` int(11) NULL DEFAULT 100 COMMENT '列表中的默认宽度',
+  `form_col` int(2) NULL DEFAULT NULL COMMENT '2-12',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -167,10 +188,10 @@ CREATE TABLE `w_system_column_list`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段明细表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_column_operate
+-- Table structure for ydzb_system_column_operate
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_column_operate`;
-CREATE TABLE `w_system_column_operate`  (
+
+CREATE TABLE `ydzb_system_column_operate`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -195,10 +216,10 @@ CREATE TABLE `w_system_column_operate`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段操作表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_company
+-- Table structure for ydzb_system_company
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_company`;
-CREATE TABLE `w_system_company`  (
+
+CREATE TABLE `ydzb_system_company`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公司名称',
@@ -215,8 +236,8 @@ CREATE TABLE `w_system_company`  (
   `fr_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '法人姓名',
   `fr_mobile` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '法人手机',
   `key` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '接口访问key',
-  `wechat_mini_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '小程序appid',
-  `wechat_acid` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公众号acid',
+  `we_app_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '小程序appid',
+  `we_pub_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公众号acid',
   `create_company_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建公司',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -231,10 +252,10 @@ CREATE TABLE `w_system_company`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '公司端口表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_configs
+-- Table structure for ydzb_system_configs
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_configs`;
-CREATE TABLE `w_system_configs`  (
+
+CREATE TABLE `ydzb_system_configs`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -258,10 +279,10 @@ CREATE TABLE `w_system_configs`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '配置表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_error_log
+-- Table structure for ydzb_system_error_log
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_error_log`;
-CREATE TABLE `w_system_error_log`  (
+
+CREATE TABLE `ydzb_system_error_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用id',
   `url` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '请求url',
@@ -290,10 +311,10 @@ CREATE TABLE `w_system_error_log`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '错误记录表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_export_log
+-- Table structure for ydzb_system_export_log
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_export_log`;
-CREATE TABLE `w_system_export_log`  (
+
+CREATE TABLE `ydzb_system_export_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -319,10 +340,10 @@ CREATE TABLE `w_system_export_log`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据导出记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_file
+-- Table structure for ydzb_system_file
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_file`;
-CREATE TABLE `w_system_file`  (
+
+CREATE TABLE `ydzb_system_file`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `appid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用id',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公司id',
@@ -347,10 +368,10 @@ CREATE TABLE `w_system_file`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务附件表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for w_system_log
+-- Table structure for ydzb_system_log
 -- ----------------------------
-DROP TABLE IF EXISTS `w_system_log`;
-CREATE TABLE `w_system_log`  (
+
+CREATE TABLE `ydzb_system_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用id',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '公司id',
@@ -374,4 +395,33 @@ CREATE TABLE `w_system_log`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '访问日志' ROW_FORMAT = Compact;
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- ----------------------------
+-- Table structure for ydzb_system_scan_log
+-- ----------------------------
+
+CREATE TABLE `ydzb_system_scan_log`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `rec_user_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '推荐用户',
+  `user_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '浏览用户',
+  `scan_item` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '浏览项目：商标、网店',
+  `scan_item_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '浏览项目id',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `rec_user_id`(`rec_user_id`) USING BTREE,
+  INDEX `user_id`(`user_id`) USING BTREE,
+  INDEX `scan_item`(`scan_item`) USING BTREE,
+  INDEX `scan_item_id`(`scan_item_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '浏览记录表' ROW_FORMAT = Compact;
