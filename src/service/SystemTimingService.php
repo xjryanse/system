@@ -3,7 +3,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\service\SystemTimingLogService;
-use xjryanse\curl\Query;
+use xjryanse\curl\Call;
 use think\facade\Request;
 /**
  * 系统定时器
@@ -37,7 +37,7 @@ class SystemTimingService implements MainModelInterface
             //请求日志记录
             SystemTimingLogService::save($data);
             //执行请求动作
-            Query::geturl( $info['url'] );
+            Call::get( $info['url'] );
         }
     }
     
