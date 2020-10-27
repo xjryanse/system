@@ -1,5 +1,12 @@
 
-CREATE TABLE `ydzb_system_app`  (
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for w_system_app
+-- ----------------------------
+
+CREATE TABLE `w_system_app`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用名称',
   `appid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用id',
@@ -18,10 +25,60 @@ CREATE TABLE `ydzb_system_app`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务应用表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_code
+-- Table structure for w_system_async_operate
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_code`  (
+CREATE TABLE `w_system_async_operate`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '表名',
+  `last_table_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '末次执行取的记录id',
+  `last_run_time` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '末次执行取值时间',
+  `within_seconds` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '只取最近指定秒数内的记录，防误',
+  `class_method` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '执行的类库/方法名',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统单线程异步实施类库' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_cate
+-- ----------------------------
+
+CREATE TABLE `w_system_cate`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `group_key` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分组key',
+  `cate_key` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分类key',
+  `cate_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分类名',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统分类表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_code
+-- ----------------------------
+
+CREATE TABLE `w_system_code`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` int(11) NULL DEFAULT 0,
   `desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
@@ -32,10 +89,10 @@ CREATE TABLE `ydzb_system_code`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '返回码清单' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column
+-- Table structure for w_system_column
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column`  (
+CREATE TABLE `w_system_column`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -64,10 +121,10 @@ CREATE TABLE `ydzb_system_column`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column_block
+-- Table structure for w_system_column_block
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column_block`  (
+CREATE TABLE `w_system_column_block`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -94,10 +151,10 @@ CREATE TABLE `ydzb_system_column_block`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据块表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column_block_table_fields
+-- Table structure for w_system_column_block_table_fields
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column_block_table_fields`  (
+CREATE TABLE `w_system_column_block_table_fields`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -120,10 +177,10 @@ CREATE TABLE `ydzb_system_column_block_table_fields`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '表字段' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column_btn
+-- Table structure for w_system_column_btn
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column_btn`  (
+CREATE TABLE `w_system_column_btn`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -151,10 +208,10 @@ CREATE TABLE `ydzb_system_column_btn`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段按钮表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column_list
+-- Table structure for w_system_column_list
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column_list`  (
+CREATE TABLE `w_system_column_list`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -188,10 +245,10 @@ CREATE TABLE `ydzb_system_column_list`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段明细表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_column_operate
+-- Table structure for w_system_column_operate
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_column_operate`  (
+CREATE TABLE `w_system_column_operate`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -216,10 +273,10 @@ CREATE TABLE `ydzb_system_column_operate`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段操作表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_company
+-- Table structure for w_system_company
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_company`  (
+CREATE TABLE `w_system_company`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公司名称',
@@ -252,10 +309,10 @@ CREATE TABLE `ydzb_system_company`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '公司端口表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_configs
+-- Table structure for w_system_configs
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_configs`  (
+CREATE TABLE `w_system_configs`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -279,10 +336,10 @@ CREATE TABLE `ydzb_system_configs`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '配置表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_error_log
+-- Table structure for w_system_error_log
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_error_log`  (
+CREATE TABLE `w_system_error_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用id',
   `url` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '请求url',
@@ -311,10 +368,10 @@ CREATE TABLE `ydzb_system_error_log`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '错误记录表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_export_log
+-- Table structure for w_system_export_log
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_export_log`  (
+CREATE TABLE `w_system_export_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -340,10 +397,10 @@ CREATE TABLE `ydzb_system_export_log`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据导出记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_file
+-- Table structure for w_system_file
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_file`  (
+CREATE TABLE `w_system_file`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `appid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用id',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '公司id',
@@ -368,10 +425,10 @@ CREATE TABLE `ydzb_system_file`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务附件表' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_log
+-- Table structure for w_system_log
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_log`  (
+CREATE TABLE `w_system_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '应用id',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '公司id',
@@ -396,10 +453,10 @@ CREATE TABLE `ydzb_system_log`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '访问日志' ROW_FORMAT = Compact;
 
 -- ----------------------------
--- Table structure for ydzb_system_scan_log
+-- Table structure for w_system_scan_log
 -- ----------------------------
 
-CREATE TABLE `ydzb_system_scan_log`  (
+CREATE TABLE `w_system_scan_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
@@ -425,3 +482,58 @@ CREATE TABLE `ydzb_system_scan_log`  (
   INDEX `scan_item`(`scan_item`) USING BTREE,
   INDEX `scan_item_id`(`scan_item_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '浏览记录表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_timing
+-- ----------------------------
+
+CREATE TABLE `w_system_timing`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `module` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模块',
+  `controller` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '控制器',
+  `action` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '方法',
+  `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '定时任务名称',
+  `describe` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '定时任务说明',
+  `spacing` int(11) NULL DEFAULT NULL COMMENT '最少间隔秒数(s)',
+  `last_run_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '定时器末次调用时间',
+  `last_execute_timestamp` int(11) NULL DEFAULT 0 COMMENT '程序末次执行时间（相应脚本中写入）',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '异步定时器类库' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_timing_log
+-- ----------------------------
+
+CREATE TABLE `w_system_timing_log`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `timing_id` int(11) NULL DEFAULT 0 COMMENT 'id',
+  `url` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '地址',
+  `ip` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '请求ip',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '异步定时任务日志' ROW_FORMAT = Compact;
+
+SET FOREIGN_KEY_CHECKS = 1;
