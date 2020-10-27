@@ -12,32 +12,4 @@ class SystemAsyncOperateService implements MainModelInterface
 
     protected static $mainModel;
     protected static $mainModelClass    = '\\xjryanse\\system\\model\\SystemAsyncOperate';
-    
-    /**
-     * 区间添加的记录
-     * @param type $lastRunId   上次执行到哪条记录  
-     * @param type $thisRunId   本次需要执行到哪条记录
-     * @param type $con
-     */
-    public static function getWithinAdds( $lastRunId, $thisRunId ,$con = [])
-    {
-        $con[] = [ 'id','>',$lastRunId];
-        $con[] = [ 'id','<=',$thisRunId];
-        return self::mainModel()->where($con)->select();
-    }
-    /**
-     * 获取区间数据更新记录
-     * @param type $lastRunId   上次执行到哪条记录
-     * @param type $lastRunTime 上次执行的时间
-     * @param type $con
-     * @return type
-     */
-    public static function getWithinUpdates( $lastRunId, $lastRunTime ,$con = [])
-    {
-        $con[]  = ['id','<',$lastRunId ];
-        $con[]  = ['update_time','>=',$lastRunTime ];
-        return self::mainModel()->where($con)->select();
-    }
-    
-    
 }
