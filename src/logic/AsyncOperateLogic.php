@@ -9,12 +9,8 @@ use think\Db;
  */
 class AsyncOperateLogic
 {
-    
     protected $classReflects = [
-        //发送模板消息
-        'sendTemplateMsg'   => '\\app\\webapi\\logic\\OrdersTmAuthPlateLogic',    //商标授权
-        //发送socket消息
-        'sendSocketMsg'     => '\\app\\webapi\\logic\\OrdersTmRentPlateLogic',    //商标租用
+
     ];
     /**
      * 构造函数，实例化传入映射类库
@@ -25,6 +21,21 @@ class AsyncOperateLogic
             //映射类库
             $this -> classReflects = array_merge($this->classReflects,$classReflects);
         }
+    }
+    
+    /**
+     * 生成映射类库，用于注入本类进行实例化
+     * @param type $methods     方法名
+     * @param type $namespace   命名空间
+     * @return string
+     */
+    public static function reflectClass ( $methods ,$namespace =  '\\app\\system\\AsyncOperate\\' )
+    {
+        $reflects = [];
+        foreach( $methods as $method){
+            $reflects[ $method ]    =  $namespace. ucfirst( $method );
+        }
+        return $reflects;
     }
     
     /**
