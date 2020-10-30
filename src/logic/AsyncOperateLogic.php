@@ -61,6 +61,10 @@ class AsyncOperateLogic
             $thisRunTime    = date('Y-m-d H:i:s');
             $tableName      = $v['table_name'];
             $operateKey     = $v['operate_key'];
+            if(!$thisRunId){
+                continue;
+            }
+            
             //先将本次执行时间写入数据库
             $data       = [];
             $data['last_table_id']   = $thisRunId;
