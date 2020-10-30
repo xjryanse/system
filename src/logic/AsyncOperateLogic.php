@@ -114,6 +114,8 @@ class AsyncOperateLogic
     {
         $con[] = [ 'id','>',$lastRunId ];
         $con[] = [ 'id','<=',$thisRunId ];
+        //最多只取12小时
+        $con[] = ['create_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
         return Db::table( $tableName )->where( $con )->select();
     }
     /**
@@ -127,6 +129,8 @@ class AsyncOperateLogic
     {
         $con[]  = ['id','<',$lastRunId ];
         $con[]  = ['update_time','>=',$lastRunTime ];
+        //最多只取12小时
+        $con[]  = ['update_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
         return Db::table( $tableName )->where( $con )->select();
     }
 
