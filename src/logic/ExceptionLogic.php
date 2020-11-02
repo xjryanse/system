@@ -21,7 +21,8 @@ class ExceptionLogic extends Handle
             //事务回滚
             Db::rollback();
         }
-        return $this->codeReturn( $e->getCode(), $e->getMessage() );
+        //有错误的用1
+        return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() );
         //TODO::开发者对异常的操作
         //可以在此交由系统处理
 //        return parent::render($e);
