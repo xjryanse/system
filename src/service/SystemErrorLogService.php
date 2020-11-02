@@ -27,8 +27,8 @@ class SystemErrorLogService implements MainModelInterface
         $data['line']    = $e->getLine();
         $data['code']    = $e->getCode();
         $data['trace']   = $e->getTraceAsString();
-        $data['o_company_id']   = session('scopeCompanyId');
-        $data['o_user_id']   = session('scopeUserId');
+        $data['o_company_id']   = session(SESSION_COMPANY_ID);
+        $data['o_user_id']   = session(SESSION_USER_ID);
         $data['o_ip']    = Request::ip();
         //错误日志入库
         return self::save($data);

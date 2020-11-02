@@ -19,7 +19,7 @@ class CompanyLogic
     public static function hasCompany()
     {
         //从checkCompany搬过来-开始
-        $comKey     = Request::param('comKey','') ? : session('scopeCompanyKey');
+        $comKey     = Request::param('comKey','') ? : session(SESSION_COMPANY_KEY);
         if( !$comKey ){
             throw new Exception('请求入口错误');
         }
@@ -27,8 +27,8 @@ class CompanyLogic
         if( !$info){
             throw new Exception('未找到company信息');
         }
-        session('scopeCompanyKey',$comKey);
-        session('scopeCompanyId',$info['id']);        
+        session(SESSION_COMPANY_KEY,$comKey);
+        session(SESSION_COMPANY_ID,$info['id']);        
         return $info;
     }
 
