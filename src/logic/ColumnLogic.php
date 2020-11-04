@@ -132,8 +132,8 @@ class ColumnLogic
             //动态树
             if( $v['type'] == FR_COL_TYPE_DYNTREE ){
                 $arr            = $v['option'];
-                //配套leg_tree--2.1 前端使用
-                $arr['option']  = self::makeTree(  self::dynamicLists( $arr['table_name'] ) , '', $arr['pid_field'] ? : 'pid', 'children');
+                //配套树状前端使用
+                $arr['option']  = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
                 $v['option']    = $arr;
             }
         }
