@@ -23,8 +23,8 @@ class SystemColumnListService implements MainModelInterface
         if($type == 'enum'){
             return  $optionStr ? json_decode( $optionStr,true ) : [];
         }
-        //动态枚举项        //联表数据      二级复选，一级复选
-        if(in_array($type,['dynenum','union','subcheck','check'])){
+        //动态枚举项        //联表数据      二级复选，一级复选,动态树
+        if(in_array($type,[ FR_COL_TYPE_DYNENUM ,'union','subcheck', FR_COL_TYPE_CHECK,FR_COL_TYPE_DYNTREE])){
             $arr            = equalsToKeyValue( $optionStr , '&');
             return $arr;
         }

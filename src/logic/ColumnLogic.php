@@ -14,6 +14,7 @@ use xjryanse\logic\DbOperate;
  */
 class ColumnLogic
 {
+    use \xjryanse\traits\TreeTrait;
     /**
      * 取默认表
      * @param type $controller  控制器
@@ -112,7 +113,7 @@ class ColumnLogic
         foreach($res['listInfo'] as $k=>&$v){
             $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
             //动态枚举项
-            if($v['type'] == 'dynenum'){
+            if($v['type'] == FR_COL_TYPE_DYNENUM ){
                 $arr            = $v['option'];
                 $arr['option']  = self::dynamicColumn( $arr['table_name'] ,$arr['value'], $arr['key']);
                 $v['option']    = $arr;
@@ -123,9 +124,16 @@ class ColumnLogic
                 $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,false);
             }
             //一级复选
-            if( $v['type'] == 'check'){
+            if( $v['type'] == FR_COL_TYPE_CHECK ){
                 $arr            = $v['option'];
                 $arr['option']  = self::dynamicLists( $arr['table_name'] );
+                $v['option']    = $arr;
+            }
+            //动态树
+            if( $v['type'] == FR_COL_TYPE_DYNTREE ){
+                $arr            = $v['option'];
+                //配套leg_tree--2.1 前端使用
+                $arr['option']  = self::makeTree(  self::dynamicLists( $arr['table_name'] ) , '', $arr['pid_field'] ? : 'pid', 'children');
                 $v['option']    = $arr;
             }
         }
