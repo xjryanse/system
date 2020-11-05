@@ -89,21 +89,15 @@ class ColumnLogic
         $con1[] = ['status','=',1];
         $info['listInfo']       = SystemColumnListService::lists( $con1 );
         //按钮
-        $con2[] = ['column_id','=',$info['id']];
-        $con2[] = ['status','=',1];
-        $info['btnInfo']        = SystemColumnBtnService::lists( $con2 );
+        $info['btnInfo']        = SystemColumnBtnService::lists( $con1 );
         //操作
-        $con3[] = ['column_id','=',$info['id']];
-        $con3[] = ['status','=',1];
-        $info['operateInfo']    = SystemColumnOperateService::lists( $con3 );        
+        $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
-        $con4[] = ['column_id','=',$info['id']];
-        $con4[] = ['status','=',1];
-        $info['blockInfo']    = SystemColumnBlockService::listsInfo( $con4 );        
-        
+        $info['blockInfo']      = SystemColumnBlockService::listsInfo( $con1 );        
+
         return $info;
     }
-    
+
     //字段转换
     private static function scolumnCov( &$res ){
         if(!isset( $res['listInfo'] )){
@@ -135,7 +129,7 @@ class ColumnLogic
                 //配套树状前端使用
                 $arr['option']  = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
                 $v['option']    = $arr;
-            }
+            }            
         }
         //按钮
         foreach($res['btnInfo'] as $k=>&$v){

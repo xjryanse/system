@@ -25,8 +25,16 @@ class SystemColumnListService implements MainModelInterface
             return  $optionStr ? json_decode( $optionStr,true ) : [];
         }
         //动态枚举项        //联表数据      二级复选，一级复选,动态树
-        if(in_array($type,[ FR_COL_TYPE_DYNENUM ,'union','subcheck', FR_COL_TYPE_CHECK,FR_COL_TYPE_DYNTREE])){
+        if(in_array($type,[ FR_COL_TYPE_DYNENUM ,'union','subcheck', FR_COL_TYPE_CHECK,FR_COL_TYPE_DYNTREE,FR_COL_TYPE_TPLSET ])){
             $arr            = equalsToKeyValue( $optionStr , '&');
+            //模板的条件
+            if(isset( $arr[ FR_OPT_TPL_COND])){
+                $arr[ FR_OPT_TPL_COND] = json_decode($arr[ FR_OPT_TPL_COND],JSON_UNESCAPED_UNICODE );
+            }
+            //主表的条件
+            if(isset( $arr[ FR_OPT_MAIN_COND])){
+                $arr[ FR_OPT_MAIN_COND] = json_decode($arr[ FR_OPT_MAIN_COND],JSON_UNESCAPED_UNICODE );
+            }
             return $arr;
         }
         return $optionStr;
