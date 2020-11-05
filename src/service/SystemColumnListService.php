@@ -2,6 +2,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use think\Db;
 
 /**
  * 字段明细
