@@ -53,7 +53,7 @@ class SystemColumnListService implements MainModelInterface
      * @param type $preData         预赋值数据
      * @return array
      */
-    public function templateGroupSet( $tplTable, $tplMainKey, $tplGroupKey,$tplDataKey, $mainTable ,$mainDataKey, $tplCond = [] , $mainTableCond=[], $preData=[] )
+    public static function templateGroupSet( $tplTable, $tplMainKey, $tplGroupKey,$tplDataKey, $mainTable ,$mainDataKey, $tplCond = [] , $mainTableCond=[], $preData=[] )
     {
         //模板表数据
         $tpls   = Db::table( $tplTable )->where( $tplCond )->select( );
