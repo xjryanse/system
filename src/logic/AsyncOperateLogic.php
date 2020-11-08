@@ -73,7 +73,7 @@ class AsyncOperateLogic
             //新增的数据 用id进行比较
             $this->addOperate($lastRunId, $thisRunId, $tableName, $operateKey);
             //更新的数据
-            $this->updateOperate($lastRunId, $lastRunTime, $tableName, $operateKey);
+            $this->updateOperate($lastRunId, $lastRunTime,$thisRunTime, $tableName, $operateKey);
         }
     }
     /**
@@ -94,11 +94,10 @@ class AsyncOperateLogic
     /**
      * 更新时执行操作类库
      */
-    protected function updateOperate( $lastRunId,$lastRunTime,$tableName, $operateKey )
+    protected function updateOperate( $lastRunId, $lastRunTime, $thisRunTime, $tableName, $operateKey )
     {
         //新增的数据 用id进行比较
-        $updateLists       = self::withinUpdates( $tableName, $lastRunId, $lastRunTime );
-
+        $updateLists       = self::withinUpdates( $tableName, $lastRunId, $lastRunTime ,$thisRunTime);
         foreach( $updateLists as $v){
             if(!isset( $this->classReflects[ $operateKey ] )){
                 continue;
@@ -129,10 +128,11 @@ class AsyncOperateLogic
      * @param type $con
      * @return type
      */
-    protected static function withinUpdates( $tableName, $lastRunId, $lastRunTime ,$con = [])
+    protected static function withinUpdates( $tableName, $lastRunId, $lastRunTime ,$thisRunTime, $con = [])
     {
         $con[]  = ['id','<',$lastRunId ];
         $con[]  = ['update_time','>=',$lastRunTime ];
+        $con[]  = ['update_time','<',$thisRunTime ];
         //最多只取12小时
         $con[]  = ['update_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
         return Db::table( $tableName )->where( $con )->select();
