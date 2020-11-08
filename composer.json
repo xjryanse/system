@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "phpoffice/phpspreadsheet": "^1.15"
+        "phpoffice/phpspreadsheet": "^1.15",
+        "xjryanse/logic": "0.0.*"
     },
     "license": "MIT",
     "autoload": {
