@@ -135,7 +135,7 @@ class SystemFileService implements MainModelInterface
      * @param type $data    数据
      * @return type
      */
-    private static function uplSave( $info ,$path='' ,$data = [])
+    public static function uplSave( $info ,$path='' ,$data = [])
     {
         $data['file_path']      = str_replace('\\', '/', $path);
         $data['md5']            = $info->md5();
