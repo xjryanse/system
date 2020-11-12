@@ -1,3 +1,12 @@
+/*
+ Navicat Premium Data Transfer
+
+ Target Server Type    : MySQL
+ Target Server Version : 50648
+ File Encoding         : 65001
+
+ Date: 12/11/2020 16:41:06
+*/
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -34,9 +43,9 @@ CREATE TABLE `w_system_async_operate`  (
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '表名',
   `last_table_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '末次执行取的记录id',
-  `last_run_time` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '末次执行取值时间',
+  `last_run_time` datetime(0) NULL DEFAULT NULL COMMENT '末次执行取值时间',
   `within_seconds` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '只取最近指定秒数内的记录，防误',
-  `class_method` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '执行的类库/方法名',
+  `operate_key` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作key',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -107,6 +116,8 @@ CREATE TABLE `w_system_column`  (
   `yearmonth_field` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '年月字段',
   `source` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '资源位置：\r\n\'\'当前\r\n\'user\'用户,\r\n\'access\'权限,\r\n\'system\'系统,\r\n\'busi\'业务',
   `block_width` int(11) NULL DEFAULT 12 COMMENT '块宽度',
+  `uni_del` int(1) NULL DEFAULT 0 COMMENT '是否开启主表的联表删除:0否；1是',
+  `uni_deleted` int(1) NULL DEFAULT NULL COMMENT '是否允许联表被删：0否；1是',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -131,7 +142,7 @@ CREATE TABLE `w_system_column_block`  (
   `column_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '字段id',
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标题',
   `main_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '主表字段',
-  `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联表名',
+  `table_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联表名',
   `table_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '关联字段',
   `union_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联类型：1v1 一对一;1vn 一对多',
   `show_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '展示方式：list 列表; info 信息',
@@ -229,7 +240,9 @@ CREATE TABLE `w_system_column_list`  (
   `is_export` tinyint(1) NULL DEFAULT 1 COMMENT '是否导出？0否，1是',
   `is_import_must` tinyint(1) NULL DEFAULT 0 COMMENT '是否导入必填，0否，1是，导入时，需要表单预填的基础信息',
   `is_span_company` tinyint(1) NULL DEFAULT NULL COMMENT '是否跨公司？0否，1是。用于跨公司查询数据',
-  `width` int(11) NULL DEFAULT 100 COMMENT '列表中的默认宽度',
+  `list_style` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'center' COMMENT '列表位置：left:靠左；right:靠右；center:居中',
+  `min_width` int(11) NULL DEFAULT 10 COMMENT '最小宽度px;',
+  `width` int(11) NULL DEFAULT 100 COMMENT '列表中的最大宽度',
   `form_col` int(2) NULL DEFAULT NULL COMMENT '2-12',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
@@ -497,6 +510,7 @@ CREATE TABLE `w_system_timing`  (
   `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '定时任务名称',
   `describe` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '定时任务说明',
   `spacing` int(11) NULL DEFAULT NULL COMMENT '最少间隔秒数(s)',
+  `url` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
   `last_run_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '定时器末次调用时间',
   `last_execute_timestamp` int(11) NULL DEFAULT 0 COMMENT '程序末次执行时间（相应脚本中写入）',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
