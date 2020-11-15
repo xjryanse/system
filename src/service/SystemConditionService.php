@@ -18,21 +18,31 @@ class SystemConditionService implements MainModelInterface
     /*
      * itemid获取达成条件
      */
-    public static function listsByItemId( $itemId )
+    public static function listsByItemId( $itemId ,$param = [])
     {
         $con[] = ['item_id','in',$itemId ];
-        return self::lists($con,'group_id');
+        $lists =  self::lists($con,'group_id');
+        foreach( $param as $key=>$value){
+            $lists = json_decode( str_replace('{$'.$key.'}', $value, $lists ),true );
+        }
+        return $lists;
     }
     /**
      * itemKey获取达成条件
-     * @param type $itemId
+     * @param type $itemType
+     * @param type $itemKey
+     * @param type $param
      * @return type
      */
-    public static function listsByItemKey( $itemType, $itemKey )
+    public static function listsByItemKey( $itemType, $itemKey ,$param = [])
     {
         $con[] = ['item_type','in',$itemType ];
         $con[] = ['item_key','in',$itemKey ];
-        return self::lists($con,'group_id');
+        $lists =  self::lists($con,'group_id');
+        foreach( $param as $key=>$value){
+            $lists = json_decode( str_replace('{$'.$key.'}', $value, $lists ),true );
+        }
+        return $lists;
     }
     /**
      * 根据itemId,判断条件是否达成
@@ -40,8 +50,11 @@ class SystemConditionService implements MainModelInterface
     public static function isReachByItemId( $itemId, $param)
     {
         //条件
-        $conditions = self::listsByItemId( $itemId );
+        $conditions = self::listsByItemId( $itemId,$param );
+        $results    = self::conditionsGetResult($conditions);
+        //相同group的数据，全部为true，则true;
         
+        return $results;
     }
     /**
      * 根据itemKey，判断条件是否达成
@@ -52,9 +65,30 @@ class SystemConditionService implements MainModelInterface
     public static function isReachByItemKey( $itemType, $itemKey, $param )
     {
         //条件
-        $conditions = self::listsByItemKey( $itemType, $itemKey );
-        
+        $conditions = self::listsByItemKey( $itemType, $itemKey ,$param );
+        $results    = self::conditionsGetResult($conditions);
+        //相同group的数据，全部为true，则true;
+        return $results;
     }
-    
-    
+    /**
+     * 条件取结果
+     */
+    private static function conditionsGetResult( $conditions )
+    {
+        //结果集
+        $res = [];
+        foreach( $conditions as &$v){
+            $tmpResult      = Db::table( $v['judge_table'])->where( $v['judge_cond'] )->field( $v['judge_field'].' as result')->find();
+            $v['resVal']    = $tmpResult['result'];
+            $v['result']    = eval( "return ". $tmpResult['result'] . ' '. $v['judge_sign'] .' '. $v['judge_value'] .';' );
+            $res[$v['group_id']][] = $v['result'];
+        }
+        foreach( $res as $value ){
+            //某一组全为true（没有false）,说明条件达成，
+            if(!in_array(false, $value)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
