@@ -23,7 +23,10 @@ class SystemConditionService implements MainModelInterface
         $con[] = ['item_id','in',$itemId ];
         $lists =  self::lists($con,'group_id');
         foreach( $param as $key=>$value){
-            $lists = json_decode( str_replace('{$'.$key.'}', $value, $lists ),true );
+            $lists =  str_replace('{$'.$key.'}', $value, $lists );
+            if(!is_array($lists)){
+                $lists = json_decode( $lists,true);
+            }
         }
         return $lists;
     }
@@ -40,7 +43,10 @@ class SystemConditionService implements MainModelInterface
         $con[] = ['item_key','in',$itemKey ];
         $lists =  self::lists($con,'group_id');
         foreach( $param as $key=>$value){
-            $lists = json_decode( str_replace('{$'.$key.'}', $value, $lists ),true );
+            $lists =  str_replace('{$'.$key.'}', $value, $lists );
+            if(!is_array($lists)){
+                $lists = json_decode( $lists,true);
+            }
         }
         return $lists;
     }
