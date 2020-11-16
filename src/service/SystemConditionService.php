@@ -24,11 +24,8 @@ class SystemConditionService implements MainModelInterface
         $lists =  self::lists($con,'group_id');
         foreach( $param as $key=>$value){
             $lists =  str_replace('{$'.$key.'}', $value, $lists );
-            if(!is_array($lists)){
-                $lists = json_decode( $lists,true);
-            }
         }
-        return $lists;
+        return is_array($lists) ? $lists : json_decode( $lists,true);
     }
     /**
      * itemKey获取达成条件
@@ -44,11 +41,8 @@ class SystemConditionService implements MainModelInterface
         $lists =  self::lists($con,'group_id');
         foreach( $param as $key=>$value){
             $lists =  str_replace('{$'.$key.'}', $value, $lists );
-            if(!is_array($lists)){
-                $lists = json_decode( $lists,true);
-            }
         }
-        return $lists;
+        return is_array($lists) ? $lists : json_decode( $lists,true);
     }
     /**
      * 根据itemId,判断条件是否达成
@@ -72,6 +66,10 @@ class SystemConditionService implements MainModelInterface
     {
         //条件
         $conditions = self::listsByItemKey( $itemType, $itemKey ,$param );
+        dump($param);
+        dump($conditions);
+        throw new Exception('测试');
+        
         $results    = self::conditionsGetResult($conditions);
         //相同group的数据，全部为true，则true;
         return $results;
