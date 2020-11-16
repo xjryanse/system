@@ -11,6 +11,7 @@ class SystemConditionService implements MainModelInterface
 {
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\DebugTrait;
 
     protected static $mainModel;
     protected static $mainModelClass    = '\\xjryanse\\system\\model\\SystemCondition';
@@ -66,6 +67,7 @@ class SystemConditionService implements MainModelInterface
     {
         //条件
         $conditions = self::listsByItemKey( $itemType, $itemKey ,$param );
+        self::debug( __METHOD__.'$conditions', $conditions );
         $results    = self::conditionsGetResult($conditions);
         //相同group的数据，全部为true，则true;
         return $results;
