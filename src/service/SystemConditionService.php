@@ -66,10 +66,6 @@ class SystemConditionService implements MainModelInterface
     {
         //条件
         $conditions = self::listsByItemKey( $itemType, $itemKey ,$param );
-        dump($param);
-        dump($conditions);
-        throw new Exception('测试');
-        
         $results    = self::conditionsGetResult($conditions);
         //相同group的数据，全部为true，则true;
         return $results;
