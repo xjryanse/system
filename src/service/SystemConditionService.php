@@ -81,6 +81,7 @@ class SystemConditionService implements MainModelInterface
         $res = [];
         foreach( $conditions as &$v){
             $tmpResult      = Db::table( $v['judge_table'])->where( $v['judge_cond'] )->field( $v['judge_field'].' as result')->find();
+            self::debug( __METHOD__.'$tmpResultLastSql', Db::table( $v['judge_table'])->getLastSql() );
             $v['resVal']    = $tmpResult['result'];
             $v['result']    = eval( "return ". $tmpResult['result'] . ' '. $v['judge_sign'] .' '. $v['judge_value'] .';' );
             $res[$v['group_id']][] = $v['result'];

@@ -13,5 +13,13 @@ class SystemColumnService implements MainModelInterface
 
     protected static $mainModel;
     protected static $mainModelClass    = '\\xjryanse\\system\\model\\SystemColumn';
-
+    /**
+     * 表名取id
+     */
+    public static function tableNameGetId( $tableName )
+    {
+        $con[]  = ['table_name','=',$tableName];
+        $info   = self::find( $con ) ;
+        return $info ? $info['id'] : '';
+    }
 }
