@@ -14,4 +14,21 @@ class SystemConfigsService implements MainModelInterface
     protected static $mainModel;
     protected static $mainModelClass    = '\\xjryanse\\system\\model\\SystemConfigs';
 
+    /**
+     * 键值更新
+     * @param type $key
+     * @param type $value
+     */
+    public static function saveByKey( $key,$value)
+    {
+        $con[] = ['key','=',$key];
+        $info = self::find( $con );
+        if($info){
+            return self::getInstance($info['id'])->update(['value'=>$value]);
+        } else {
+            $data['key']    = $key;
+            $data['value']  = $value;
+            return self::save($data);
+        }
+    }
 }
