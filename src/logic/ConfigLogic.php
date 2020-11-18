@@ -57,7 +57,7 @@ class ConfigLogic
      * @param type $module  模块
      * @return string
      */
-    protected function configCond( $group="",$module="")
+    public static function configCond( $group="",$module="")
     {
         $con  = [];
         if( $group ){
