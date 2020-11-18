@@ -33,9 +33,9 @@ class ConfigLogic
     }
     
     /******以下用于后台管理配置******/
-    public static function getColumn()
+    public static function getColumn( $group="",$module="" )
     {
-        $lists = SystemConfigsService::lists( self::configCond() );
+        $lists = SystemConfigsService::lists( self::configCond( $group,$module ) );
         $listInfo = [];
         foreach($lists as $v){
             $tmp = [];
