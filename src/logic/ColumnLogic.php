@@ -105,31 +105,14 @@ class ColumnLogic
         }
         //字段
         foreach($res['listInfo'] as $k=>&$v){
-            $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
-            //动态枚举项
-            if($v['type'] == FR_COL_TYPE_DYNENUM ){
-                $arr            = $v['option'];
-                $arr['option']  = self::dynamicColumn( $arr['table_name'] ,$arr['value'], $arr['key']);
-                $v['option']    = $arr;
-            }
+//            $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
+            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] );
+
             //联表数据
             if( $v['type'] == 'union' ){
                 //参数
                 $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,false);
             }
-            //一级复选
-            if( $v['type'] == FR_COL_TYPE_CHECK ){
-                $arr            = $v['option'];
-                $arr['option']  = self::dynamicLists( $arr['table_name'] );
-                $v['option']    = $arr;
-            }
-            //动态树
-            if( $v['type'] == FR_COL_TYPE_DYNTREE ){
-                $arr            = $v['option'];
-                //配套树状前端使用
-                $arr['option']  = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
-                $v['option']    = $arr;
-            }            
         }
         //按钮
         foreach($res['btnInfo'] as $k=>&$v){
@@ -189,16 +172,5 @@ class ColumnLogic
         $list = Db::table( $tableName )->where( $con )->column( $field, $key );
         return $list;
     }
-    
-    /**
-     * 表名，查询条件
-     * @param type $tableName
-     * @param type $con
-     */
-    public static function dynamicLists( $tableName ,$con = [])
-    {
-        $service = DbOperate::getService($tableName);
-        $list = $service::lists( $con );
-        return $list;
-    }
+
 }

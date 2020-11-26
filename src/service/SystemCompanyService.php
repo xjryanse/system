@@ -19,6 +19,16 @@ class SystemCompanyService implements MainModelInterface
      * @param type $key
      * @return type
      */
+    public function getKey( )
+    {
+        $info = $this->get();
+        return $info ? $info['key'] : '';
+    }    
+    /**
+     * 根据key取值
+     * @param type $key
+     * @return type
+     */
     public static function getByKey( $key )
     {
         $con[] = ['key','=',$key ];
