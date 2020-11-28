@@ -1,10 +1,10 @@
 <?php
 namespace xjryanse\system\service\columnlist;
-
+use xjryanse\system\interfaces\ColumnListInterface;
 /**
  * 枚举
  */
-class Dynenum extends Base
+class Dynenum extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -16,6 +16,15 @@ class Dynenum extends Base
         $arr['option']  = self::dynamicColumn( $arr['table_name'] ,$arr['value'], $arr['key']);
         return $arr;
     }
-
+    
+    /**
+     * 获取数据
+     */
+    public static function getData( $data, $option)
+    {
+        
+        
+        
+    }
 }
 

@@ -1,11 +1,21 @@
 <?php
 namespace xjryanse\system\service\columnlist;
-
+use xjryanse\system\interfaces\ColumnListInterface;
 /**
  * 枚举
  */
-class Union extends Base
+class Union extends Base implements ColumnListInterface
 {
+        
+    /**
+     * 获取数据
+     */
+    public static function getData( $data, $option)
+    {
+        
+        
+        
+    }
     /**
      * 获取option
      * @param type $optionStr

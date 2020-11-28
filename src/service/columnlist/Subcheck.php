@@ -1,10 +1,10 @@
 <?php
 namespace xjryanse\system\service\columnlist;
-
+use xjryanse\system\interfaces\ColumnListInterface;
 /**
  * 枚举
  */
-class Subcheck extends Base
+class Subcheck extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -24,6 +24,16 @@ class Subcheck extends Base
             $arr[ FR_OPT_MAIN_COND] = json_decode($arr[ FR_OPT_MAIN_COND],JSON_UNESCAPED_UNICODE );
         }
         return $arr;
+    }
+        
+    /**
+     * 获取数据
+     */
+    public static function getData( $data, $option)
+    {
+        
+        
+        
     }
 }
 

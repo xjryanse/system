@@ -1,11 +1,11 @@
 <?php
 namespace xjryanse\system\service\columnlist;
-
+use xjryanse\system\interfaces\ColumnListInterface;
 use xjryanse\logic\DbOperate;
 /**
  * 枚举
  */
-class Dyntree extends Base
+class Dyntree extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -29,6 +29,17 @@ class Dyntree extends Base
         $arr['option']  = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
 
         return $arr;
+    }
+        
+    /**
+     * 获取数据
+     */
+    public static function getData( $data, $option)
+    {
+        $con   = [];
+        $con[] = [$option['option']['main_field'],'=',$data['id']];
+        $rr = self::dynamicColumn( $option['option']['to_table'], $option['name'], 'id',$con );
+        return array_values($rr);        
     }
 }
 

@@ -1,11 +1,11 @@
 <?php
 namespace xjryanse\system\service\columnlist;
-
+use xjryanse\system\interfaces\ColumnListInterface;
 use think\Db;
 /**
  * 模板设定
  */
-class Tplset extends Base
+class Tplset extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -25,6 +25,16 @@ class Tplset extends Base
             $arr[ FR_OPT_MAIN_COND] = json_decode($arr[ FR_OPT_MAIN_COND],JSON_UNESCAPED_UNICODE );
         }
         return $arr;
+    }
+        
+    /**
+     * 获取数据
+     */
+    public static function getData( $data, $option)
+    {
+        
+        
+        
     }
     
     /**

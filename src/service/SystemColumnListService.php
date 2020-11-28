@@ -21,8 +21,31 @@ class SystemColumnListService implements MainModelInterface
      */
     public static function getOption( $type, $optionStr )
     {
-        $class = '\\xjryanse\\system\\service\\columnlist\\'. ucfirst( $type );
+        $class = self::getClassStr( $type );
         return class_exists( $class ) ? $class::getOption( $optionStr ) : '' ;
     }
-    
+    /**
+     * 获取数据
+     * @param type $type        类型
+     * @param type $data        数据
+     * @param type $columnInfo  字段信息
+     * @return type
+     */
+    public static function getData( $type, $data, $columnInfo )
+    {
+        $class = self::getClassStr( $type );
+        if( class_exists( $class )  ){
+            return $class::getData( $data, $columnInfo  ) ;
+        } else {
+            return isset($data[$columnInfo['name']]) ? $data[$columnInfo['name']] : '';
+        }
+    }
+    /**
+     * 获取class
+     * @param type $type
+     */
+    private static function getClassStr( $type )
+    {
+        return '\\xjryanse\\system\\service\\columnlist\\'. ucfirst( $type );
+    }
 }
