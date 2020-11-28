@@ -12,9 +12,7 @@ class Union extends Base implements ColumnListInterface
      */
     public static function getData( $data, $option)
     {
-        
-        
-        
+        return isset($data[$option['name']]) ? $data[$option['name']] : '';
     }
     /**
      * 获取option

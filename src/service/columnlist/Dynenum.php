@@ -22,9 +22,7 @@ class Dynenum extends Base implements ColumnListInterface
      */
     public static function getData( $data, $option)
     {
-        
-        
-        
+        return isset($data[$option['name']]) ? $data[$option['name']] : '';
     }
 }
 
