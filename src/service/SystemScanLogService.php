@@ -30,8 +30,8 @@ class SystemScanLogService implements MainModelInterface
      */
     public static function staticsByDayScope( $startTime, $endTime )
     {
-        $startTime1  = date( 'Y-m-d H:i:s',strtotime( $startTime ));
-        $endTime1    = date( 'Y-m-d H:i:s',strtotime( $endTime )  );
+        $startTime1  = date( 'Y-m-d 00:00:00',strtotime( $startTime ));
+        $endTime1    = date( 'Y-m-d 23:59:59',strtotime( $endTime )  );
 
         $con[] = ['create_time','>=',  $startTime1 ];
         $con[] = ['create_time','<', $endTime1 ];
