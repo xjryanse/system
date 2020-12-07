@@ -28,6 +28,16 @@ class Tplset extends Base implements ColumnListInterface
     {
         return isset($data[$option['name']]) ? $data[$option['name']] : '';
     }
+    /**
+     * 保存数据
+     * @param type $data    原始的data
+     * @param type $columnInfo  选项
+     */
+    public static function saveData( $data, $columnInfo )
+    {
+        
+    }
+    
     
     /**
      * 模板分组设定值，适用于多维度的设置（如价格）

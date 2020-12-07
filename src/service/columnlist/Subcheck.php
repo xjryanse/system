@@ -27,5 +27,15 @@ class Subcheck extends Base implements ColumnListInterface
     {
         return isset($data[$option['name']]) ? $data[$option['name']] : '';
     }
+    /**
+     * 保存数据
+     * @param type $data    原始的data
+     * @param type $columnInfo  选项
+     */
+    public static function saveData( $data, $columnInfo )
+    {
+        
+    }
+    
 }
 

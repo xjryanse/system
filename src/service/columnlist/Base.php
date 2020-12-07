@@ -29,4 +29,27 @@ abstract class Base
         $list = $service::lists( $con );
         return $list;
     }
+    /**
+     * 关联表先删除后保存（角色，权限等）
+     * @param type $tableName       关联表名
+     * @param type $mainField       关联表主字段
+     * @param type $toField         关联表写入字段
+     * @param type $mainId          主id
+     * @param type $dataArr         数据数组
+     */
+    protected static function midDeleteAndSave( $tableName, $mainField, $toField, $mainId, $dataArr)
+    {
+        $con1[] = [ $mainField,'=', $mainId];
+        //先删再写
+        $class = DbOperate::getService( $tableName );
+        $class::mainModel()->where( $con1 )->delete();
+        foreach( $dataArr as $vv ){
+            //写资源
+            $tmpData    = [];
+            $tmpData[ $mainField ]    = $mainId ;
+            $tmpData[ $toField ]      = $vv;
+            //TODO优化为批量保存
+            $class::save( $tmpData );
+        }
+    }
 }

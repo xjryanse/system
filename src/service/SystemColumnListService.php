@@ -41,6 +41,19 @@ class SystemColumnListService implements MainModelInterface
         }
     }
     /**
+     * 中间表保存数据
+     */
+    public static function saveData( $type, $data, $columnInfo )
+    {
+        $class = self::getClassStr( $type );
+        if( class_exists( $class )  ){
+            return $class::saveData( $data, $columnInfo  ) ;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
      * 获取class
      * @param type $type
      */

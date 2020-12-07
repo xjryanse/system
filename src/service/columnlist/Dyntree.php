@@ -35,5 +35,19 @@ class Dyntree extends Base implements ColumnListInterface
         $rr = self::dynamicColumn( $option['option']['to_table'], $option['name'], 'id',$con );
         return array_values($rr);        
     }
+    /**
+     * 保存数据
+     * @param type $data    原始的data
+     * @param type $columnInfo  选项
+     */
+    public static function saveData( $data, $columnInfo )
+    {
+        return self::midDeleteAndSave( $columnInfo['option']['to_table'] 
+                , $columnInfo['option']['main_field'] 
+                , $columnInfo['option']['to_field']
+                , $data['id']
+                , $data[$columnInfo['name']]);  //一维数组，存了一堆id
+    }
+    
 }
 
