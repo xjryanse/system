@@ -8,7 +8,6 @@ use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
 use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
-use xjryanse\logic\DbOperate;
 /**
  * 字段逻辑
  */
@@ -55,17 +54,9 @@ class ColumnLogic
      */
     public static function tableNameColumn( $tableName,$fields='' )
     {
-        //是否只取某些字段
-        if($fields){
-            if(!is_array($fields)){
-                $fields = explode(',', $fields);
-            }
-            $con[] = ['', 'in' , $fields ];
-        }
-
-        $con[]  = ['table_name','=',$tableName];
-        $info   = SystemColumnService::find($con);
-        $info2  = self::getDetail($info);   
+        $con[]  = ['table_name','=',$tableName]     ;
+        $info   = SystemColumnService::find( $con ) ;
+        $info2  = self::getDetail( $info,$fields )  ;
         //字段转换
         return self::scolumnCov($info2);
     }
@@ -87,15 +78,24 @@ class ColumnLogic
     /*
      * 取详细信息
      */
-    private static function getDetail( $info )
+    private static function getDetail( $info, $fields='')
     {
         if(!$info){
             return false;
         }
+        //是否只取某些字段
+        $conField = [];
+        if($fields){
+            if(!is_array($fields)){
+                $fields = explode(',', $fields);
+            }
+            $conField[] = ['name', 'in' , $fields ];
+        }
         //字段列
         $con1[] = ['column_id','=',$info['id']];
         $con1[] = ['status','=',1];
-        $info['listInfo']       = SystemColumnListService::lists( $con1 );
+
+        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1 ) : $con1 );
         //按钮
         $info['btnInfo']        = SystemColumnBtnService::lists( $con1 );
         //操作
@@ -119,7 +119,7 @@ class ColumnLogic
             //联表数据
             if( $v['type'] == 'union' ){
                 //参数
-                $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,false);
+                $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,isset($v['option']['fields']) ? $v['option']['fields'] : []);
             }
         }
         //按钮
