@@ -53,8 +53,16 @@ class ColumnLogic
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
-    public static function tableNameColumn( $tableName )
+    public static function tableNameColumn( $tableName,$fields='' )
     {
+        //是否只取某些字段
+        if($fields){
+            if(!is_array($fields)){
+                $fields = explode(',', $fields);
+            }
+            $con[] = ['', 'in' , $fields ];
+        }
+
         $con[]  = ['table_name','=',$tableName];
         $info   = SystemColumnService::find($con);
         $info2  = self::getDetail($info);   

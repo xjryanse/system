@@ -14,12 +14,13 @@ class Dyntree extends Base implements ColumnListInterface
     public static function getOption( $optionStr )
     {
         $arr = equalsToKeyValue( $optionStr , '&');
-        foreach( $arr as $key=>&$value ){
+        foreach( $arr as &$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
         }
         
         //配套树状前端使用
-        $arr['option']  = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
+        $lists = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
+        $arr['option']  = $lists ? $lists->toArray() : [] ;
 
         return $arr;
     }
