@@ -58,7 +58,7 @@ class Union extends Base implements ColumnListInterface
         //默认值
         if(isset($option['defaults'])){
             $resData = array_merge( $option['defaults'], $resData );
-        }
+        }        
         //从父元素继承的值
         if(isset($option['matches'])){
             foreach( $option['matches'] as $key=>$value){

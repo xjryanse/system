@@ -115,6 +115,9 @@ class ColumnLogic
         //字段
         foreach($res['listInfo'] as $k=>&$v){
 //            $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
+            //冗余字段，方便前端使用
+            $v['table_name'] = $res['table_name'] ;
+            //选项
             $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] );
 
             //联表数据

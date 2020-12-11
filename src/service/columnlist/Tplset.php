@@ -2,6 +2,7 @@
 namespace xjryanse\system\service\columnlist;
 use xjryanse\system\interfaces\ColumnListInterface;
 use think\Db;
+use xjryanse\logic\Arrays;
 /**
  * 模板设定
  */
@@ -26,7 +27,7 @@ class Tplset extends Base implements ColumnListInterface
      */
     public static function getData( $data, $option)
     {
-        return isset($data[$option['name']]) ? $data[$option['name']] : '';
+        return isset($data[$option['name']]) ? $data[$option['name']] : (new \StdClass()) ;
     }
     /**
      * 保存数据
@@ -50,9 +51,10 @@ class Tplset extends Base implements ColumnListInterface
      * @param type $tplCond         模板表条件
      * @param type $mainTableCond   价格主表条件
      * @param type $preData         预赋值数据
+     * @param type $matchesKeys     数据继承keys
      * @return array
      */
-    public static function templateGroupSet( $tplTable, $tplMainKey, $tplGroupKey,$tplDataKey, $mainTable ,$mainDataKey, $tplCond = [] , $mainTableCond=[], $preData=[] )
+    public static function templateGroupSet( $tplTable, $tplMainKey, $tplGroupKey,$tplDataKey, $mainTable ,$mainDataKey, $tplCond = [] , $mainTableCond=[], $preData=[] ,$matchesKeys=[])
     {
         //模板表数据
         $tpls   = Db::table( $tplTable )->where( $tplCond )->select( );
@@ -78,7 +80,7 @@ class Tplset extends Base implements ColumnListInterface
                             $ddata = $lists[ $value[ $tplDataKey ] ];
                         } else {
                             //未匹配到，赋个空数据
-                            $ddata = array_merge($preData,[$mainDataKey=>$value[ $tplDataKey ]]);
+                            $ddata = array_merge(Arrays::keyReplace($value, $matchesKeys),$preData,[$mainDataKey=>$value[ $tplDataKey ]]);
                         }
                     }
                 }
@@ -90,5 +92,6 @@ class Tplset extends Base implements ColumnListInterface
 
         return $dataArr;
     }
+
 }
 
