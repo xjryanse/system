@@ -11,10 +11,16 @@ abstract class Base
      * @param type $tableName
      * @param type $con
      */
-    protected static function dynamicColumn( $tableName ,$field, $key ,$con = [])
+    protected static function dynamicColumn( $tableName ,$field, $key ,$con = [],$cache=false)
     {
         //替换资源链接
-        $list = Db::table( $tableName )->where( $con )->column( $field, $key );
+        $inst = Db::table( $tableName )->where( $con );
+        //缓存
+        if($cache){
+            $inst->cache(true);
+        }
+        //查询
+        $list = $inst->column( $field, $key );
         return $list;
     }
     

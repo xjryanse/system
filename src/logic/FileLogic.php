@@ -48,5 +48,20 @@ class FileLogic
         //文件信息存数据库;移除点
         return SystemFileService::uplSave( $tpFile, ltrim( $savePath , '.'), $data );
     }
+    /**
+     * 判断文件是否存在
+     * @param type $idOrPath    id或路径
+     */
+    public static function fileExists( $idOrPath )
+    {
+        if(is_numeric($idOrPath)){
+            $pathRaw = SystemFileService::getInstance($idOrPath)->fFilePath();
+            if(!$pathRaw){ return false;}
+            $path = '.'.$pathRaw;
+        } else {
+            $path = $idOrPath;
+        }
+        return file_exists($path);
+    }
 
 }

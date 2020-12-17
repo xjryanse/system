@@ -13,7 +13,18 @@ class Dynenum extends Base implements ColumnListInterface
     public static function getOption( $optionStr )
     {
         $arr = equalsToKeyValue( $optionStr , '&');
-        $arr['option']  = self::dynamicColumn( $arr['table_name'] ,$arr['value'], $arr['key']);
+        foreach( $arr as &$value ){
+            $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
+        }
+
+        $con = [];
+        if(isset( $arr['con'])){
+            foreach($arr['con'] as $key =>$value){
+                $con[] = [ $key,'=',$value ];
+            }
+        }
+        $cache = isset($arr['cache']) ? true : false ;
+        $arr['option']  = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con ,$cache );
         return $arr;
     }
     

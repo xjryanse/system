@@ -102,7 +102,7 @@ class ColumnLogic
         //操作
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
-        $info['blockInfo']      = SystemColumnBlockService::listsInfo( $con1 );        
+        $info['blockInfo']      = SystemColumnBlockService::listsInfo( $con1 );
 
         return $info;
     }
