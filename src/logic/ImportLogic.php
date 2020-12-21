@@ -5,7 +5,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-
+use xjryanse\logic\Arrays2d;
+use xjryanse\system\service\SystemFileService;
 /**
  * 导入逻辑
  */
@@ -110,6 +111,22 @@ class ImportLogic
         return $data;
     }
 
-    
+    /**
+     * excel文件取二维数组数据
+     */
+    public static function fileGetArray( $fileId, $arrayCov )
+    {
+        $info   = SystemFileService::mainModel()->field('*,file_path as rawPath')->get( $fileId );
+        $path   = $info['rawPath'] ;
+
+        if(!file_exists( $path ) && file_exists( mb_substr($path,1 ))){
+            //去除首字符反斜杠
+            $path   = mb_substr($path,1 );
+        }
+        $data       = self::importExecl( $path );
+        $shiftToKey = Arrays2d::shiftToKey( $data );
+        $resData    = Arrays2d::keyReplace( $shiftToKey, $arrayCov );
+        return $resData;
+    }
 
 }

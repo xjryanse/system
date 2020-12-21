@@ -8,7 +8,6 @@ use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
 use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
-use xjryanse\logic\DbOperate;
 /**
  * 字段逻辑
  */
@@ -49,6 +48,17 @@ class ColumnLogic
         }
         return $searchFields;
     }
+    /**
+     * 获取搜索字段
+     */
+    public static function getImportFields( $columnInfo )
+    {
+        $importFields = [];
+        foreach($columnInfo['listInfo'] as $v) {
+            $importFields[$v['label']] = $v['name'];
+        }
+        return $importFields;
+    }    
     
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
