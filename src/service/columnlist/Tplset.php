@@ -1,6 +1,7 @@
 <?php
 namespace xjryanse\system\service\columnlist;
 use xjryanse\system\interfaces\ColumnListInterface;
+use xjryanse\logic\DbOperate;
 use think\Db;
 use xjryanse\logic\Arrays;
 /**
@@ -36,7 +37,43 @@ class Tplset extends Base implements ColumnListInterface
      */
     public static function saveData( $data, $columnInfo )
     {
-        
+        $option     = $columnInfo['option'];
+        $service    = DbOperate::getService( $option[FR_OPT_TO_TABLE] );
+        $mainKeys   = array_keys( $data[$columnInfo['name']] );
+        //模板表数据
+        //模板查询条件
+        $tplCond = [];
+        if($option[FR_OPT_TPL_COND] && $data){
+            foreach( $option[FR_OPT_TPL_COND] as $k=>$value ){
+                $tplCond[] = [ $k,'=',$data[$value]];
+            }
+        }
+        $tpls   = Db::table( $option[FR_OPT_TPL_TABLE] )->where( $tplCond )->select( );
+        $preData[ $option[FR_OPT_MAIN_FIELD] ] = $data['id'];
+        foreach( $tpls as $v){
+            if( !in_array( $v[$option[FR_OPT_TPL_DATA_KEY]],$mainKeys ) ){
+                continue;
+            }
+            //拼接数据
+            $ddata = array_merge(
+                    Arrays::keyReplace($v, $option[FR_OPT_MATCHES_DATA_KEY])
+                    ,$preData
+                    ,[$option[FR_OPT_MAIN_DATA_KEY]=>$v[$option[ FR_OPT_TPL_DATA_KEY ]]]);
+            $ddata[$option[FR_OPT_TO_FIELD]] = $data[$columnInfo['name']][$v[$option[FR_OPT_TPL_DATA_KEY]]];
+
+            $con = [];
+            $con[] = [ $option[FR_OPT_MAIN_FIELD],'=',$data['id']];
+            $con[] = [ $option[FR_OPT_MAIN_DATA_KEY],'=',$option[FR_OPT_TPL_MAIN_KEY]];
+            $info = $service::find( $con );
+            if( $info ){
+                //更新
+                $service::getInstance( $info['id'] )->update( $ddata );
+            } else {
+                //新增
+                $service::save( $ddata );
+            }
+        }
+        return true;
     }
     
     

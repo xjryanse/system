@@ -19,21 +19,18 @@ class ColumnLogic
      * @param type $controller  控制器
      * @param type $tableKey    表键
      * @param type $companyId   公司id
+     * @param type $cateFieldValue  可以是字符串或数组，如数组，按key取值
      * @return type
      */
-    public static function defaultColumn(  $controller, $tableKey , $companyId = '')
+    public static function defaultColumn(  $controller, $tableKey , $companyId = '',$cateFieldValue='')
     {
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
         if($companyId){
             $con[] = ['company_id','in',['',$companyId]];
         }
-        $info   = SystemColumnService::find($con);
-        $info2  = self::getDetail($info);
-        //循环
-        $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
-        //字段转换
-        return self::scolumnCov($info2);
+        $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
+        return self::getById($columnId,[],$cateFieldValue);
     }
     /**
      * 获取搜索字段
@@ -66,10 +63,13 @@ class ColumnLogic
     public static function tableNameColumn( $tableName,$fields='' )
     {
         $con[]  = ['table_name','=',$tableName]     ;
-        $info   = SystemColumnService::find( $con ) ;
-        $info2  = self::getDetail( $info,$fields )  ;
-        //字段转换
-        return self::scolumnCov($info2);
+        $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
+        return self::getById($columnId,$fields);
+//        没测20201228
+//        $info   = SystemColumnService::find( $con ) ;
+//        $info2  = self::getDetail( $info,$fields )  ;
+//        //字段转换
+//        return self::scolumnCov($info2);
     }
     
     public static function tableHasRecord( $tableName )
@@ -88,14 +88,17 @@ class ColumnLogic
     }
     /*
      * 取详细信息
+     * @param type $info        表信息
+     * @param type $fields      字段数组
+     * @param type $conField    字段过滤信息
+     * @return boolean
      */
-    private static function getDetail( $info, $fields='')
+    private static function getDetail( $info, $fields='',$conField = [])
     {
         if(!$info){
             return false;
         }
         //是否只取某些字段
-        $conField = [];
         if($fields){
             if(!is_array($fields)){
                 $fields = explode(',', $fields);
@@ -193,6 +196,32 @@ class ColumnLogic
         //替换资源链接
         $list = Db::table( $tableName )->where( $con )->column( $field, $key );
         return $list;
+    }
+    /**
+     * 最新20201228
+     * @param type $columnId        字段id
+     * @param type $fields          指定字段
+     * @param type $cateFieldValue  分类值（用于不同表取不同的字段）
+     * @return type
+     */
+    public static function getById( $columnId ,$fields = [], $cateFieldValue='')
+    {
+        $info   = SystemColumnService::getInstance( $columnId )->get();
+        $con    = [];
+        //分类取值
+        if($info['cate_field_name'] && is_array($cateFieldValue)){
+            $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
+        }
+        //分类名
+        if($info['cate_field_name'] && $cateFieldValue){
+            //按分类名进行过滤
+            $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
+        }
+        $info2  = self::getDetail( $info, $fields, $con );
+        //循环
+        $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
+        //字段转换
+        return self::scolumnCov($info2);
     }
 
 }

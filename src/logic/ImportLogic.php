@@ -5,6 +5,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
+use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
 use xjryanse\system\service\SystemFileService;
 /**
@@ -126,7 +128,15 @@ class ImportLogic
         $data       = self::importExecl( $path );
         $shiftToKey = Arrays2d::shiftToKey( $data );
         $resData    = Arrays2d::keyReplace( $shiftToKey, $arrayCov );
+
+        foreach( $resData as &$value ){
+            //形如$data["prizeInfo.sellerTmAuthDeposit"] = 'aaa';的数据，
+            //转为$data['prizeInfo']['sellerTmAuthDeposit'] = 'aaa';
+            $value = Arrays::keySplit($value);
+        }
         return $resData;
     }
+            //形如$data["prizeInfo.sellerTmAuthDeposit"] = 'aaa';的数据，
+            //转为$data['prizeInfo']['sellerTmAuthDeposit'] = 'aaa';
 
 }
