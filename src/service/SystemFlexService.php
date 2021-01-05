@@ -5,41 +5,15 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 
 /**
- * 分类表
+ * 
  */
-class SystemCateService implements MainModelInterface {
+class SystemFlexService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCate';
-
-    /**
-     * 分组筛选
-     * @param type $groupKey    key
-     * @param type $con         条件
-     * @param type $field       字段
-     * @return type
-     */
-    public static function listsByGroup($groupKey, $con = [], $field = "*") {
-        $con[] = ['group_key', '=', $groupKey];
-        $res = self::mainModel()->where($con)->field($field)->select();
-        return $res;
-    }
-    /**
-     * 键值对的数组
-     * @param type $groupKey    key
-     * @param type $con
-     */
-    public static function columnByGroup( $groupKey, $con = [])
-    {
-        $con[] = ['group_key','=',$groupKey];
-        $res = self::mainModel()->where( $con )->column('cate_name','cate_key');
-        return $res;
-    }
-
-    /*     * ***************** */
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFlex';
 
     /**
      *
@@ -63,23 +37,9 @@ class SystemCateService implements MainModelInterface {
     }
 
     /**
-     * 分组key
+     * 布局名称
      */
-    public function fGroupKey() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 分类key
-     */
-    public function fCateKey() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 分类名
-     */
-    public function fCateName() {
+    public function fFlexName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

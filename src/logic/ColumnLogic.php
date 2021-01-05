@@ -116,6 +116,8 @@ class ColumnLogic
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
         $info['blockInfo']      = SystemColumnBlockService::listsInfo( $con1 );
+        //新增和编辑页面的flex布局
+        $info['flexInfo']       = isset($info['flex_id']) && $info['flex_id'] ? FlexLogic::getFlex( $info['flex_id'] ) : [];
 
         return $info;
     }

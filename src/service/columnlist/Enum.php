@@ -1,6 +1,9 @@
 <?php
 namespace xjryanse\system\service\columnlist;
+
 use xjryanse\system\interfaces\ColumnListInterface;
+use xjryanse\system\service\SystemCateService;
+use xjryanse\logic\DataCheck;
 /**
  * 枚举
  */
@@ -12,6 +15,11 @@ class Enum extends Base implements ColumnListInterface
      */
     public static function getOption( $optionStr )
     {
+        //非json格式，表示为key优先从cate表中提取
+        if(!DataCheck::isJson($optionStr)){
+            $resArr = SystemCateService::columnByGroup( $optionStr );
+            return $resArr ? : [];
+        }
         return  $optionStr ? json_decode( $optionStr,true ) : [];
     }
         
