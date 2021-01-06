@@ -9,7 +9,6 @@
         }
     ],
     "require": {
-        "phpoffice/phpspreadsheet": "^1.*",
         "xjryanse/logic": "0.0.*",
         "xjryanse/traits": "0.0.*",
         "xjryanse/curl": "0.2.*"
