@@ -457,6 +457,25 @@ CREATE TABLE `w_system_file`  (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务附件表' ROW_FORMAT = Compact;
 
+CREATE TABLE `w_system_host_bind` (
+  `id` varchar(32) NOT NULL,
+  `host` varchar(255) DEFAULT '' COMMENT '域名',
+  `bind_company_id` varchar(32) DEFAULT '' COMMENT '绑定公司',
+  `sort` int(11) DEFAULT '1000' COMMENT '排序',
+  `status` tinyint(1) DEFAULT '1' COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) DEFAULT '0' COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) DEFAULT '0' COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT '锁定（0：未删，1：已删）',
+  `remark` text COMMENT '备注',
+  `creater` varchar(50) DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `create_time` (`create_time`),
+  KEY `update_time` (`update_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='域名绑定表';
+
 -- ----------------------------
 -- Table structure for w_system_log
 -- ----------------------------
