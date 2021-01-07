@@ -1,4 +1,5 @@
 
+
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -21,7 +22,9 @@ CREATE TABLE `w_system_app`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务应用表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -47,7 +50,11 @@ CREATE TABLE `w_system_async_operate`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统单线程异步实施类库' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -71,7 +78,11 @@ CREATE TABLE `w_system_cate`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统分类表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -100,7 +111,6 @@ CREATE TABLE `w_system_column`  (
   `table_key` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '表单键名',
   `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '说明',
   `table_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '',
-  `source_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '资源服务地址',
   `form_style` int(2) NULL DEFAULT 1 COMMENT '表单样式：1竖排；2横排',
   `order_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '',
   `color_con` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '行颜色条件（根据字段状态显示不同颜色）',
@@ -109,6 +119,10 @@ CREATE TABLE `w_system_column`  (
   `block_width` int(11) NULL DEFAULT 12 COMMENT '块宽度',
   `uni_del` int(1) NULL DEFAULT 0 COMMENT '是否开启主表的联表删除:0否；1是',
   `uni_deleted` int(1) NULL DEFAULT NULL COMMENT '是否允许联表被删：0否；1是',
+  `list_select` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'radio' COMMENT '框选类型：radio单选，checkbox复选',
+  `import_tpl_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '导入模板id：file表',
+  `cate_field_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分类字段名；用于不同分类过滤',
+  `flex_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '新增和编辑页面，适配的布局模板id',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -119,7 +133,11 @@ CREATE TABLE `w_system_column`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -138,6 +156,7 @@ CREATE TABLE `w_system_column_block`  (
   `union_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联类型：1v1 一对一;1vn 一对多',
   `show_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '展示方式：list 列表; info 信息',
   `block_width` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '12等分宽度：1,2,3,4,5',
+  `block_height` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'vh',
   `fields` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '展示字段，逗号分隔',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
@@ -149,7 +168,12 @@ CREATE TABLE `w_system_column_block`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `column_id`(`column_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据块表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -175,7 +199,12 @@ CREATE TABLE `w_system_column_block_table_fields`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `block_id`(`block_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '表字段' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -196,6 +225,8 @@ CREATE TABLE `w_system_column_btn`  (
   `url` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '地址:内嵌参数拿主表数据',
   `param` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '参数json',
   `show_condition` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '显示条件',
+  `prompt` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '输入字段名称',
+  `prompt_default` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '输入字段默认值',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -206,7 +237,13 @@ CREATE TABLE `w_system_column_btn`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `column_id`(`column_id`) USING BTREE,
+  INDEX `block_id`(`block_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段按钮表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -219,7 +256,7 @@ CREATE TABLE `w_system_column_list`  (
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `column_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '字段id',
   `label` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '字段名',
-  `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '字段键名',
+  `name` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT '' COMMENT '字段键名',
   `type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '{\r\n\"hidden\":\"隐藏域\",\r\n\"text\":\"单行文字\",\r\n\"enum\":\"枚举\",\r\n\"image\":\"上传图片\",\r\n\"date\":\"日期\",\r\n\"datetime\":\"日期+时间\",\r\n\"textarea\":\"文本框\",\r\n\"editor\":\"编辑器\",\r\n\"number\":\"数值\",\r\n\"dynenum\":\"动态枚举\",\r\n\"10\":\"搜索选择框(文本)\",\r\n\"11\":\"搜索选择框(枚举)\",\r\n\"link\":\"跳转链接\",\r\n\"13\":\"链接图片\",\r\n\"14\":\"一级复选(中间表)\",\r\n\"15check\":\"二级复选(中间表)\",\r\n\"16switch\":\"开关\",\r\n\"17\":\"时间框\",\r\n\"18\":\"关联表\",\r\n\"19\":\"密码\",\r\n\"20\":\"联表数据\",\r\n\"21\":\"月日时分\",\r\n\"22\":\"百分比\",\r\n\"23\":\"上传附件\",\r\n\"24\":\"随机串(8位)\",\r\n\"25\":\"随机串(16位)\",\r\n\"26\":\"随机串(32位)\",\r\n\"27\":\"不可编辑框\",\r\n\"28\":\"后台换行设置(行颜色条件)\",\r\n\"29\":\"逗号分隔换行显示\",\r\n\"30\":\"链接二维码\",\r\n\"31-listedit\":\"列表编辑\",\r\n\"99\":\"混合字段\"}',
   `option` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '选项json',
   `search_type` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '-1' COMMENT '搜索类型？否、equal:精确查找;like:模糊查找;in:in查找;numberscope:数据范围查找;timescope:时间查找',
@@ -227,14 +264,19 @@ CREATE TABLE `w_system_column_list`  (
   `is_list_edit` tinyint(1) NULL DEFAULT 0 COMMENT '列表编辑？0否、1是',
   `is_add` tinyint(1) NULL DEFAULT 1 COMMENT '添加字段？0否、1是',
   `is_edit` tinyint(1) NULL DEFAULT 1 COMMENT '编辑字段？0否、1是',
+  `only_detail` tinyint(1) NULL DEFAULT 0 COMMENT '只可看不可改？0否、1是',
   `is_must` tinyint(1) NULL DEFAULT 0 COMMENT '必填(新增和编辑时)？0否、1是',
   `is_export` tinyint(1) NULL DEFAULT 1 COMMENT '是否导出？0否，1是',
   `is_import_must` tinyint(1) NULL DEFAULT 0 COMMENT '是否导入必填，0否，1是，导入时，需要表单预填的基础信息',
   `is_span_company` tinyint(1) NULL DEFAULT NULL COMMENT '是否跨公司？0否，1是。用于跨公司查询数据',
   `list_style` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'center' COMMENT '列表位置：left:靠左；right:靠右；center:居中',
+  `list_pop` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '点击列表时，弹窗页面链接',
+  `list_pop_operate` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '点击列表时，弹窗页面类型：layerIframePage；layerPage',
   `min_width` int(11) NULL DEFAULT 10 COMMENT '最小宽度px;',
   `width` int(11) NULL DEFAULT 100 COMMENT '列表中的最大宽度',
-  `form_col` int(2) NULL DEFAULT NULL COMMENT '2-12',
+  `form_col` int(2) NULL DEFAULT 6 COMMENT '2-12',
+  `cate_field_value` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '默认空，关联column表 cate_field_name的值',
+  `flex_item_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '关联column表 flex_id的值。归属的布局模板子项id',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
   `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
@@ -245,7 +287,19 @@ CREATE TABLE `w_system_column_list`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `column_id`(`column_id`) USING BTREE,
+  INDEX `type`(`type`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE,
+  INDEX `name`(`name`) USING BTREE,
+  INDEX `search_type`(`search_type`) USING BTREE,
+  INDEX `is_list`(`is_list`) USING BTREE,
+  INDEX `is_list_edit`(`is_list_edit`) USING BTREE,
+  INDEX `is_add`(`is_add`) USING BTREE,
+  INDEX `is_edit`(`is_edit`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段明细表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -273,7 +327,13 @@ CREATE TABLE `w_system_column_operate`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `column_id`(`column_id`) USING BTREE,
+  INDEX `tpl_id`(`tpl_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '字段操作表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -309,7 +369,14 @@ CREATE TABLE `w_system_company`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `we_app_id`(`we_app_id`) USING BTREE,
+  INDEX `we_pub_id`(`we_pub_id`) USING BTREE,
+  INDEX `create_company_id`(`create_company_id`) USING BTREE,
+  INDEX `key`(`key`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '公司端口表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -325,8 +392,9 @@ CREATE TABLE `w_system_condition`  (
   `item_key` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '项目key',
   `group_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分组id，同一项目，同一组，全部达成，则达成',
   `judge_table` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '判定表',
-  `judge_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '判定类型 count(*),sum(money)',
-  `judge_cond` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '结果条件：>,=,<,>=,<= ……',
+  `judge_field` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT 'count(*),sum(field)',
+  `judge_cond` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'where条件',
+  `judge_sign` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '结果条件：>,=,<,>=,<= ……',
   `judge_value` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '结果值：1,2,3……',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
   `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
@@ -338,7 +406,14 @@ CREATE TABLE `w_system_condition`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `item_id`(`item_id`) USING BTREE,
+  INDEX `item_type`(`item_type`) USING BTREE,
+  INDEX `item_key`(`item_key`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '达成条件表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -351,7 +426,7 @@ CREATE TABLE `w_system_configs`  (
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '配置描述',
   `module` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模块',
-  `group` int(11) NULL DEFAULT 0 COMMENT '分组：1杂项、2分享设置、3活动规则',
+  `group` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '分组：1杂项、2分享设置、3活动规则',
   `type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '配置类型text显示文字 uplimage上传图片（wp_picture）其他，根据column_list表',
   `key` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '配置关键字:模块名+其他',
   `value` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '【配置值】',
@@ -365,7 +440,13 @@ CREATE TABLE `w_system_configs`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `key`(`key`, `group`, `company_id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `type`(`type`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '配置表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -397,7 +478,10 @@ CREATE TABLE `w_system_error_log`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '错误记录表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -426,7 +510,12 @@ CREATE TABLE `w_system_export_log`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `exp_status`(`exp_status`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '数据导出记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -454,27 +543,118 @@ CREATE TABLE `w_system_file`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务附件表' ROW_FORMAT = Compact;
 
-CREATE TABLE `w_system_host_bind` (
-  `id` varchar(32) NOT NULL,
-  `host` varchar(255) DEFAULT '' COMMENT '域名',
-  `bind_company_id` varchar(32) DEFAULT '' COMMENT '绑定公司',
-  `sort` int(11) DEFAULT '1000' COMMENT '排序',
-  `status` tinyint(1) DEFAULT '1' COMMENT '状态(0禁用,1启用)',
-  `has_used` tinyint(1) DEFAULT '0' COMMENT '有使用(0否,1是)',
-  `is_lock` tinyint(1) DEFAULT '0' COMMENT '锁定（0：未锁，1：已锁）',
-  `is_delete` tinyint(1) DEFAULT '0' COMMENT '锁定（0：未删，1：已删）',
-  `remark` text COMMENT '备注',
-  `creater` varchar(50) DEFAULT '' COMMENT '创建者，user表',
-  `updater` varchar(50) DEFAULT '' COMMENT '更新者，user表',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+-- ----------------------------
+-- Table structure for w_system_flex
+-- ----------------------------
+
+CREATE TABLE `w_system_flex`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `flex_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '布局名称',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  KEY `create_time` (`create_time`),
-  KEY `update_time` (`update_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='域名绑定表';
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统布局表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_flex_items
+-- ----------------------------
+
+CREATE TABLE `w_system_flex_items`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `flex_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '布局id',
+  `pid` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '父级布局id',
+  `item_desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '布局项说明',
+  `flex_value` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '12等分布局值',
+  `has_line` int(11) NULL DEFAULT 0 COMMENT '有分隔线？默认无',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '系统布局表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_host_bind
+-- ----------------------------
+
+CREATE TABLE `w_system_host_bind`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `host` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用名称',
+  `bind_company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '应用id',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '微服务应用表' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Table structure for w_system_import_template
+-- ----------------------------
+
+CREATE TABLE `w_system_import_template`  (
+  `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `template_name` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `file_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
+  `table_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '对应数据表名',
+  `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
+  `status` tinyint(1) NULL DEFAULT 1 COMMENT '状态(0禁用,1启用)',
+  `has_used` tinyint(1) NULL DEFAULT 0 COMMENT '有使用(0否,1是)',
+  `is_lock` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未锁，1：已锁）',
+  `is_delete` tinyint(1) NULL DEFAULT 0 COMMENT '锁定（0：未删，1：已删）',
+  `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
+  `creater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '创建者，user表',
+  `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
+  `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
+  `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '导入模板' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for w_system_log
@@ -501,7 +681,11 @@ CREATE TABLE `w_system_log`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '访问日志' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -532,7 +716,9 @@ CREATE TABLE `w_system_scan_log`  (
   INDEX `rec_user_id`(`rec_user_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
   INDEX `scan_item`(`scan_item`) USING BTREE,
-  INDEX `scan_item_id`(`scan_item_id`) USING BTREE
+  INDEX `scan_item_id`(`scan_item_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '浏览记录表' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -562,7 +748,11 @@ CREATE TABLE `w_system_timing`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '异步定时器类库' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -573,7 +763,7 @@ CREATE TABLE `w_system_timing_log`  (
   `id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `app_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
   `company_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '',
-  `timing_id` int(11) NULL DEFAULT 0 COMMENT 'id',
+  `timing_id` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT 'id',
   `url` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '地址',
   `ip` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '请求ip',
   `sort` int(11) NULL DEFAULT 1000 COMMENT '排序',
@@ -586,7 +776,11 @@ CREATE TABLE `w_system_timing_log`  (
   `updater` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '更新者，user表',
   `create_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) COMMENT '创建时间',
   `update_time` datetime(0) NULL DEFAULT CURRENT_TIMESTAMP(0) ON UPDATE CURRENT_TIMESTAMP(0) COMMENT '更新时间',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `app_id`(`app_id`) USING BTREE,
+  INDEX `company_id`(`company_id`) USING BTREE,
+  INDEX `create_time`(`create_time`) USING BTREE,
+  INDEX `update_time`(`update_time`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '异步定时任务日志' ROW_FORMAT = Compact;
 
 SET FOREIGN_KEY_CHECKS = 1;
