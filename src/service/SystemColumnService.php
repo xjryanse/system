@@ -135,6 +135,12 @@ class SystemColumnService implements MainModelInterface {
     public function fUniDeleted() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+    /**
+     * 分类字段名
+     */
+    public function fCateFieldName() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
 
     /**
      * 排序

@@ -94,7 +94,8 @@ class Tplset extends Base implements ColumnListInterface
     public static function templateGroupSet( $tplTable, $tplMainKey, $tplGroupKey,$tplDataKey, $mainTable ,$mainDataKey, $tplCond = [] , $mainTableCond=[], $preData=[] ,$matchesKeys=[])
     {
         //模板表数据
-        $tpls   = Db::table( $tplTable )->where( $tplCond )->select( );
+        $tpls   = DbOperate::getService( $tplTable )::lists( $tplCond );
+        $tpls   = $tpls ? $tpls->toArray() : [];
         //数据主表数据
         $lists  = Db::table( $mainTable )->where( $mainTableCond )->column('*',$mainDataKey );
         //分组key：平台/卖家

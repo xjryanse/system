@@ -16,6 +16,16 @@ class SystemColumnListService implements MainModelInterface {
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnList';
 
     /**
+     * 额外详情信息
+     */
+    protected static function extraDetail( &$item ,$uuid )
+    {
+        $columnId = isset($item['column_id']) ? $item['column_id'] : '';
+        $item['cate_field_name'] = SystemColumnService::getInstance( $columnId )->fCateFieldName();
+        return $item;
+    }    
+    
+    /**
      * 选项转换
      * @param type $type        类型
      * @param type $optionStr   选项字符串
