@@ -13,7 +13,7 @@ class SystemFile extends Base
      */
     public function getFilePathAttr( $value )
     {
-        return $value ? config('xiesemi.systemBaseUrl') . $value : $value;
+        return $value ? config('xiesemi.systemBaseUrl') .'/'. $value : $value;
     }
 
 }

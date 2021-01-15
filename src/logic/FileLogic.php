@@ -3,6 +3,7 @@ namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemFileService;
 use xjryanse\logic\Url;
+use xjryanse\logic\Folder;
 use think\File as tpFile;
 use Exception;
 /**
@@ -63,5 +64,15 @@ class FileLogic
         }
         return file_exists($path);
     }
-
+    
+    public static function savePathFiles( $path )
+    {
+        $files = Folder::getFiles($path);
+        $ids = [];
+        foreach( $files as $v){
+            $dir = $path . $v;
+            $ids[$v] = SystemFileService::pathSaveGetId( $dir );
+        }
+        return $ids;
+    }
 }

@@ -38,7 +38,7 @@ class SystemFileService implements MainModelInterface {
         $info = $file->validate(['ext' => 'apk,wgt,ipa,doc,docx,xls,xlsx,txt,zip,rar,ppt'])->move('./Upload/files');
 
         if ($info) {
-            $path = '/Upload/files/' . $info->getSaveName();
+            $path = 'Upload/files/' . $info->getSaveName();
             $data['file_type'] = 'file';
 
             return self::uplSave($info, $path, $data);
@@ -76,7 +76,7 @@ class SystemFileService implements MainModelInterface {
         // 移动到框架应用根目录/v/Uploads/Picture/ 目录下
         $info = $file->validate(['size' => 20971520, 'ext' => 'jpg,jpeg,png,gif,bmp,tiff,pcx,avi,mov,rmvb,rm,asf,wma,flv,mpg,mkv,mp3,mp4'])->move('./images');
         if ($info) {
-            $path = '/images/' . $info->getSaveName();
+            $path = 'images/' . $info->getSaveName();
             $data['file_type'] = 'image';
             //二级分类
             $data['sub_type'] = $subType;
@@ -144,7 +144,20 @@ class SystemFileService implements MainModelInterface {
 
         return self::save($data);
     }
-
+    /**
+     * 保存路径返回id
+     */
+    public static function pathSaveGetId( $path )
+    {
+        $con[]= ['file_path','=',$path];
+        $info = self::find( $con );
+        if(!$info) {
+            $data['file_path'] = $path;
+            $info = self::save($data);
+        }
+        return $info['id'];
+    }
+    
     /*     * **** */
 
     /**
