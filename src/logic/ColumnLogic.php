@@ -161,6 +161,11 @@ class ColumnLogic
             throw new Exception('数据表不存在，或没有字段，不能生成');
         }
         //总表
+        $tableArr = explode('_', $table);
+        $data['controller'] = $tableArr[1];
+        unset($tableArr[0]);
+        unset($tableArr[1]);
+        $data['table_key']  = camelize(implode('_',$tableArr));
         $data['table_name'] = $table;
         $res = SystemColumnService::save( $data );
         //字段
