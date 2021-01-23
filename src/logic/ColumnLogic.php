@@ -35,11 +35,11 @@ class ColumnLogic
     /**
      * 获取搜索字段
      */
-    public static function getSearchFields( $columnInfo )
+    public static function getSearchFields( $columnInfo ,$queryType = 'where')
     {
         $searchFields = [];
         foreach($columnInfo['listInfo'] as $v) {
-            if($v['search_type'] >=0){
+            if($v['search_type'] >=0 && $v['query_type'] == $queryType ){
                 $searchFields[$v['search_type']][] = $v['name'];
             }
         }
@@ -230,5 +230,19 @@ class ColumnLogic
         //字段转换
         return self::scolumnCov($info2);
     }
-
+    /**
+     * 导入数据转换
+     */
+    public static function getCovData( $columnInfo )
+    {
+        $covFields = [];
+        foreach($columnInfo['listInfo'] as $v) {
+            //TODO优化
+            if($v['type'] == 'enum'){
+                $covFields[$v['name']] = array_flip($v['option']);
+            }
+        }
+        return $covFields;
+    }
+    
 }

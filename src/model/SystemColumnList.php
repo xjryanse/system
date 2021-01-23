@@ -7,5 +7,13 @@ namespace xjryanse\system\model;
 class SystemColumnList extends Base
 {
     
-
+    /**
+     * 关联外键
+     * @param type $value
+     * @return type
+     */
+    public function setFlexItemIdAttr($value)
+    {
+        return $value ? : null;
+    }
 }

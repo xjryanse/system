@@ -17,8 +17,8 @@ class Check extends Base implements ColumnListInterface
         foreach( $arr as $key=>&$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
         }
-
-        $arr['option']  = self::dynamicLists( $arr['table_name'] );
+        $con = isset($arr['con']) ? $arr['con'] : [];
+        $arr['option']  = self::dynamicLists( $arr['table_name'] ,$con);
 //        dump($arr);
         return $arr;
     }

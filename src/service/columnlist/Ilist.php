@@ -2,9 +2,9 @@
 namespace xjryanse\system\service\columnlist;
 use xjryanse\system\interfaces\ColumnListInterface;
 /**
- * 枚举
+ * Ilist 数据列表
  */
-class Dynenum extends Base implements ColumnListInterface
+class Ilist extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -16,16 +16,6 @@ class Dynenum extends Base implements ColumnListInterface
         foreach( $arr as &$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
         }
-
-        $con = [];
-        if(isset( $arr['con'])){
-            foreach($arr['con'] as $key =>$value){
-                //数组拆
-                $con[] = [ $key,'in',explode(',',$value) ];
-            }
-        }
-        $cache = isset($arr['cache']) ? true : false ;
-        $arr['option']  = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con ,$cache );
         return $arr;
     }
     

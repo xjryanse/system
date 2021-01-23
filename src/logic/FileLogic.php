@@ -47,7 +47,7 @@ class FileLogic
 
         $data['file_type'] = $type;
         //文件信息存数据库;移除点
-        return SystemFileService::uplSave( $tpFile, ltrim( $savePath , '.'), $data );
+        return SystemFileService::uplSave( $tpFile, ltrim( $savePath , './'), $data );
     }
     /**
      * 判断文件是否存在

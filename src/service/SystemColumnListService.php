@@ -18,13 +18,12 @@ class SystemColumnListService implements MainModelInterface {
     /**
      * 额外详情信息
      */
-    protected static function extraDetail( &$item ,$uuid )
-    {
+    protected static function extraDetail(&$item, $uuid) {
         $columnId = isset($item['column_id']) ? $item['column_id'] : '';
-        $item['cate_field_name'] = SystemColumnService::getInstance( $columnId )->fCateFieldName();
+        $item['cate_field_name'] = SystemColumnService::getInstance($columnId)->fCateFieldName();
         return $item;
-    }    
-    
+    }
+
     /**
      * 选项转换
      * @param type $type        类型
@@ -57,11 +56,7 @@ class SystemColumnListService implements MainModelInterface {
      */
     public static function saveData($type, $data, $columnInfo) {
         $class = self::getClassStr($type);
-        if (class_exists($class)) {
-            return $class::saveData($data, $columnInfo);
-        } else {
-            return false;
-        }
+        return class_exists($class) ? $class::saveData($data, $columnInfo) : false;
     }
 
     /**

@@ -6,9 +6,13 @@ use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
+use xjryanse\logic\DbOperate;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
 use xjryanse\system\service\SystemFileService;
+use xjryanse\logic\SnowFlake;
+
+use think\Db;
 /**
  * 导入逻辑
  */
@@ -138,5 +142,29 @@ class ImportLogic
     }
             //形如$data["prizeInfo.sellerTmAuthDeposit"] = 'aaa';的数据，
             //转为$data['prizeInfo']['sellerTmAuthDeposit'] = 'aaa';
+    /**
+     * 导入
+     * @param type $tableName       导入表名
+     * @param type $fileId          文件id
+     * @param array $headers        表头转换
+     * @param array $preInputData   预录数据
+     */
+    public static function doImport( $tableName, $fileId, array $headers, array $preInputData, $covData=[] )
+    {
+//        $service    = DbOperate::getService( $tableName );
+        $resData    = self::fileGetArray( $fileId ,$headers );
+
+        foreach($resData as &$v){
+            $v          = array_merge( $preInputData , $v );
+            $v['id']    = SnowFlake::generateParticle();
+            //用于拆分
+            $v['val']   = json_encode($v,JSON_UNESCAPED_UNICODE);     
+        }
+        
+        $importSql = DbOperate::saveAllSql($tableName, $resData,$covData);
+        //返回受影响行数
+        return Db::execute($importSql);
+    }
+    
 
 }

@@ -1,10 +1,13 @@
 <?php
 namespace xjryanse\system\service\columnlist;
+
 use xjryanse\system\interfaces\ColumnListInterface;
+use xjryanse\system\service\SystemCateService;
+use xjryanse\logic\DataCheck;
 /**
  * 枚举
  */
-class Dynenum extends Base implements ColumnListInterface
+class Textarea extends Base implements ColumnListInterface
 {
     /**
      * 获取option
@@ -12,23 +15,14 @@ class Dynenum extends Base implements ColumnListInterface
      */
     public static function getOption( $optionStr )
     {
-        $arr = equalsToKeyValue( $optionStr , '&');
-        foreach( $arr as &$value ){
-            $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
+        //非json格式，表示为key优先从cate表中提取
+        if(!DataCheck::isJson($optionStr)){
+            $resArr = SystemCateService::columnByGroup( $optionStr );
+            return $resArr ? : [];
         }
-
-        $con = [];
-        if(isset( $arr['con'])){
-            foreach($arr['con'] as $key =>$value){
-                //数组拆
-                $con[] = [ $key,'in',explode(',',$value) ];
-            }
-        }
-        $cache = isset($arr['cache']) ? true : false ;
-        $arr['option']  = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con ,$cache );
-        return $arr;
+        return  $optionStr ? json_decode( $optionStr,true ) : [];
     }
-    
+        
     /**
      * 获取数据
      */
