@@ -18,6 +18,7 @@ use think\Db;
  */
 class ImportLogic
 {
+    use \xjryanse\traits\DebugTrait;
     /**
      * 数据导入逻辑
      * @param string $file
@@ -122,13 +123,26 @@ class ImportLogic
      */
     public static function fileGetArray( $fileId, $arrayCov )
     {
+        //临时
+        if(isset($fileId['id']) ){
+            $fileId = $fileId['id'];
+        }
+        self::debug('$infoSqlId',$fileId);
         $info   = SystemFileService::mainModel()->field('*,file_path as rawPath')->get( $fileId );
+        self::debug('$info',$info);
+        
         $path   = $info['rawPath'] ;
-
+        //访问路径
+        self::debug('$path',$path);
+        
         if(!file_exists( $path ) && file_exists( mb_substr($path,1 ))){
             //去除首字符反斜杠
             $path   = mb_substr($path,1 );
         }
+        if(!$path){
+            return false;
+        }
+
         $data       = self::importExecl( $path );
         $shiftToKey = Arrays2d::shiftToKey( $data );
         $resData    = Arrays2d::keyReplace( $shiftToKey, $arrayCov );
@@ -152,16 +166,21 @@ class ImportLogic
     public static function doImport( $tableName, $fileId, array $headers, array $preInputData, $covData=[] )
     {
 //        $service    = DbOperate::getService( $tableName );
+        self::debug('$fileId',$fileId);
         $resData    = self::fileGetArray( $fileId ,$headers );
 
+        self::debug('$resData',$resData);
+        if(!$resData){
+            return false;
+        }
         foreach($resData as &$v){
             $v          = array_merge( $preInputData , $v );
             $v['id']    = SnowFlake::generateParticle();
             //用于拆分
             $v['val']   = json_encode($v,JSON_UNESCAPED_UNICODE);     
         }
-        
         $importSql = DbOperate::saveAllSql($tableName, $resData,$covData);
+
         //返回受影响行数
         return Db::execute($importSql);
     }

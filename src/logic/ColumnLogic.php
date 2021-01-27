@@ -134,6 +134,8 @@ class ColumnLogic
             $v['table_name'] = $res['table_name'] ;
             //选项
             $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] );
+            //查询条件
+            $v['show_condition'] = json_decode($v['show_condition'],JSON_UNESCAPED_UNICODE);
 
             //联表数据
             if( $v['type'] == 'union' ){
