@@ -184,6 +184,23 @@ class ImportLogic
         //返回受影响行数
         return Db::execute($importSql);
     }
+    /**
+     * 导入数据转换
+     */
+    /**
+     * 
+     * @param type $data
+     * @param type $covData     {"holder_type":{"公司":"customer","个人":"personal"},"is_buyer":{"否":0,"是":1}}
+     */
+    public static function importDataCov($data,$covData)
+    {
+        foreach( $data as &$value){
+            foreach($value as $kk=>&$vv){
+                $vv = (isset($covData[$kk]) && $covData[$kk][$vv]) ?  $covData[$kk][$vv] : $vv;
+            }
+        }
+        return $data;
+    }
     
 
 }

@@ -19,6 +19,8 @@ class SystemColumnListService implements MainModelInterface {
      * 额外详情信息
      */
     protected static function extraDetail(&$item, $uuid) {
+        if(!$item){ return false;}
+        self::commExtraDetail($item,$id );
         $columnId = isset($item['column_id']) ? $item['column_id'] : '';
         $item['cate_field_name'] = SystemColumnService::getInstance($columnId)->fCateFieldName();
         return $item;

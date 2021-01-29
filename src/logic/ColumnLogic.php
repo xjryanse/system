@@ -14,6 +14,7 @@ use xjryanse\system\service\SystemColumnBlockService;
 class ColumnLogic
 {
     use \xjryanse\traits\TreeTrait;
+    use \xjryanse\traits\DebugTrait;
     /**
      * 取默认表
      * @param type $controller  控制器
@@ -22,7 +23,7 @@ class ColumnLogic
      * @param type $cateFieldValue  可以是字符串或数组，如数组，按key取值
      * @return type
      */
-    public static function defaultColumn(  $controller, $tableKey , $companyId = '',$cateFieldValue='')
+    public static function defaultColumn(  $controller, $tableKey , $companyId = '',$cateFieldValue='',$methodKey ='')
     {
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
@@ -30,7 +31,7 @@ class ColumnLogic
             $con[] = ['company_id','in',['',$companyId]];
         }
         $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
-        return self::getById($columnId,[],$cateFieldValue);
+        return self::getById($columnId,[], $cateFieldValue, $methodKey );
     }
     /**
      * 获取搜索字段
@@ -91,9 +92,10 @@ class ColumnLogic
      * @param type $info        表信息
      * @param type $fields      字段数组
      * @param type $conField    字段过滤信息
+     * @param type $methodKey    方法id
      * @return boolean
      */
-    private static function getDetail( $info, $fields='',$conField = [])
+    private static function getDetail( $info, $fields='',$conField = [],$methodKey = '')
     {
         if(!$info){
             return false;
@@ -109,7 +111,17 @@ class ColumnLogic
         $con1[] = ['column_id','=',$info['id']];
         $con1[] = ['status','=',1];
 
-        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1 ) : $con1 );
+        self::debug('查询条件',array_merge($con1,[['method_key','=',$methodKey]]));
+//        //方法id存在，且有自定义值
+//        dump( array_merge($con1,[['method_key','=',$methodKey]]) );
+//        dump( SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]])) );
+        if($methodKey && SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]]))){
+            $con2[] = ['method_key', '=', $methodKey ];
+        } else {
+            $con2[] = ['method_key', '=', ''];   //没数据默认查空
+        }
+
+        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ) );
         //按钮
         $info['btnInfo']        = SystemColumnBtnService::lists( $con1 );
         //操作
@@ -172,10 +184,12 @@ class ColumnLogic
         $res = SystemColumnService::save( $data );
         //字段
         $tmp = [];
+        $sort = 100;    //字段排序值
         foreach($columns as $k=>$v){
             $tmp[$k]['column_id']   = $res['id'];
             $tmp[$k]['name']        = $v;
             $tmp[$k]['label']       = $v;
+            $tmp[$k]['sort']        = $sort;    $sort += 100;   //排序
             $tmp[$k]['type']    = ($v == 'id') ? 0 :'text';   //id隐藏域
             $tmp[$k]['is_add']  = (in_array($v, ['id','create_time','update_time'])) ? 0 :1;   
             $tmp[$k]['is_edit'] = (in_array($v, ['create_time','update_time'])) ? 0 :1;
@@ -211,9 +225,10 @@ class ColumnLogic
      * @param type $columnId        字段id
      * @param type $fields          指定字段
      * @param type $cateFieldValue  分类值（用于不同表取不同的字段）
+     * @param type $methodKey        方法id
      * @return type
      */
-    public static function getById( $columnId ,$fields = [], $cateFieldValue='')
+    public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '')
     {
         $info   = SystemColumnService::getInstance( $columnId )->get();
         $con    = [];
@@ -226,7 +241,7 @@ class ColumnLogic
             //按分类名进行过滤
             $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
         }
-        $info2  = self::getDetail( $info, $fields, $con );
+        $info2  = self::getDetail( $info, $fields, $con ,$methodKey );
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换

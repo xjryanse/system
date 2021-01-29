@@ -18,6 +18,7 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
     public static function getInfoFields( $tableName )
     {
         $con[] = ['table_name','=',$tableName];
+        $con[] = ['status','=',1];
         return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
     }
             
