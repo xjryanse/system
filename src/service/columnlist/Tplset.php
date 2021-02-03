@@ -99,9 +99,9 @@ class Tplset extends Base implements ColumnListInterface
         //数据主表数据
         $lists  = Db::table( $mainTable )->where( $mainTableCond )->column('*',$mainDataKey );
         //分组key：平台/卖家
-        $groupKeys = Db::table( $tplTable ) ->where( $tplCond )->column( 'distinct '.$tplGroupKey );
+        $groupKeys = Db::table( $tplTable ) ->where( $tplCond )->order('sort')->column( 'distinct '.$tplGroupKey );
         //模板表主key
-        $mainKeys = Db::table( $tplTable ) ->where(  $tplCond )->column( 'distinct '.$tplMainKey );
+        $mainKeys = Db::table( $tplTable ) ->where(  $tplCond )->order('sort')->column( 'distinct '.$tplMainKey );
 
         $dataArr = [];
         foreach( $mainKeys as $v ){

@@ -61,11 +61,11 @@ class ColumnLogic
     /**
      * 传一个表名，拿到默认的column信息。尽量不使用
      */
-    public static function tableNameColumn( $tableName,$fields='' )
+    public static function tableNameColumn( $tableName,$fields='' ,$methodKey = '')
     {
         $con[]  = ['table_name','=',$tableName]     ;
         $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
-        return self::getById($columnId,$fields);
+        return self::getById($columnId,$fields,'',$methodKey);
 //        没测20201228
 //        $info   = SystemColumnService::find( $con ) ;
 //        $info2  = self::getDetail( $info,$fields )  ;
@@ -115,7 +115,7 @@ class ColumnLogic
 //        //方法id存在，且有自定义值
 //        dump( array_merge($con1,[['method_key','=',$methodKey]]) );
 //        dump( SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]])) );
-        if($methodKey && SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]]))){
+        if($methodKey && $methodKey !="*" && SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]]))){
             $con2[] = ['method_key', '=', $methodKey ];
         } else {
             $con2[] = ['method_key', '=', ''];   //没数据默认查空

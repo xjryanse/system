@@ -23,11 +23,7 @@ class SystemConditionService implements MainModelInterface {
 
     public static function listsByItemId($itemId, $param = []) {
         $con[] = ['item_id', 'in', $itemId];
-        $lists = self::lists($con, 'group_id');
-        foreach ($param as $key => $value) {
-            $lists = str_replace('{$' . $key . '}', $value, $lists);
-        }
-        return is_array($lists) ? $lists : json_decode($lists, true);
+        return self::getCond($con, $param);
     }
 
     /**
@@ -40,11 +36,28 @@ class SystemConditionService implements MainModelInterface {
     public static function listsByItemKey($itemType, $itemKey, $param = []) {
         $con[] = ['item_type', 'in', $itemType];
         $con[] = ['item_key', 'in', $itemKey];
-        $lists = self::lists($con, 'group_id');
-        foreach ($param as $key => $value) {
-            $lists = str_replace('{$' . $key . '}', $value, $lists);
+
+        return self::getCond($con, $param);
+    }
+    
+    protected static function getCond( $con, $param )
+    {
+        $lists = json_encode( self::lists($con, 'group_id') ,JSON_UNESCAPED_UNICODE);
+        self::debug( '查询结果Sql-1', $lists );
+        if($param){
+            foreach ($param as $key => $value) {
+                $lists = str_replace('{$' . $key . '}', $value, $lists);
+            }
         }
-        return is_array($lists) ? $lists : json_decode($lists, true);
+        self::debug( '查询结果Sql-2', $lists );
+        $listsRes = json_decode($lists, true);
+        self::debug( '查询结果Sql-3', $listsRes );
+        foreach( $listsRes as $key=>&$value){
+            $value['judge_cond']    = json_decode($value['judge_cond'], JSON_UNESCAPED_UNICODE);
+        }
+        self::debug( '查询结果Sql-4', $listsRes );
+
+        return $listsRes;
     }
 
     /**
@@ -68,8 +81,9 @@ class SystemConditionService implements MainModelInterface {
     public static function isReachByItemKey($itemType, $itemKey, $param) {
         //条件
         $conditions = self::listsByItemKey($itemType, $itemKey, $param);
-        self::debug(__METHOD__ . '$conditions', $conditions);
+        self::debug(__METHOD__ . '0001', $conditions);
         $results = self::conditionsGetResult($conditions);
+        self::debug(__METHOD__ . '结果', $results);
         //相同group的数据，全部为true，则true;
         return $results;
     }
@@ -87,6 +101,7 @@ class SystemConditionService implements MainModelInterface {
             $v['result'] = eval("return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
             $res[$v['group_id']][] = $v['result'];
         }
+        self::debug(__METHOD__ . '$res', $res );
         foreach ($res as $value) {
             //某一组全为true（没有false）,说明条件达成，
             if (!in_array(false, $value)) {

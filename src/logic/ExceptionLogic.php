@@ -2,6 +2,7 @@
 namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemErrorLogService;
+use xjryanse\logic\Debug;
 use Exception;
 use think\exception\Handle;
 use think\Db;
@@ -22,10 +23,10 @@ class ExceptionLogic extends Handle
             Db::rollback();
         }
         //有错误的用1
-//        return parent::render($e);
-        return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() );
-        //TODO::开发者对异常的操作
-        //可以在此交由系统处理
-//        return parent::render($e);
+        if(Debug::isDebug()){
+            return parent::render($e);
+        } else {
+            return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() );
+        }
     }
 }

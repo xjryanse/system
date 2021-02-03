@@ -98,6 +98,12 @@ class SystemColumnListService implements MainModelInterface {
     public function fColumnId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+    /**
+     * 方法Key
+     */
+    public function fMethodKey() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
 
     /**
      * 字段名

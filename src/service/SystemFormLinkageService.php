@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Debug;
 
 /**
  * 表单预加载联动数据
@@ -27,6 +28,8 @@ class SystemFormLinkageService extends Base implements MainModelInterface {
             return false;
         }
         $linkages = self::tableFieldLinkages($tableName, $linkField);
+        Debug::debug('$linkages',$linkages);
+
         foreach( $linkages as $linkage){
             $con    = $item['condition'] ? json_decode($item['condition'],JSON_UNESCAPED_UNICODE) : [];
             $con[]  = [$linkage['source_link_field'],'=',$item[$linkField]];
