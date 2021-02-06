@@ -9,8 +9,9 @@ interface ColumnListInterface
     /**
      * 获取字段信息
      * @param type $optionStr   &符号连接的字符串
+     * @param type $data        用于联动的数据
      */
-    public static function getOption( $optionStr );
+    public static function getOption( $optionStr,$data=[] );
 
     /**
      * 获取数据

@@ -10,7 +10,7 @@ class Subcheck extends Base implements ColumnListInterface
      * 获取option
      * @param type $optionStr
      */
-    public static function getOption( $optionStr )
+    public static function getOption( $optionStr,$data=[])
     {
         $arr = equalsToKeyValue( $optionStr , '&');
         foreach( $arr as $key=>&$value ){

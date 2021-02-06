@@ -59,13 +59,18 @@ class ColumnLogic
     }    
     
     /**
-     * 传一个表名，拿到默认的column信息。尽量不使用
+     * 传一个表名，拿到默认的column信息
+     * @param type $tableName   表名
+     * @param type $fields      表字段
+     * @param type $methodKey   方法key 
+     * @param type $data        用于联动过滤的数据
+     * @return type
      */
-    public static function tableNameColumn( $tableName,$fields='' ,$methodKey = '')
+    public static function tableNameColumn( $tableName,$fields='' ,$methodKey = '',$data=[])
     {
         $con[]  = ['table_name','=',$tableName]     ;
         $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
-        return self::getById($columnId,$fields,'',$methodKey);
+        return self::getById($columnId,$fields,'',$methodKey,$data);
 //        没测20201228
 //        $info   = SystemColumnService::find( $con ) ;
 //        $info2  = self::getDetail( $info,$fields )  ;
@@ -135,7 +140,13 @@ class ColumnLogic
     }
 
     //字段转换
-    private static function scolumnCov( &$res ){
+    /**
+     * 
+     * @param type $res
+     * @param type $data    用于联动的数据
+     * @return type
+     */
+    private static function scolumnCov( &$res,$data=[] ){
         if(!isset( $res['listInfo'] )){
             return $res;
         }
@@ -145,7 +156,7 @@ class ColumnLogic
             //冗余字段，方便前端使用
             $v['table_name'] = $res['table_name'] ;
             //选项
-            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] );
+            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] ,$data);
             //查询条件
             $v['show_condition'] = json_decode($v['show_condition'],JSON_UNESCAPED_UNICODE);
 
@@ -228,7 +239,7 @@ class ColumnLogic
      * @param type $methodKey        方法id
      * @return type
      */
-    public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '')
+    public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
         $info   = SystemColumnService::getInstance( $columnId )->get();
         $con    = [];
@@ -241,11 +252,11 @@ class ColumnLogic
             //按分类名进行过滤
             $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
         }
-        $info2  = self::getDetail( $info, $fields, $con ,$methodKey );
+        $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
         //循环
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换
-        return self::scolumnCov($info2);
+        return self::scolumnCov($info2,$data);
     }
     /**
      * 导入数据转换

@@ -13,7 +13,7 @@ class Enum extends Base implements ColumnListInterface
      * 获取option
      * @param type $optionStr
      */
-    public static function getOption( $optionStr )
+    public static function getOption( $optionStr,$data=[])
     {
         //非json格式，表示为key优先从cate表中提取
         if(!DataCheck::isJson($optionStr)){

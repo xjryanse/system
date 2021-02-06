@@ -32,9 +32,9 @@ class SystemColumnListService implements MainModelInterface {
      * @param type $optionStr   选项字符串
      * @return type
      */
-    public static function getOption($type, $optionStr) {
+    public static function getOption($type, $optionStr,$data=[]) {
         $class = self::getClassStr($type);
-        return class_exists($class) ? $class::getOption($optionStr) : '';
+        return class_exists($class) ? $class::getOption($optionStr,$data) : '';
     }
 
     /**
