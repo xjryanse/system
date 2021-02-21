@@ -49,13 +49,15 @@ abstract class Base
         //先删再写
         $class = DbOperate::getService( $tableName );
         $class::mainModel()->where( $con1 )->delete();
-        foreach( $dataArr as $vv ){
-            //写资源
-            $tmpData    = [];
-            $tmpData[ $mainField ]    = $mainId ;
-            $tmpData[ $toField ]      = $vv;
-            //TODO优化为批量保存
-            $class::save( $tmpData );
+        if($dataArr && (is_array($dataArr) || is_object($dataArr)) ){
+            foreach( $dataArr as $vv ){
+                //写资源
+                $tmpData    = [];
+                $tmpData[ $mainField ]    = $mainId ;
+                $tmpData[ $toField ]      = $vv;
+                //TODO优化为批量保存
+                $class::save( $tmpData );
+            }
         }
     }
 }

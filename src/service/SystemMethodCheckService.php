@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays;
+use xjryanse\logic\DbOperate;
 use Exception;
 
 /**
@@ -22,6 +23,7 @@ class SystemMethodCheckService extends Base implements MainModelInterface {
      */
     public static function checkByMethodId( $methodId, $param )
     {
+        $tableName = SystemMethodService::getInstance( $methodId )->fTableName();
         //有在方法列表的校验
         $con[] = ['method_id','=',$methodId ];
         $con[] = ['status','=',1];      //方便临时关闭校验，不使用的校验方法最好删除
@@ -35,9 +37,23 @@ class SystemMethodCheckService extends Base implements MainModelInterface {
             if($rule['check_type'] == 'must' && !Arrays::value($param, $rule['param'])){
                 throw new Exception( $rule['notice']);
             }
+            //必填的值，不可为空
+            if($rule['check_type'] == 'unique' 
+                    && self::isUnique($tableName, $rule['param'], Arrays::value($param, $rule['param']), Arrays::value($param, 'id') )){
+                throw new Exception( $rule['notice']);
+            }
         }
     }
     
+    public static function isUnique($tableName, $field ,$value ,$id='')
+    {
+        $service = DbOperate::getService( $tableName );
+        $con[] = [ $field ,'=',$value ];
+        if($id){
+            $con[] = ['id' ,'<>',$id ];
+        }
+        return $service::mainModel()->where( $con )->value('id');
+    }
     /**
      *
      */

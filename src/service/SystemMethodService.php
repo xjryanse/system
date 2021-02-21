@@ -88,7 +88,10 @@ class SystemMethodService extends Base implements MainModelInterface {
     public function fAdmKey() {
         return $this->getFFieldValue(__FUNCTION__);
     }
-
+    
+    public function fTableName() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
     /**
      * 排序
      */
