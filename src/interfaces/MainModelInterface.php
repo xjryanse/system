@@ -18,7 +18,7 @@ interface MainModelInterface
     /**
      * 新增保存
      */
-    public static function save( array $data);    
+    public static function save( $data);    
     /**
      * 主表信息
      * @param type $cache   缓存时间
