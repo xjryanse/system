@@ -38,7 +38,15 @@ class SystemCateService implements MainModelInterface {
         $res = self::mainModel()->where( $con )->column('cate_name','cate_key');
         return $res;
     }
-
+    /**
+     * key取id
+     */
+    public static function keyGetId( $groupKey, $cateKey )
+    {
+        $con[] = ['group_key','=',$groupKey];
+        $con[] = ['cate_key','=',$cateKey];
+        return self::mainModel()->where( $con )->value('id');
+    }
     /*     * ***************** */
 
     /**
