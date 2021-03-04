@@ -19,8 +19,11 @@ class SystemColumnBtnService implements MainModelInterface {
     public static function btnCov(&$btnInfo) {
         $btnInfo['param'] = $btnInfo['param'] ? json_decode($btnInfo['param'], true) : [];
         $btnInfo['show_condition'] = $btnInfo['show_condition'] ? json_decode($btnInfo['show_condition'], true) : [];
-
+        //当前session的用户id
+        $userId = session(SESSION_USER_ID) ;
         $tmp = $btnInfo['url'];
+        $tmp = str_replace('{$sessionUserId}', $userId, $tmp);
+        
         $tmp .= strstr($tmp, '?') ? '&' . 'comKey=' . Request::param('comKey', '') : '/comKey/' . Request::param('comKey', '');
         $btnInfo['url'] = $tmp;
         return $btnInfo;

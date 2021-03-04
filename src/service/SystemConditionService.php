@@ -43,6 +43,7 @@ class SystemConditionService implements MainModelInterface {
     protected static function getCond( $con, $param )
     {
         $lists = json_encode( self::lists($con, 'group_id') ,JSON_UNESCAPED_UNICODE);
+        self::debug( '$param', $param );
         self::debug( '查询结果Sql-1', $lists );
         if($param){
             foreach ($param as $key => $value) {

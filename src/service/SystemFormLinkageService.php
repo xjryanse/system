@@ -38,7 +38,12 @@ class SystemFormLinkageService extends Base implements MainModelInterface {
             if( !$sourceService ){
                 continue;                    
             }
+            Debug::debug('查询条件',$con);
             $sourceInfo = $sourceService::find($con);
+            //来源信息
+            Debug::debug('$sourceInfo',$sourceInfo);
+            Debug::debug('source_field',$linkage['source_field']);
+            Debug::debug('target_field',$linkage['target_field']);
             //当前表目标字段，赋值为来源表来源字段
             $item[ $linkage['target_field'] ]   = $sourceInfo && isset($sourceInfo[ $linkage['source_field']]) 
                     ? $sourceInfo[ $linkage['source_field']]

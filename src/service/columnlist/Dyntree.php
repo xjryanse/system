@@ -19,7 +19,8 @@ class Dyntree extends Base implements ColumnListInterface
         }
         
         //配套树状前端使用
-        $lists = DbOperate::getService($arr['table_name'])::lists([],'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
+        $con[] = ['status','=',1];
+        $lists = DbOperate::getService($arr['table_name'])::lists($con,'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
         $arr['option']  = $lists ? $lists->toArray() : [] ;
 
         return $arr;
