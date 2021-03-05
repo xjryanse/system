@@ -3,6 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\user\service\UserAuthRoleBtnService;
 use think\facade\Request;
 
 /**
@@ -15,7 +16,7 @@ class SystemColumnBtnService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnBtn';
-
+    
     public static function btnCov(&$btnInfo) {
         $btnInfo['param'] = $btnInfo['param'] ? json_decode($btnInfo['param'], true) : [];
         $btnInfo['show_condition'] = $btnInfo['show_condition'] ? json_decode($btnInfo['show_condition'], true) : [];

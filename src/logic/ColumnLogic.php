@@ -8,6 +8,9 @@ use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
 use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
+use xjryanse\user\service\UserAuthUserRoleService;
+use xjryanse\user\service\UserAuthRoleBtnService;
+
 /**
  * 字段逻辑
  */
@@ -127,8 +130,13 @@ class ColumnLogic
         }
 
         $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ) );
-        //按钮
-        $info['btnInfo']        = SystemColumnBtnService::lists( $con1 );
+        //【按钮】
+        //获取用户的角色
+        $roleIds    = UserAuthUserRoleService::userRoleIds(session(SESSION_USER_ID));
+        //获取角色的按钮权限
+        $dataIds  = UserAuthRoleBtnService::roleBtnIds( $roleIds );        
+        $con3[] = ['id','in',$dataIds];
+        $info['btnInfo']        = SystemColumnBtnService::lists( array_merge( $con1,$con3 ) );
         //操作
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
