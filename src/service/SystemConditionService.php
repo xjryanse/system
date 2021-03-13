@@ -36,6 +36,7 @@ class SystemConditionService implements MainModelInterface {
     public static function listsByItemKey($itemType, $itemKey, $param = []) {
         $con[] = ['item_type', 'in', $itemType];
         $con[] = ['item_key', 'in', $itemKey];
+        $con[] = ['status', '=', 1];
 
         return self::getCond($con, $param);
     }
