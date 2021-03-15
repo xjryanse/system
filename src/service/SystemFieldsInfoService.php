@@ -19,9 +19,23 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
     {
         $con[] = ['table_name','=',$tableName];
         $con[] = ['status','=',1];
+        $con[] = ['is_extra','=',1];
         return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
     }
-            
+
+    /**
+     * 限制了关联表记录删除的字段
+     * @param type $relativeTable
+     * @return type
+     */
+    public static function relativeDelFields( $relativeTable )
+    {
+        $con[] = ['relative_table','=',$relativeTable];
+        $con[] = ['status','=',1];
+        $con[] = ['is_relative_del','=',1];
+        return self::lists($con, '', 'id,table_name,field_name,relative_table', 86400);
+    }
+
     /**
      *
      */
