@@ -33,6 +33,7 @@ class SystemFieldsLogTableService extends Base implements MainModelInterface {
             $data = [];
             $data['table_name'] = $tableName;
             $data['field_name'] = $value['field_name'];
+            $data['record_id']  = $value['id'];         //记录的id
             $data['before_val'] = json_encode($preData);
             $data['after_val']  = json_encode($afterData);
             

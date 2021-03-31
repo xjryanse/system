@@ -128,15 +128,24 @@ class ColumnLogic
         } else {
             $con2[] = ['method_key', '=', ''];   //没数据默认查空
         }
-
-        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ) );
+        //字段查询的字段【20210330】
+        $fieldStr = "id,column_id,method_key,label,name,type,query_type,option,search_type,search_show,"
+                . "is_list,is_list_edit,is_add,is_edit,only_detail,is_must,is_export,is_import_must,"
+                . "is_span_company,is_linkage,list_style,list_pop,edit_btn_id,list_pop_operate,"
+                . "min_width,width,form_col,cate_field_value,flex_item_id,show_condition";
+//        $fieldStr="*";
+        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ),"",$fieldStr,86400 );
         //【按钮】
         //获取用户的角色
         $roleIds    = UserAuthUserRoleService::userRoleIds(session(SESSION_USER_ID));
         //获取角色的按钮权限
         $dataIds  = UserAuthRoleBtnService::roleBtnIds( $roleIds );        
         $con3[] = ['id','in',$dataIds];
-        $info['btnInfo']        = SystemColumnBtnService::lists( array_merge( $con1,$con3 ) );
+        //按钮查询的字段【20210330】
+        $fieldStr = "id,block_id,remark,name,title,confirm,o_type,place,btn_cate,btn_style,btn_class,"
+                . "layer_width,layer_height,icon,url,param,show_condition,no_match_style,prompt,prompt_default";
+        $fieldStr="*";
+        $info['btnInfo']        = SystemColumnBtnService::lists( array_merge( $con1,$con3 ),"",$fieldStr,86400 );
         //操作
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
@@ -249,7 +258,7 @@ class ColumnLogic
      */
     public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
-        $info   = SystemColumnService::getInstance( $columnId )->get();
+        $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
         $con    = [];
         //分类取值
         if($info['cate_field_name'] && is_array($cateFieldValue)){

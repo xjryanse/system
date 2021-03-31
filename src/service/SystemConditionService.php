@@ -95,10 +95,12 @@ class SystemConditionService implements MainModelInterface {
      */
     private static function conditionsGetResult($conditions) {
         //结果集
+        self::debug(__METHOD__ . '$conditions', $conditions);
         $res = [];
         foreach ($conditions as &$v) {
             $tmpResult = Db::table($v['judge_table'])->where($v['judge_cond'])->field($v['judge_field'] . ' as result')->find();
             self::debug(__METHOD__ . '$tmpResultLastSql', Db::table($v['judge_table'])->getLastSql());
+            self::debug(__METHOD__ . ' eval ', "return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
             $v['resVal'] = $tmpResult['result'];
             $v['result'] = eval("return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
             $res[$v['group_id']][] = $v['result'];

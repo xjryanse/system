@@ -35,7 +35,7 @@ class SystemFileService implements MainModelInterface {
         }
 
         // 移动到框架应用根目录/v/Uploads/files/ 目录下
-        $info = $file->validate(['ext' => 'apk,wgt,ipa,doc,docx,xls,xlsx,txt,zip,rar,ppt'])->move('./Upload/files');
+        $info = $file->validate(['ext' => 'jpg,jpeg,png,gif,bmp,tiff,pdf,apk,wgt,ipa,doc,docx,xls,xlsx,txt,zip,rar,ppt,et'])->move('./Upload/files');
 
         if ($info) {
             $path = 'Upload/files/' . $info->getSaveName();
@@ -74,7 +74,7 @@ class SystemFileService implements MainModelInterface {
         }
 
         // 移动到框架应用根目录/v/Uploads/Picture/ 目录下
-        $info = $file->validate(['size' => 20971520, 'ext' => 'jpg,jpeg,png,gif,bmp,tiff,pdf,pcx,avi,mov,rmvb,rm,asf,wma,flv,mpg,mkv,mp3,mp4'])->move('./images');
+        $info = $file->validate(['size' => 20971520, 'ext' => 'jpg,jpeg,png,gif,bmp,tiff,pdf,pcx,avi,mov,rmvb,rm,asf,wma,flv,mpg,mkv,mp3,mp4,doc,docx,xls,xlsx'])->move('./images');
         if ($info) {
             $path = 'images/' . $info->getSaveName();
             $data['file_type'] = 'image';

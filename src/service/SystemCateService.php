@@ -35,7 +35,7 @@ class SystemCateService implements MainModelInterface {
     public static function columnByGroup( $groupKey, $con = [])
     {
         $con[] = ['group_key','=',$groupKey];
-        $res = self::mainModel()->where( $con )->column('cate_name','cate_key');
+        $res = self::mainModel()->where( $con )->cache(86400)->column('cate_name','cate_key');
         return $res;
     }
     /**
