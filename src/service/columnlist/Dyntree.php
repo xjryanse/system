@@ -2,6 +2,8 @@
 namespace xjryanse\system\service\columnlist;
 use xjryanse\system\interfaces\ColumnListInterface;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Arrays;
+use xjryanse\logic\Debug;
 /**
  * 枚举
  */
@@ -17,9 +19,19 @@ class Dyntree extends Base implements ColumnListInterface
         foreach( $arr as &$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
         }
-        
         //配套树状前端使用
         $con[] = ['status','=',1];
+        if(isset( $arr['con']) && is_array($arr['con'])){
+            foreach($arr['con'] as $key =>$value){
+                if( $value && Arrays::value($data, $value) ){
+                    $value = Arrays::value($data, $value);
+                }
+                //数组拆
+                $con[] = [ $key,'in',explode(',',$value) ];
+            }
+        }
+        Debug::debug( 'Dyntree的getOption的sql', DbOperate::getService($arr['table_name'])::mainModel()->where($con)->buildSql());
+
         $lists = DbOperate::getService($arr['table_name'])::lists($con,'','id,'.$arr['pid'].' as pId,concat('.$arr['value'].') as name' );
         $arr['option']  = $lists ? $lists->toArray() : [] ;
 

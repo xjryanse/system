@@ -11,7 +11,8 @@ use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
 use xjryanse\system\service\SystemFileService;
 use xjryanse\logic\SnowFlake;
-
+use xjryanse\logic\Debug;
+use Exception;
 use think\Db;
 /**
  * 导入逻辑
@@ -64,8 +65,9 @@ class ImportLogic
         if (0 == $columnCnt) {
             /* 取得最大的列号 */
             $columnH = $currSheet->getHighestColumn();
+            Debug::debug( '$columnH', $columnH );
             /* 兼容原逻辑，循环时使用的是小于等于 */
-            $columnCnt = Coordinate::columnIndexFromString($columnH);
+            $columnCnt = Coordinate::columnIndexFromString( $columnH );
         }
 
         /* 获取总行数 */
@@ -109,9 +111,10 @@ class ImportLogic
                 }
             }
 
-            /* 判断是否整行数据为空，是的话删除该行数据 */
+            /* 判断是否整行数据为空，是的话删除该行数据，并且返回结果 */
             if ($isNull) {
                 unset($data[$_row]);
+                return $data;
             }
         }
 
@@ -121,7 +124,14 @@ class ImportLogic
     /**
      * excel文件取二维数组数据
      */
-    public static function fileGetArray( $fileId, $arrayCov )
+    /**
+     * 
+     * @param type $fileId
+     * @param type $arrayCov
+     * @param type $maxLimit    最大可导条数
+     * @return boolean
+     */
+    public static function fileGetArray( $fileId, $arrayCov ,$maxLimit = 0)
     {
         //临时
         if(isset($fileId['id']) ){
@@ -144,6 +154,10 @@ class ImportLogic
         }
 
         $data       = self::importExecl( $path );
+        if($maxLimit && count($data) > $maxLimit){
+            throw new Exception('最多可导入'.$maxLimit.'条(当前'. count($data) .'条)');
+        }
+
         $shiftToKey = Arrays2d::shiftToKey( $data );
         $resData    = Arrays2d::keyReplace( $shiftToKey, $arrayCov );
 
