@@ -3,6 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Debug;
 use think\facade\Request;
 use think\Exception;
 
@@ -64,7 +65,8 @@ class SystemFileService implements MainModelInterface {
         }
         //查询文件
         $isFileExist = self::isFileExist($file->md5(), $file->sha1());
-        if ($isFileExist) {
+        //20210406，增加判断文件夹路径下是否真实存在
+        if ($isFileExist && file_exists('.'.$isFileExist['file_path'])) {
             //文件已存在
             return $isFileExist;
         }
@@ -141,7 +143,15 @@ class SystemFileService implements MainModelInterface {
         $data['md5'] = $info->md5();
         $data['sha1'] = $info->sha1();
         $data['status'] = '1';
-
+        if( $data['md5'] && $data['sha1']){
+            $con[] = ['md5','=',$data['md5']];
+            $con[] = ['sha1','=',$data['sha1']];
+            $info = self::find( $con );
+            if($info){
+                return self::getInstance( $info['id'])->update($data);
+            }
+        }
+        
         return self::save($data);
     }
     /**
@@ -150,6 +160,7 @@ class SystemFileService implements MainModelInterface {
     public static function pathSaveGetId( $path ,$data=[])
     {
         $con[]= ['file_path','=',$path];
+        Debug::debug('pathSaveGetId的查询$con',$con);
         $info = self::find( $con );
         if(!$info) {
             $data['file_path'] = $path;
