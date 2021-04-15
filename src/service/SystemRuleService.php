@@ -3,37 +3,38 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\system\service\SystemConditionService;
+use xjryanse\logic\Arrays;
+use xjryanse\logic\Datetime;
 
 /**
- * 
+ * 分类表
  */
-class SystemFieldsInfoService extends Base implements MainModelInterface {
+class SystemRuleService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsInfo';
-
-    public static function getInfoFields( $tableName )
-    {
-        $con[] = ['table_name','=',$tableName];
-        $con[] = ['status','=',1];
-        $con[] = ['is_extra','=',1];
-        return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
-    }
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemRule';
 
     /**
-     * 限制了关联表记录删除的字段
-     * @param type $relativeTable
-     * @return type
+     * 规则是否达成
      */
-    public static function relativeDelFields( $relativeTable )
+    public function isRuleReached( $data )
     {
-        $con[] = ['relative_table','=',$relativeTable];
-        $con[] = ['status','=',1];
-        $con[] = ['is_relative_del','=',1];
-        return self::lists($con, '', 'id,table_name,field_name,relative_table,del_fault_msg', 86400);
+        $info       = $this->get();
+        $itemType   = Arrays::value($info, 'rule_type');
+        $itemKey    = Arrays::value($info, 'rule_key');
+        $res = SystemConditionService::isReachByItemKey( $itemType, $itemKey, $data );
+        return $res;
+    }
+    
+    public static function getByTypeKey( $ruleType, $ruleKey )
+    {
+        $con[] = ['rule_type','=',$ruleType ];
+        $con[] = ['rule_key','=',$ruleKey ];
+        return self::find( $con );
     }
 
     /**
@@ -58,25 +59,33 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
     }
 
     /**
-     * 布局名称
+     * 分组key
      */
-    public function fTableName() {
+    public function fGroupKey() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 分类key
+     */
+    public function fCateKey() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 分类名
+     */
+    public function fCateName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
      * 排序
      */
-    public function fFieldName() {
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 关联表名
-     */
-    public function fRelativeTable() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
     /**
      * 状态(0禁用,1启用)
      */

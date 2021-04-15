@@ -3,6 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Debug;
+use xjryanse\logic\DbOperate;
 use think\Db;
 
 /**
@@ -37,7 +39,7 @@ class SystemConditionService implements MainModelInterface {
         $con[] = ['item_type', 'in', $itemType];
         $con[] = ['item_key', 'in', $itemKey];
         $con[] = ['status', '=', 1];
-
+        Debug::debug('listsByItemKey查询条件', $con);
         return self::getCond($con, $param);
     }
     
@@ -89,7 +91,26 @@ class SystemConditionService implements MainModelInterface {
         //相同group的数据，全部为true，则true;
         return $results;
     }
-
+    
+    /**
+     * 根据itemKey，从表中查询一条记录。
+     * 判断条件是否达成
+     * @param type $itemType
+     * @param type $itemKey
+     * @param type $param
+     */
+    public static function findDataByItemKey($itemType, $itemKey, $param) {
+        $con[]  = ['item_type','=',$itemType];
+        $con[]  = ['item_key','=',$itemKey];
+        $info   = self::getCond($con, $param);
+        if( !$info){
+            return false;
+        }
+        //从数据来源表中取相关的数据
+        $service    = DbOperate::getService($info[0]['judge_table']);
+        $data       = $service::find( $info[0]['judge_cond'] );
+        return [ 'from_table'=>$info[0]['judge_table'], 'from_table_data'=>$data->toArray() ];
+    }
     /**
      * 条件取结果
      */

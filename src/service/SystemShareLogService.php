@@ -2,40 +2,50 @@
 
 namespace xjryanse\system\service;
 
+use xjryanse\logic\Url;
 use xjryanse\system\interfaces\MainModelInterface;
 
 /**
- * 
+ * 分享日志
  */
-class SystemFieldsInfoService extends Base implements MainModelInterface {
+class SystemShareLogService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsInfo';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemShareLog';
 
-    public static function getInfoFields( $tableName )
+    /**
+     * 生成新的分享
+     */
+    public static function newShare( $url, $recUserId , $shareBy="",$data=[])
     {
-        $con[] = ['table_name','=',$tableName];
-        $con[] = ['status','=',1];
-        $con[] = ['is_extra','=',1];
-        return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
+        $data['id']             = self::mainModel()->newId();
+        $data['url']            = Url::addParam($url, ['shareId'=>$data['id']]);
+        $data['rec_user_id']    = $recUserId;
+        $data['share_by']       = $shareBy;
+        $res = self::save($data);
+        //顺带清理一下没用的数据
+        self::noShareClear();
+        return $res;
+    }
+    
+    public function setShare($data=[])
+    {
+        $data['is_share'] = 1;
+        return $this->update($data);
     }
 
     /**
-     * 限制了关联表记录删除的字段
-     * @param type $relativeTable
-     * @return type
+     * 清理未分享的数据
      */
-    public static function relativeDelFields( $relativeTable )
+    protected static function noShareClear()
     {
-        $con[] = ['relative_table','=',$relativeTable];
-        $con[] = ['status','=',1];
-        $con[] = ['is_relative_del','=',1];
-        return self::lists($con, '', 'id,table_name,field_name,relative_table,del_fault_msg', 86400);
+        $con[] = ['is_share','=',0];
+        $con[] = ['create_time','<=',date('Y-m-d H:i:s',strtotime('-2 hour'))];
+        return self::mainModel()->where( $con )->delete();
     }
-
     /**
      *
      */
@@ -44,39 +54,75 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
     }
 
     /**
-     *
+     * 应用id
      */
     public function fAppId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     *
+     * 公司id
      */
     public function fCompanyId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 布局名称
+     * 访问ip
      */
-    public function fTableName() {
+    public function fIp() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     *
+     */
+    public function fUrl() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 请求头部
+     */
+    public function fHeader() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 请求参数
+     */
+    public function fParam() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 访问模块
+     */
+    public function fModule() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 访问控制器
+     */
+    public function fController() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 访问方法
+     */
+    public function fAction() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
      * 排序
      */
-    public function fFieldName() {
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 关联表名
-     */
-    public function fRelativeTable() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
     /**
      * 状态(0禁用,1启用)
      */
