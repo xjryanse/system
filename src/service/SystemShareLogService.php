@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\logic\Url;
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Debug;
 
 /**
  * 分享日志
@@ -25,6 +26,7 @@ class SystemShareLogService implements MainModelInterface {
         $data['url']            = Url::addParam($url, ['shareId'=>$data['id']]);
         $data['rec_user_id']    = $recUserId;
         $data['share_by']       = $shareBy;
+        Debug::debug('微信分享的数据保存', $data);
         $res = self::save($data);
         //顺带清理一下没用的数据
         self::noShareClear();

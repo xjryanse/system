@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Debug;
 /**
  * 导入临时文件
  */
@@ -14,6 +14,45 @@ class SystemImportTempService extends Base implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemImportTemp';
+    
+    /**
+     * 获取插队后的处理条件
+     * @param type $con     原始条件
+     * @param type $max     最大插队批次数量
+     * @param type $limit   批次数
+     */
+    public static function withCutCon( $con = [],$max = 50,$limit = 3)
+    {
+        //根据ident_key，获取批次数量
+        $res = self::mainModel()->where($con)
+                ->field('ident_key,count(1) as total')
+                ->group('ident_key')
+                ->having("total <= ".$max)
+                ->limit($limit)
+                ->order('total')
+                ->select();
+        Debug::debug('根据ident_key获取批次量结果Sql', self::mainModel()->getLastSql());
+        Debug::debug('根据ident_key获取批次量结果', $res);
+        $identKeys  = array_column( $res ? $res->toArray() : [], 'ident_key');
+        if($identKeys){
+            $identKeys = array_column( $res->toArray(), 'ident_key');
+            $con[] = ['ident_key','in', $identKeys ];
+        }
+        return $con;
+    }
+    /**
+     * 重新设为待处理
+     */
+    public static function resetTodo()
+    {
+        $con[] = ['update_time','<',date('Y-m-d H:i:s',strtotime('-5 minute'))];
+        $con[] = ['operate_status','=',1];
+        $ids = self::ids( $con );
+        if($ids){
+            $con[] = ['id','in',$ids];
+            self::mainModel()->where($con)->update(['operate_status'=>0]);
+        }
+    }
     
     /**
      *

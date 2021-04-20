@@ -2,6 +2,7 @@
 namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemFileService;
+use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\logic\Url;
 use xjryanse\logic\Folder;
 use think\File as tpFile;
@@ -23,25 +24,30 @@ class FileLogic
     public static function saveUrlFile( $url , $type="images", $defaultExt="jpg", $savePath="" )
     {
         //读取文件
-        $file   = file_get_contents( $url );
-        //读取后缀
-        $ext    = Url::getExt( $url ) ? : $defaultExt ;
-        //生成保存路径
-        if(!$savePath){
-            //文件名
-            $dirname    = "./".$type."/".date('Ymd');
-            if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-                throw new Exception('创建目录'. $dirname .'失败');
+        try{
+            $file   = file_get_contents( $url );
+            //读取后缀
+            $ext    = Url::getExt( $url ) ? : $defaultExt ;
+            //生成保存路径
+            if(!$savePath){
+                //文件名
+                $dirname    = "./".$type."/".date('Ymd');
+                if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
+                    throw new Exception('创建目录'. $dirname .'失败');
+                }
+                //保存路径
+                $savePath   = $dirname ."/".uniqid();
+                //后缀
+                if( $ext ){
+                    $savePath .= '.'.$ext;
+                }
             }
-            //保存路径
-            $savePath   = $dirname ."/".uniqid();
-            //后缀
-            if( $ext ){
-                $savePath .= '.'.$ext;
-            }
+            //写入本地服务器
+            file_put_contents( $savePath, $file );
+        } catch (\Exception $e){ 
+            SystemErrorLogService::exceptionLog($e);
+            return [];
         }
-        //写入本地服务器
-        file_put_contents( $savePath, $file );
         
         $tpFile = new tpFile( $savePath );
 
