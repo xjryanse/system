@@ -27,7 +27,7 @@ class ConfigLogic
         if( $module ){
             $con[]  = [ 'module', '=', $module ];
         }
-        $configs = SystemConfigsService::lists( $con );
+        $configs = SystemConfigsService::lists( $con,"","*",86400 );
 
         return array_column($configs ? $configs->toArray() : [], 'value', 'key');        
     }

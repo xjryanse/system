@@ -4,7 +4,9 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\service\SystemConditionService;
+use xjryanse\user\service\UserAccountLogService;
 use xjryanse\logic\Arrays;
+use xjryanse\logic\Debug;
 use xjryanse\logic\Datetime;
 
 /**
@@ -20,13 +22,29 @@ class SystemRuleService implements MainModelInterface {
 
     /**
      * 规则是否达成
+     * 包含了期间段内达成次数进行校验
      */
     public function isRuleReached( $data )
     {
         $info       = $this->get();
         $itemType   = Arrays::value($info, 'rule_type');
         $itemKey    = Arrays::value($info, 'rule_key');
+        $ruleTimes  = Arrays::value($info, 'rule_times');
+        //TODO抽离优化
+        if($info['rule_type'] == 'score'){
+            $con = [];
+            $con[] = ['user_id','=',$data['userId']];
+            $con[] = ['create_time','>=',$data['fromTime']];
+            $con[] = ['create_time','<=',$data['toTime']];
+            $con[] = ['change_cate','=',$itemKey];
+            $currentCount = UserAccountLogService::count($con);
+            if($currentCount >= $ruleTimes){
+                return false;
+            }
+        }
         $res = SystemConditionService::isReachByItemKey( $itemType, $itemKey, $data );
+        Debug::debug("规则".$this->uuid."是否已达成?",$res);
+        
         return $res;
     }
     

@@ -71,11 +71,11 @@ class SystemFileService implements MainModelInterface {
             //文件已存在
             return $isFileExist;
         }
-        //大小限制20M 20971520
-        if ($file->getSize() >= 5242880) {
-            throw new Exception('上传大小限制5M内');
-        }
         $data['file_size'] = $file->getSize();
+        //大小限制20M 20971520
+        if ($file->getSize() >= 10485760) {
+            throw new Exception('上传大小限制10M内');
+        }
 
         // 移动到框架应用根目录/v/Uploads/Picture/ 目录下
         $info = $file->validate(['size' => 20971520, 'ext' => 'jpg,jpeg,png,gif,bmp,tiff,pdf,pcx,avi,mov,rmvb,rm,asf,wma,flv,mpg,mkv,mp3,mp4,doc,docx,xls,xlsx,zip,rar'])->move('./images');

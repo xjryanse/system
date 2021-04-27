@@ -10,6 +10,7 @@ use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
 use xjryanse\user\service\UserAuthUserRoleService;
 use xjryanse\user\service\UserAuthRoleBtnService;
+use xjryanse\logic\DbOperate;
 
 /**
  * 字段逻辑
@@ -33,7 +34,7 @@ class ColumnLogic
         if($companyId){
             $con[] = ['company_id','in',['',$companyId]];
         }
-        $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
+        $columnId     = SystemColumnService::mainModel()->cache(86400)->where($con)->value('id');
         return self::getById($columnId,[], $cateFieldValue, $methodKey );
     }
     /**
@@ -48,6 +49,25 @@ class ColumnLogic
             }
         }
         return $searchFields;
+    }
+    /**
+     * 可以放到表中查询的字段
+     * @param type $columnId
+     * @return type
+     */
+    public static function listFields( $columnId )
+    {
+        //【1】状态为开的字段
+        $con[] = ['column_id','=',$columnId];
+        $con[] = ['status','=',1];
+        $res = SystemColumnListService::mainModel()->where($con)->column('distinct name');
+        //【2】数据表有的字段
+        $tableName = SystemColumnService::getInstance($columnId)->fTableName();
+        $tableColumns   = DbOperate::columns($tableName);
+        //数据表已有字段
+        $tableFields    = array_column( $tableColumns,'COLUMN_NAME');              
+        //【3】取交集
+        return array_intersect($res, $tableFields);
     }
     /**
      * 获取搜索字段
@@ -142,9 +162,9 @@ class ColumnLogic
         $dataIds  = UserAuthRoleBtnService::roleBtnIds( $roleIds );        
         $con3[] = ['id','in',$dataIds];
         //按钮查询的字段【20210330】
-        $fieldStr = "id,block_id,remark,name,title,confirm,o_type,place,btn_cate,btn_style,btn_class,"
+        $fieldStr = "id,company_id,block_id,remark,name,title,confirm,o_type,place,btn_cate,btn_style,btn_class,"
                 . "layer_width,layer_height,icon,url,param,show_condition,no_match_style,prompt,prompt_default";
-        $fieldStr="*";
+//        $fieldStr="*";
         $info['btnInfo']        = SystemColumnBtnService::lists( array_merge( $con1,$con3 ),"",$fieldStr,86400 );
         //操作
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
@@ -258,22 +278,29 @@ class ColumnLogic
      */
     public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
-        $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
-        $con    = [];
-        //分类取值
-        if($info['cate_field_name'] && is_array($cateFieldValue)){
-            $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
+        $string = $columnId.json_encode($columnId,JSON_UNESCAPED_UNICODE).$cateFieldValue.$methodKey.json_encode($data, JSON_UNESCAPED_UNICODE);
+        $key = $columnId.md5($string);
+        if(!cache( $key) ){
+            $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
+            $con    = [];
+            //分类取值
+            if($info['cate_field_name'] && is_array($cateFieldValue)){
+                $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
+            }
+            //分类名
+            if($info['cate_field_name'] && $cateFieldValue){
+                //按分类名进行过滤
+                $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
+            }
+            $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
+            //循环
+            $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
+            //字段转换
+            $res = self::scolumnCov($info2,$data);
+            //存缓存
+            cache($key,$res); 
         }
-        //分类名
-        if($info['cate_field_name'] && $cateFieldValue){
-            //按分类名进行过滤
-            $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
-        }
-        $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
-        //循环
-        $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
-        //字段转换
-        return self::scolumnCov($info2,$data);
+        return cache($key);
     }
     /**
      * 导入数据转换

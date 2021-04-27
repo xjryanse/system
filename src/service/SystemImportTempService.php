@@ -45,7 +45,7 @@ class SystemImportTempService extends Base implements MainModelInterface {
      */
     public static function resetTodo()
     {
-        $con[] = ['update_time','<',date('Y-m-d H:i:s',strtotime('-5 minute'))];
+        $con[] = ['update_time','<',date('Y-m-d H:i:s',strtotime('-2 minute'))];
         $con[] = ['operate_status','=',1];
         $ids = self::ids( $con );
         if($ids){

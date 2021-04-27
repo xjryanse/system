@@ -32,7 +32,7 @@ class SystemCompanyService implements MainModelInterface {
      */
     public static function getByKey($key) {
         $con[] = ['key', '=', $key];
-        return self::find($con);
+        return self::find($con,86400);
     }
 
     /**

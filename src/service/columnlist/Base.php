@@ -17,7 +17,9 @@ abstract class Base
         $inst = Db::table( $tableName )->where( $con );
         //缓存
         if($cache){
-            $inst->cache(true);
+            $inst->cache(86400);
+        } else {
+            $inst->cache(2);
         }
         //查询
         $list = $inst->column( $field, $key );

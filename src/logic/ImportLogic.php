@@ -138,8 +138,11 @@ class ImportLogic
             $fileId = $fileId['id'];
         }
         self::debug('$infoSqlId',$fileId);
-        $info   = SystemFileService::mainModel()->field('*,file_path as rawPath')->get( $fileId );
+        $info   = SystemFileService::mainModel()->field('*,file_path as rawPath,file_size')->get( $fileId );
         self::debug('$info',$info);
+        if($info["file_size"] > 5242880){
+            throw new Exception('文件超过5M无法解析，请分开上传');
+        }
         
         $path   = $info['rawPath'] ;
         //访问路径
