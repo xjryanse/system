@@ -19,7 +19,7 @@ abstract class Base
         if($cache){
             $inst->cache(86400);
         } else {
-            $inst->cache(2);
+            $inst->cache(5);
         }
         //查询
         $list = $inst->column( $field, $key );

@@ -69,6 +69,20 @@ class SystemColumnListService implements MainModelInterface {
         return '\\xjryanse\\system\\service\\columnlist\\' . ucfirst($type);
     }
 
+    /**
+     * 
+     * @param type $columnId    指定columnId
+     * @param type $typeName    指定类型
+     * @param type $con
+     */
+    public static function columnTypeFields( $columnId,$typeName,$con = [])
+    {
+        $con[] = ['status','=',1];
+        $con[] = ['column_id','=',$columnId];
+        $con[] = ['type','=',$typeName];
+        return self::column('distinct name', $con);
+    }
+    
     /*     * *********** */
 
     /**

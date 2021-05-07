@@ -14,7 +14,7 @@ class SystemColumn extends Base
      */
     public function getImportTplIdAttr( $value )
     {
-        return $value ? SystemFileService::getInstance( $value )->get() : $value ;
+        return self::getImgVal($value);
     }
     /**
      * 图片修改器，图片带id只取id

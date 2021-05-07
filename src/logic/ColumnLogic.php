@@ -27,7 +27,7 @@ class ColumnLogic
      * @param type $cateFieldValue  可以是字符串或数组，如数组，按key取值
      * @return type
      */
-    public static function defaultColumn(  $controller, $tableKey , $companyId = '',$cateFieldValue='',$methodKey ='')
+    public static function defaultColumn(  $controller, $tableKey , $companyId = '',$cateFieldValue='',$methodKey ='',$data = [])
     {
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
@@ -35,7 +35,7 @@ class ColumnLogic
             $con[] = ['company_id','in',['',$companyId]];
         }
         $columnId     = SystemColumnService::mainModel()->cache(86400)->where($con)->value('id');
-        return self::getById($columnId,[], $cateFieldValue, $methodKey );
+        return self::getById($columnId,[], $cateFieldValue, $methodKey ,$data);
     }
     /**
      * 获取搜索字段
@@ -60,7 +60,7 @@ class ColumnLogic
         //【1】状态为开的字段
         $con[] = ['column_id','=',$columnId];
         $con[] = ['status','=',1];
-        $res = SystemColumnListService::mainModel()->where($con)->column('distinct name');
+        $res = SystemColumnListService::mainModel()->where($con)->cache(86400)->column('distinct name');
         //【2】数据表有的字段
         $tableName = SystemColumnService::getInstance($columnId)->fTableName();
         $tableColumns   = DbOperate::columns($tableName);
@@ -92,7 +92,7 @@ class ColumnLogic
     public static function tableNameColumn( $tableName,$fields='' ,$methodKey = '',$data=[])
     {
         $con[]  = ['table_name','=',$tableName]     ;
-        $columnId     = SystemColumnService::mainModel()->where($con)->value('id');
+        $columnId     = SystemColumnService::mainModel()->where($con)->cache(86400)->value('id');
         return self::getById($columnId,$fields,'',$methodKey,$data);
 //        没测20201228
 //        $info   = SystemColumnService::find( $con ) ;
@@ -104,7 +104,7 @@ class ColumnLogic
     public static function tableHasRecord( $tableName )
     {
         $con[]      = ['table_name','=',$tableName];
-        $info       = SystemColumnService::find($con);
+        $info       = SystemColumnService::find($con,86400);
         return $info;
     }
     /**
@@ -156,16 +156,19 @@ class ColumnLogic
 //        $fieldStr="*";
         $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ),"",$fieldStr,86400 );
         //【按钮】
-        //获取用户的角色
-        $roleIds    = UserAuthUserRoleService::userRoleIds(session(SESSION_USER_ID));
-        //获取角色的按钮权限
-        $dataIds  = UserAuthRoleBtnService::roleBtnIds( $roleIds );        
-        $con3[] = ['id','in',$dataIds];
-        //按钮查询的字段【20210330】
-        $fieldStr = "id,company_id,block_id,remark,name,title,confirm,o_type,place,btn_cate,btn_style,btn_class,"
-                . "layer_width,layer_height,icon,url,param,show_condition,no_match_style,prompt,prompt_default";
-//        $fieldStr="*";
-        $info['btnInfo']        = SystemColumnBtnService::lists( array_merge( $con1,$con3 ),"",$fieldStr,86400 );
+        $conBtn[]  = ['c.user_id','=',session(SESSION_USER_ID)];
+        $conBtn[]  = ['a.status','=',1];
+        $conBtn[]  = ['a.column_id','=',$info['id']];
+        $info['btnInfo']  = SystemColumnBtnService::mainModel()->alias('a')
+            ->join('user_auth_role_btn b',"a.id=b.btn_id")
+            ->join('user_auth_user_role c',"b.role_id = c.role_id")
+            ->where( $conBtn )
+            ->cache(86400)
+            ->order('a.sort')
+            ->field('distinct a.*')
+//            ->field( $fieldStr )
+            ->select();                
+
         //操作
         $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
         //页面板块布局
@@ -193,7 +196,13 @@ class ColumnLogic
             //冗余字段，方便前端使用
             $v['table_name'] = $res['table_name'] ;
             //选项
-            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] ,$data);
+            //数据中，取出与当前键名一致的id，用于动态枚举少量筛选数据
+            $tempColumnData = $data ? : [];
+            if(isset($data[$v['name']])){
+                $ids = $data[$v['name']];
+                $tempColumnData['id'] = $ids;
+            }
+            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option'] ,$tempColumnData);
             //查询条件
             $v['show_condition'] = json_decode($v['show_condition'],JSON_UNESCAPED_UNICODE);
 
@@ -265,7 +274,7 @@ class ColumnLogic
     public static function dynamicColumn( $tableName ,$field, $key ,$con = [])
     {
         //替换资源链接
-        $list = Db::table( $tableName )->where( $con )->column( $field, $key );
+        $list = Db::table( $tableName )->where( $con )->cache(86400)->column( $field, $key );
         return $list;
     }
     /**

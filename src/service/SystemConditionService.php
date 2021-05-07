@@ -46,11 +46,16 @@ class SystemConditionService implements MainModelInterface {
     protected static function getCond( $con, $param )
     {
         $lists = json_encode( self::lists($con, 'group_id') ,JSON_UNESCAPED_UNICODE);
-        self::debug( '$param', $param );
+        self::debug( '$param测', $param );
         self::debug( '查询结果Sql-1', $lists );
         if($param){
+            self::debug( 'if($param)中打印', $param );
             foreach ($param as $key => $value) {
+                self::debug( '$key', $key );
+                self::debug( '$value', $value );
                 $lists = str_replace('{$' . $key . '}', $value, $lists);
+                self::debug( '$lists', $lists );
+                self::debug( '-------------------', '' );
             }
         }
         self::debug( '查询结果Sql-2', $lists );
@@ -120,6 +125,7 @@ class SystemConditionService implements MainModelInterface {
         $res = [];
         foreach ($conditions as &$v) {
             $tmpResult = Db::table($v['judge_table'])->where($v['judge_cond'])->field($v['judge_field'] . ' as result')->find();
+            self::debug( '$v', $v );
             self::debug(__METHOD__ . '$tmpResultLastSql', Db::table($v['judge_table'])->getLastSql());
             self::debug(__METHOD__ . ' eval ', "return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
             $v['resVal'] = $tmpResult['result'];

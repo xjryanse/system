@@ -14,7 +14,7 @@ class FlexLogic
     public static function getFlex( $flexId )
     {
         $con[] = ['flex_id','=',$flexId];
-        $data = SystemFlexItemsService::lists( $con );
+        $data = SystemFlexItemsService::lists( $con ,"","*",86400);
         return self::makeTree($data);
     }
 }

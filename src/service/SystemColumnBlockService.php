@@ -22,10 +22,10 @@ class SystemColumnBlockService implements MainModelInterface {
         foreach ($info as &$v) {
             $con1 = [];
             $con1[] = ['block_id', '=', $v['id']];
-            $tablesInfo = SystemColumnBlockTableFieldsService::mainModel()->where($con1)->column("*", "table_name");
+            $tablesInfo = SystemColumnBlockTableFieldsService::mainModel()->where($con1)->cache(86400)->column("*", "table_name");
             $v['tablesInfo'] = $tablesInfo;
             //获取操作按钮
-            $v['btnInfo'] = SystemColumnBtnService::mainModel()->where($con1)->select();
+            $v['btnInfo'] = SystemColumnBtnService::mainModel()->where($con1)->cache(86400)->select();
             foreach ($v['btnInfo'] as &$vv) {
                 $vv = SystemColumnBtnService::btnCov($vv);
             }
