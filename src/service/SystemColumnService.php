@@ -23,7 +23,22 @@ class SystemColumnService implements MainModelInterface {
         $info = self::find($con);
         return $info ? $info['id'] : '';
     }
-
+    
+    public function extraAfterDelete(){
+        self::checkTransaction();
+        //删除关联的
+        if(!$this->get(0)){
+            $con[] = ['column_id','=',$this->uuid];
+            //字段
+            SystemColumnListService::mainModel()->where($con)->delete();
+            //数据块
+            SystemColumnBlockService::mainModel()->where($con)->delete();
+            //按钮
+            SystemColumnBtnService::mainModel()->where($con)->delete();
+            //操作
+            SystemColumnOperateService::mainModel()->where($con)->delete();
+        }
+    }    
     /*     * ********* */
 
     /**
