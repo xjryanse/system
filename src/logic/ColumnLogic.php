@@ -150,7 +150,7 @@ class ColumnLogic
         }
         //字段查询的字段【20210330】
         $fieldStr = "id,column_id,method_key,label,name,type,query_type,option,search_type,search_show,"
-                . "is_list,is_list_edit,is_add,is_edit,only_detail,is_must,is_export,is_import_must,"
+                . "is_senior_search,is_list,is_list_edit,is_add,is_edit,only_detail,is_must,is_export,is_import_must,"
                 . "is_span_company,is_linkage,list_style,list_pop,edit_btn_id,list_pop_operate,"
                 . "min_width,width,form_col,cate_field_value,flex_item_id,show_condition";
 //        $fieldStr="*";
@@ -241,15 +241,17 @@ class ColumnLogic
         $res = SystemColumnService::save( $data );
         //字段
         $tmp = [];
-        $sort = 100;    //字段排序值
+        $sort       = 100;    //字段排序值
+        $hideKeys   = ['sort',"create_time","update_time","status","has_used","is_lock","is_delete","creater","updater","app_id","company_id"];
         foreach($columns as $k=>$v){
             $tmp[$k]['column_id']   = $res['id'];
             $tmp[$k]['name']        = $v;
             $tmp[$k]['label']       = $v;
             $tmp[$k]['sort']        = $sort;    $sort += 100;   //排序
-            $tmp[$k]['type']    = ($v == 'id') ? 0 :'text';   //id隐藏域
-            $tmp[$k]['is_add']  = (in_array($v, ['id','create_time','update_time'])) ? 0 :1;   
-            $tmp[$k]['is_edit'] = (in_array($v, ['create_time','update_time'])) ? 0 :1;
+            $tmp[$k]['type']        = ($v == 'id') ? 'hidden' :'text';   //id隐藏域
+            $tmp[$k]['is_add']      = (in_array($v, array_merge(['id'], $hideKeys))) ? 0 :1;   
+            $tmp[$k]['is_edit']     = (in_array($v, $hideKeys)) ? 0 :1;
+            $tmp[$k]['is_list']     = (in_array($v, array_merge(['id'], $hideKeys))) ? 0 :1;
             //TODO优化
             SystemColumnListService::save( $tmp[$k] );
         }

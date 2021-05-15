@@ -6,6 +6,7 @@ use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Debug;
 use think\facade\Request;
 use think\Exception;
+use xjryanse\logic\Arrays;
 
 /**
  * 上传附件
@@ -17,6 +18,28 @@ class SystemFileService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFile';
+    /**
+     * 删除文件，并删除记录
+     * @return boolean
+     */
+    public function unlink()
+    {
+        $info = self::mainModel()->where('id',$this->uuid)->field('id,is_lock,file_path as pathRaw')->find();
+        if($info['is_lock']){
+            return false;
+        }
+        $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
+        $filePathFull   = $basePath .'/'. $info['pathRaw'];
+        if($info['pathRaw'] && file_exists( $filePathFull )){
+            //删除服务器上的文件
+            $res = unlink( $filePathFull );
+            if(!file_exists( $filePathFull )){
+                //文件不存在，则删除路径表的信息记录
+                $this->delete();
+            }
+        }
+        return $res;
+    }
 
     /**
      * 文件类上传
