@@ -128,6 +128,62 @@ class ImportLogic
     }
 
     /**
+     * 快速数据导入逻辑
+     * @param string $file
+     * @param int $sheet
+     * @param int $columnCnt
+     * @param type $options
+     * @return type
+     * @throws \Exception
+     */
+    public static function importExeclFast(string $file = '', int $sheet = 0, int $columnCnt = 0, &$options = [])
+    {
+        /* 转码 */
+        $file = iconv("utf-8", "gb2312", $file);
+
+        if (empty($file) OR ! file_exists($file)) {
+            throw new \Exception('文件不存在!');
+        }
+
+        /** @var Xlsx $objRead */
+        $objRead = IOFactory::createReader('Xlsx');
+
+        if (!$objRead->canRead($file)) {
+            /** @var Xls $objRead */
+            $objRead = IOFactory::createReader('Xls');
+
+            if (!$objRead->canRead($file)) {
+                throw new \Exception('只支持导入Excel文件！');
+            }
+        }
+
+        /* 如果不需要获取特殊操作，则只读内容，可以大幅度提升读取Excel效率 */
+        empty($options) && $objRead->setReadDataOnly(true);
+        /* 建立excel对象 */
+        $objPHPExcel = $objRead->load($file);
+
+        $sheet_count = $objPHPExcel->getSheetCount();
+        $dataArr = [];
+        //多表全读
+//        for ($s = 0; $s < $sheet_count; $s++) {
+            $s = 0; //TODO
+            $currentSheet = $objPHPExcel->getSheet($s); // 当前页 
+            $row_num = $currentSheet->getHighestRow(); // 当前页行数 
+            $col_max = $currentSheet->getHighestColumn(); // 当前页最大列号 
+            // 循环从第二行开始，第一行往往是表头 
+            for ($i = 1; $i <= $row_num; $i++) {
+                $cell_values = array();
+                for ($j = 'A'; $j <= $col_max; $j++) {
+                    $address = $j . $i; // 单元格坐标 
+                    $cell_values[] = $currentSheet->getCell($address)->getFormattedValue();
+                }
+                $dataArr[] = $cell_values;
+            }
+//        }
+        return $dataArr;
+    }
+
+    /**
      * excel文件取二维数组数据
      */
     /**
@@ -146,9 +202,9 @@ class ImportLogic
         self::debug('$infoSqlId',$fileId);
         $info   = SystemFileService::mainModel()->field('*,file_path as rawPath,file_size')->get( $fileId );
         self::debug('$info',$info);
-        if($info["file_size"] > 5242880){
+        if($info["file_size"] > 3145728){
             SystemFileService::getInstance( $fileId )->unlink();
-            throw new Exception('文件超过5M无法解析，请分开上传');
+            throw new Exception('文件超过3M无法解析，请分开上传');
         }
         
         $path   = $info['rawPath'] ;
@@ -163,7 +219,8 @@ class ImportLogic
             return false;
         }
 
-        $data       = self::importExecl( $path );
+//        $data       = self::importExecl( $path ); //逐步弃用：20210520
+        $data       = self::importExeclFast( $path );
         if($maxLimit && count($data) > $maxLimit){
             throw new Exception('最多可导入'.$maxLimit.'条(当前'. count($data) .'条)');
         }
