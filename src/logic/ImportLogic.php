@@ -103,8 +103,14 @@ class ImportLogic
                     /* 日期格式翻转处理 */
                     $cell->getStyle()->getNumberFormat()->setFormatCode('yyyy/mm/dd');
                 }
-
-                $data[$_row][$cellName] = trim($currSheet->getCell($cellId)->getFormattedValue());
+                $tempValue = trim($currSheet->getCell($cellId)->getFormattedValue());
+                //首行为空的，后面则不取
+                if($_row == 1 && empty($tempValue)){
+                    $columnCnt = $_column - 1 ;
+                    break;
+                }
+                
+                $data[$_row][$cellName] = $tempValue;
 
                 if (!empty($data[$_row][$cellName])) {
                     $isNull = false;
@@ -141,6 +147,7 @@ class ImportLogic
         $info   = SystemFileService::mainModel()->field('*,file_path as rawPath,file_size')->get( $fileId );
         self::debug('$info',$info);
         if($info["file_size"] > 5242880){
+            SystemFileService::getInstance( $fileId )->unlink();
             throw new Exception('文件超过5M无法解析，请分开上传');
         }
         

@@ -309,7 +309,9 @@ class ColumnLogic
             //字段转换
             $res = self::scolumnCov($info2,$data);
             //存缓存
-            cache($key,$res); 
+            $res['cacheKey'] = $key;
+            $res['cacheKeyData'] = cache( $key);
+            cache($key, $res); 
         }
         return cache($key);
     }
