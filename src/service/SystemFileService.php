@@ -90,7 +90,9 @@ class SystemFileService implements MainModelInterface {
         //查询文件
         $isFileExist = self::isFileExist($file->md5(), $file->sha1());
         //20210406，增加判断文件夹路径下是否真实存在
-        if ($isFileExist && file_exists('.'.$isFileExist['file_path'])) {
+        $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
+        $filePathFull   = $basePath .'/'. Arrays::value($isFileExist, 'pathRaw');
+        if ($isFileExist && file_exists($filePathFull)) {
             //文件已存在
             return $isFileExist;
         }
@@ -151,8 +153,7 @@ class SystemFileService implements MainModelInterface {
         }
         $con[] = ['md5', '=', $md5];
         $con[] = ['sha1', '=', $sha1];
-
-        $res = self::find($con);
+        $res = self::mainModel()->where($con)->field('id,is_lock,file_path,file_path as pathRaw')->find();
         return $res;
     }
 
