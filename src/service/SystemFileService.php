@@ -7,6 +7,7 @@ use xjryanse\logic\Debug;
 use think\facade\Request;
 use think\Exception;
 use xjryanse\logic\Arrays;
+use xjryanse\logic\ImgCompress;
 
 /**
  * 上传附件
@@ -18,6 +19,10 @@ class SystemFileService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFile';
+    
+    public static function extraAfterSave(&$data, $uuid) {
+        self::getInstance($uuid)->doBase64Brief();
+    }
     /**
      * 删除文件，并删除记录
      * @return boolean
@@ -194,6 +199,31 @@ class SystemFileService implements MainModelInterface {
         }
         return $info['id'];
     }
+    /**
+     * 生成base64缩略预览图
+     */
+    public function doBase64Brief()
+    {
+        $info = self::mainModel()->where('id',$this->uuid)->field('id,file_type,base64_brief,file_path as pathRaw')->find();
+        //已有缩略，或不是图片
+        if($info['base64_brief'] || ($info['file_type'] != 'image' && $info['file_type'] != 'images')){
+            return false;
+        }
+        $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
+        $source   = $basePath .'/'. $info['pathRaw'];
+        // 这个文件
+        $imageInfo = getimagesize($source);
+        //缩放到宽度为150
+        $percent = round(150/$imageInfo[0],2);
+        //从输出缓冲区中提取数据
+        ob_start();
+        (new ImgCompress($source,$percent))->compressImg();
+        $imageCode = ob_get_contents();
+        ob_end_clean();
+        $base64_image = 'data:' . $imageInfo['mime'] . ';base64,' . chunk_split(base64_encode($imageCode));
+        return $this->update(['base64_brief'=>$base64_image]);
+    }
+    
     
     /*     * **** */
 

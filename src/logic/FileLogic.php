@@ -21,7 +21,7 @@ class FileLogic
      * @return type
      * @throws Exception
      */
-    public static function saveUrlFile( $url , $type="images", $defaultExt="jpg", $savePath="" )
+    public static function saveUrlFile( $url , $type="image", $defaultExt="jpg", $savePath="" )
     {
         //读取文件
         try{

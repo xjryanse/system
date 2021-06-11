@@ -9,6 +9,7 @@ use xjryanse\system\service\SystemColumnListService;
 use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
 use xjryanse\user\service\UserAuthUserRoleService;
+use xjryanse\user\service\UserAuthRoleColumnService;
 use xjryanse\user\service\UserAuthRoleBtnService;
 use xjryanse\logic\DbOperate;
 
@@ -154,6 +155,12 @@ class ColumnLogic
                 . "is_span_company,is_linkage,list_style,list_pop,edit_btn_id,list_pop_operate,"
                 . "min_width,width,form_col,cate_field_value,flex_item_id,show_condition";
 //        $fieldStr="*";
+        
+        $roleIds        = UserAuthUserRoleService::userRoleIds( session(SESSION_USER_ID) );
+        $columnListIds  = UserAuthRoleColumnService::roleColumnIds( $roleIds, $info['table_name'] );
+        if($columnListIds){
+            $con2[] = ['id' ,'in', $columnListIds ];
+        }
         $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ),"",$fieldStr,86400 );
         //【按钮】
         $conBtn[]  = ['c.user_id','=',session(SESSION_USER_ID)];
@@ -289,31 +296,25 @@ class ColumnLogic
      */
     public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
-        $string = $columnId.json_encode($columnId,JSON_UNESCAPED_UNICODE).$cateFieldValue.$methodKey.json_encode($data, JSON_UNESCAPED_UNICODE);
-        $key = $columnId.md5($string);
-        if(!cache( $key) ){
-            $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
-            $con    = [];
-            //分类取值
-            if($info['cate_field_name'] && is_array($cateFieldValue)){
-                $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
-            }
-            //分类名
-            if($info['cate_field_name'] && $cateFieldValue){
-                //按分类名进行过滤
-                $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
-            }
-            $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
-            //循环
-            $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
-            //字段转换
-            $res = self::scolumnCov($info2,$data);
-            //存缓存
-            $res['cacheKey'] = $key;
-            $res['cacheKeyData'] = cache( $key);
-            cache($key, $res); 
+
+        $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
+        $con    = [];
+        //分类取值
+        if($info['cate_field_name'] && is_array($cateFieldValue)){
+            $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
         }
-        return cache($key);
+        //分类名
+        if($info['cate_field_name'] && $cateFieldValue){
+            //按分类名进行过滤
+            $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
+        }
+        $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
+        //循环
+        $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
+        //字段转换
+        $res = self::scolumnCov($info2,$data);
+
+        return $res;
     }
     /**
      * 导入数据转换

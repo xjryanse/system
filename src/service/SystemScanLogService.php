@@ -45,6 +45,15 @@ class SystemScanLogService implements MainModelInterface {
     }
 
     /**
+     * 获取最近一个推荐人id
+     */
+    public static function lastRecUserId()
+    {
+        $con[] = ['rec_user_id','<>',''];
+        $lastRecUserId = self::mainModel()->where($con)->order('id desc')->value('rec_user_id');
+        return $lastRecUserId;
+    }
+    /**
      *
      */
     public function fId() {

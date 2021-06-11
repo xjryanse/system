@@ -35,7 +35,7 @@ class Dynenum extends Base implements ColumnListInterface
             $arr['data_ajax'] = Db::table( $arr['table_name'] )->where( $con )->count() >= 100 ? 1:0;
         }
         //需ajax取数，不出数据，否则出数据
-        if(isset($data['id'])){
+        if( $arr['data_ajax'] && isset($data['id'])){
             $con[] = ['id','in',$data['id']];
         }
         //非ajax，全部查，有传id，也查，是ajax，不查

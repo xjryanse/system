@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use think\facade\Request;
+use Exception;
 /**
  * 系统ip黑名单
  */
@@ -22,8 +23,7 @@ class SystemIpBlackService implements MainModelInterface {
         $ip = Request::ip();
         $con[] = ['ip','=',$ip];
         if(self::find($con)){
-            echo 'ip'.$ip.'已拉黑';
-            exit;
+            throw new Exception('ip'.$ip.'in black');
         }        
     }
 }
