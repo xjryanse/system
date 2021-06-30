@@ -6,6 +6,13 @@ namespace xjryanse\system\model;
  */
 class SystemCompany extends Base
 {
-    
-
+    public function setLogoAttr($value) {
+        return self::setImgVal($value);
+    }
+    public function getLogoAttr($value) {
+        return self::getImgVal($value);
+    }
+    public function setLaunchTimeAttr($value){
+        return self::setTimeVal($value);
+    }
 }

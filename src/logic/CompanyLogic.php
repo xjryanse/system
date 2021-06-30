@@ -20,13 +20,14 @@ class CompanyLogic
     {
         //先取路由参数
         $comKey     = Request::route('comKey');
-        if(!$comKey){
+        if(!$comKey || mb_strlen($comKey) != 8){
             //再取请求参数
             $comKey     = Request::param('comKey','') ? : session(SESSION_COMPANY_KEY);
         }
         if( !$comKey ){
             throw new Exception('请求入口错误');
         }
+
         $info = SystemCompanyService::getByKey( $comKey );
         if( !$info){
             throw new Exception('未找到company信息'.$comKey);

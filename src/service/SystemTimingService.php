@@ -6,6 +6,7 @@ use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\service\SystemTimingLogService;
 use xjryanse\curl\Call;
 use think\facade\Request;
+use xjryanse\system\logic\ConfigLogic;
 
 /**
  * 系统定时器
@@ -34,8 +35,11 @@ class SystemTimingService implements MainModelInterface {
             $data['timing_id'] = $id;
             $data['url'] = $info['url'];
             $data['ip'] = Request::ip();
-            //请求日志记录
-            SystemTimingLogService::save($data);
+            // 是否开启定时器日志
+            if(ConfigLogic::config('timingLogOpen')){
+                //请求日志记录
+                SystemTimingLogService::save($data);
+            }
             //执行请求动作
             Call::get($info['url']);
         }

@@ -13,6 +13,10 @@ abstract class Base
      */
     protected static function dynamicColumn( $tableName ,$field, $key ,$con = [],$cache=false)
     {
+        $service = DbOperate::getService( $tableName );
+        if( $service::mainModel()->hasField('company_id') ){
+            $con[] = ['company_id','=',session(SESSION_COMPANY_ID) ];
+        }
         //替换资源链接
         $inst = Db::table( $tableName )->where( $con );
         //缓存
@@ -25,7 +29,7 @@ abstract class Base
         $list = $inst->column( $field, $key );
         return $list;
     }
-    
+
     /**
      * 表名，查询条件
      * @param type $tableName

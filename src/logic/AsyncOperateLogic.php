@@ -3,6 +3,7 @@ namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemAsyncOperateService;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Debug;
 use think\Db;
 /**
  * 异步执行逻辑
@@ -97,7 +98,9 @@ class AsyncOperateLogic
     protected function updateOperate( $lastRunTime, $thisRunTime, $tableName, $operateKey )
     {
         //新增的数据 用id进行比较
-        $updateLists       = self::withinUpdates( $tableName, $lastRunTime ,$thisRunTime);
+        $updateLists       = self::withinUpdates( $tableName, $lastRunTime ,$thisRunTime );
+        Debug::debug( '$updateLists', $updateLists );
+        Debug::debug( '$operateKey', $operateKey );
         foreach( $updateLists as $v){
             if(!isset( $this->classReflects[ $operateKey ] )){
                 continue;

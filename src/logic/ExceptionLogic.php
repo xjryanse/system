@@ -15,13 +15,13 @@ class ExceptionLogic extends Handle
 
     public function render(Exception $e)
     {
-        //错误日志记录
-        SystemErrorLogService::exceptionLog($e);
         //校验是否在事务中
         if(SystemErrorLogService::mainModel()->inTransaction()){
             //事务回滚
             Db::rollback();
         }
+        //错误日志记录
+        SystemErrorLogService::exceptionLog($e);
         //有错误的用1
         if(Debug::isDebug()){
             return parent::render($e);

@@ -68,6 +68,9 @@ class SystemCompanyService implements MainModelInterface {
     public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+    public function fLogo() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
 
     /**
      * 公司编号

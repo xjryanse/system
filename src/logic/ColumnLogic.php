@@ -11,6 +11,7 @@ use xjryanse\system\service\SystemColumnBlockService;
 use xjryanse\user\service\UserAuthUserRoleService;
 use xjryanse\user\service\UserAuthRoleColumnService;
 use xjryanse\user\service\UserAuthRoleBtnService;
+use xjryanse\logic\Debug;
 use xjryanse\logic\DbOperate;
 
 /**
@@ -32,7 +33,7 @@ class ColumnLogic
     {
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
-        if($companyId){
+        if($companyId && SystemColumnService::mainModel()->hasField('company_id')){
             $con[] = ['company_id','in',['',$companyId]];
         }
         $columnId     = SystemColumnService::mainModel()->cache(86400)->where($con)->value('id');
@@ -296,8 +297,8 @@ class ColumnLogic
      */
     public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
-
         $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
+        Debug::debug('ColumnLogic::getById',$info);
         $con    = [];
         //分类取值
         if($info['cate_field_name'] && is_array($cateFieldValue)){
