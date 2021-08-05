@@ -3,55 +3,48 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-use think\facade\Request;
 
 /**
- * 访问日志
+ * 错误日志
  */
-class SystemLogService implements MainModelInterface {
+class SystemDataSyncService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemLog';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemDataSync';
     /**
-     * 请求本系统
+     * 获取末次同步信息
+     * @param type $tableName
+     * @return type
      */
-    public static function log() {
-        try {
-            $data['type']       = 1;  //请求本系统
-            $data['ip']         = Request::ip();
-            $data['url']        = Request::url();
-            $data['header']     = json_encode(Request::header(), JSON_UNESCAPED_UNICODE);
-            $data['param']      = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
-            $data['module']     = Request::module();
-            $data['controller'] = Request::controller();
-            $data['action']     = Request::action();
-            self::save($data);
-        } catch (\Exception $e) {
-            //不报异常，以免影响访问
-        }
+    public function getLastSyncInfo($tableName){
+        $info = self::mainModel()->where('table_name',$tableName)->find();
+        return $info;
     }
     /**
-     * 调用其他系统
-     * @param type $url         url接口
-     * @param type $header      header请求头
-     * @param type $param       param参数
-     * @param type $response    response返回结果
+     * 获取末次同步信息
+     * @param type $tableName
+     * @return type
      */
-    public static function outLog($url, $header, $param, $response, $data = []) {
-        try {
-            $data['type']       = 2;  //请求本系统
-            $data['url']        = $url;
-            $data['header']     = is_array( $header ) ? json_encode($header, JSON_UNESCAPED_UNICODE) : $header;
-            $data['param']      = is_array( $param ) ? json_encode($param, JSON_UNESCAPED_UNICODE) : $param;
-            $data['response']   = is_array( $response ) ? json_encode($response, JSON_UNESCAPED_UNICODE) : $response;
-            self::save($data);
-        } catch (\Exception $e) {
-            //不报异常，以免影响访问
+    public function updateLastSyncInfo($tableName,$lastSaveId = '',$lastUpdateTime = ''){
+        $data = [];
+        if($lastSaveId){
+            $data['last_save_id']       = $lastSaveId;
         }
+        if($lastUpdateTime){
+            $data['last_update_time']   = $lastUpdateTime;
+        }
+        if(self::mainModel()->where('table_name',$tableName)->value('id')){
+            $info = self::mainModel()->where('table_name',$tableName)->update($data);
+        } else {
+            $data['table_name'] = $tableName;
+            $info = self::save($data);
+        }
+        return $info;
     }
+    
     /**
      *
      */
@@ -67,30 +60,9 @@ class SystemLogService implements MainModelInterface {
     }
 
     /**
-     * 公司id
-     */
-    public function fCompanyId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 访问ip
-     */
-    public function fIp() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     *
+     * 请求url
      */
     public function fUrl() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 请求头部
-     */
-    public function fHeader() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
@@ -102,23 +74,72 @@ class SystemLogService implements MainModelInterface {
     }
 
     /**
-     * 访问模块
+     * 错误码
      */
-    public function fModule() {
+    public function fCode() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 访问控制器
+     * 错误日志内容
      */
-    public function fController() {
+    public function fMsg() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 访问方法
+     * 错误日志文件地址
      */
-    public function fAction() {
+    public function fFile() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 方法名
+     */
+    public function fFunction() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 错误日志文件行数
+     */
+    public function fLine() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     *
+     */
+    public function fTrace() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 操作公司id
+     */
+    public function fOCompanyId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 操作用户id
+     */
+    public function fOUserId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 操作ip
+     */
+    public function fOIp() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 是否已通知：0否，1是
+     */
+    public function fIsNoticed() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

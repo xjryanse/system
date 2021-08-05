@@ -24,7 +24,7 @@ class SystemColumnBtnService implements MainModelInterface {
         $tmp = str_replace('{$sessionUserId}', $userId, $tmp);
 
         $tmp .= strstr($tmp, '?') ? '&' . 'comKey=' . Request::param('comKey', '') : '/comKey/' . Request::param('comKey', '');
-        $btnInfo['url'] = $tmp;
+        $btnInfo['url'] = in_array($btnInfo['place'],['head','list']) ? $tmp : $btnInfo['url'];
         $btnInfo['param']           = str_replace('{$sessionUserId}', $userId, $btnInfo['param'])           ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['param']), true) : [];
         $btnInfo['show_condition']  = str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition'])  ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition'])) : [];
 

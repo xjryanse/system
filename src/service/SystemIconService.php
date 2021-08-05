@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Cachex;
 /**
  * 访问日志
  */
@@ -21,7 +21,20 @@ class SystemIconService implements MainModelInterface {
      */
     public static function listsByGroup( $group )
     {
-        $con[] = [ 'group','=',$group];
-        return self::lists( $con );
+        $cacheKey = session(SESSION_COMPANY_ID).'_SystemIconService_'.$group;
+        $result = Cachex::funcGet( $cacheKey, function() use ($group){
+            $con[] = [ 'group','=',$group];
+            $lists = self::lists( $con,'sort','id,icon_name,icon_img,url');
+            if($lists){
+                $lists = $lists->toArray();
+            }
+            foreach($lists as &$v){
+                if(isset($v['icon_img']['base64_brief'])){
+                    unset($v['icon_img']['base64_brief']);
+                }
+            }
+            return $lists;
+        });
+        return $result;
     }
 }

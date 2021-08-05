@@ -46,7 +46,7 @@ class AsyncOperateLogic
     protected function getTodos()
     {
         $con[] = ['status','=',1]; 
-        $lists = SystemAsyncOperateService::mainModel()->where($con)->select();
+        $lists = SystemAsyncOperateService::mainModel()->cache(1)->where($con)->select();
         return $lists;
     }
     /**
@@ -58,7 +58,7 @@ class AsyncOperateLogic
         foreach( $todos as $v ){
             $lastRunId      = $v['last_table_id'];
             $lastRunTime    = $v['last_run_time'];
-            $thisRunId      = DbOperate::lastId( $v['table_name']);
+            $thisRunId      = DbOperate::lastId( $v['table_name'],[],1);
             $thisRunTime    = date('Y-m-d H:i:s');
             $tableName      = $v['table_name'];
             $operateKey     = $v['operate_key'];
@@ -122,7 +122,7 @@ class AsyncOperateLogic
         $con[] = [ 'id','<=',$thisRunId ];
         //最多只取12小时
         $con[] = ['create_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
-        return Db::table( $tableName )->where( $con )->select();
+        return Db::table( $tableName )->where( $con )->cache(1)->select();
     }
     /**
      * 获取区间数据更新记录

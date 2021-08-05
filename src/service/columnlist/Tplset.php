@@ -97,8 +97,14 @@ class Tplset extends Base implements ColumnListInterface
         $tpls   = DbOperate::getService( $tplTable )::lists( $tplCond );
         $tpls   = $tpls ? $tpls->toArray() : [];
         //数据主表数据
+        if(DbOperate::getService( $mainTable )::mainModel()->hasField( 'company_id' )){
+            $mainTableCond[] = ['company_id','=',session(SESSION_COMPANY_ID)];
+        }
         $lists  = Db::table( $mainTable )->where( $mainTableCond )->column('*',$mainDataKey );
         //分组key：平台/卖家
+        if(DbOperate::getService( $tplTable )::mainModel()->hasField( 'company_id' )){
+            $tplCond[] = ['company_id','=',session(SESSION_COMPANY_ID)];
+        }
         $groupKeys = Db::table( $tplTable ) ->where( $tplCond )->order('sort')->column( 'distinct '.$tplGroupKey );
         //模板表主key
         $mainKeys = Db::table( $tplTable ) ->where(  $tplCond )->order('sort')->column( 'distinct '.$tplMainKey );

@@ -2,7 +2,9 @@
 namespace xjryanse\system\logic;
 
 use xjryanse\logic\Arrays;
+use xjryanse\logic\WxBrowser;
 use xjryanse\system\service\SystemCompanyService;
+use xjryanse\wechat\service\WechatWeAppService;
 use think\facade\Request;
 use Exception;
 /**
@@ -23,6 +25,11 @@ class CompanyLogic
         if(!$comKey || mb_strlen($comKey) != 8){
             //再取请求参数
             $comKey     = Request::param('comKey','') ? : session(SESSION_COMPANY_KEY);
+        }
+        //20210723，微信环境下，有传appid（小程序），拿一下公司key
+        if(!$comKey && WxBrowser::isWxBrowser() && Request::header('appid','')){
+            // 兼容前端放在请求头
+            $comKey = WechatWeAppService::appidGetComKey(Request::header('appid',''));
         }
         if( !$comKey ){
             throw new Exception('请求入口错误');

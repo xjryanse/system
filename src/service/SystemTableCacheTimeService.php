@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Cachex;
 /**
  * 系统定时器
  */
@@ -17,9 +17,17 @@ class SystemTableCacheTimeService implements MainModelInterface {
 
     public static function tableCache( $tableName )
     {
-        $con[]  = ['table_name','=',$tableName ];
-        $info   = self::mainModel()->where( $con )->cache( 86400 )->find(); //每天查一下就行
-        return $info ? $info['cache_time'] : 2; //默认缓存为2s
+        //表缓存数组
+        $tableCacheTimeArr = Cachex::funcGet( 'SystemTableCacheTimeService_TableCacheTimeArr', function(){
+            return self::mainModel()->column('cache_time','table_name');
+        });
+        //判断是否黑
+        if($tableCacheTimeArr && in_array($tableName, $tableCacheTimeArr)){
+            return $tableCacheTimeArr[$tableName];
+        } else {
+            //默认缓存为2s
+            return 2;
+        }
     }
     
     public static function tableHasLog( $tableName )
