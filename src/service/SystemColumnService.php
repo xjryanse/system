@@ -14,7 +14,17 @@ class SystemColumnService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumn';
-
+    /**
+     * 参数取id
+     * @param type $controller
+     * @param type $tableKey
+     * @return type
+     */
+    public static function paramGetId($controller,$tableKey){
+        $con[] = ['controller','=',$controller];
+        $con[] = ['table_key','=',$tableKey];
+        return self::mainModel()->where($con)->value('id');
+    }
     /**
      * 表名取id
      */

@@ -24,6 +24,7 @@ class SystemIconService implements MainModelInterface {
         $cacheKey = session(SESSION_COMPANY_ID).'_SystemIconService_'.$group;
         $result = Cachex::funcGet( $cacheKey, function() use ($group){
             $con[] = [ 'group','=',$group];
+            $con[] = [ 'status','=',1];
             $lists = self::lists( $con,'sort','id,icon_name,icon_img,url');
             if($lists){
                 $lists = $lists->toArray();

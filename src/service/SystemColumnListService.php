@@ -3,7 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Arrays;
+use think\Db;
 /**
  * 字段明细
  */
@@ -15,6 +16,23 @@ class SystemColumnListService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnList';
 
+    public static function dynDataList($columnId,$data){
+        $con[] = ['column_id','=',$columnId];
+        $con[] = ['type','=','dynenum'];    //类型为动态枚举
+        $optionBase = self::mainModel()->where($con)->column('option','name');
+        $optionArr = [];
+        foreach($optionBase as $key=>$option){
+            $option = equalsToKeyValue($option);
+            $tableName  = Arrays::value($option, 'table_name');
+            $tableKey   = Arrays::value($option, 'key');
+            $value      = Arrays::value($option, 'value');
+            $cond = [];
+            $cond[] = [$tableKey,'in',$data[$key]];
+            $arr = Db::table($tableName)->where($cond)->column($value,$tableKey);
+            $optionArr[$key] = $arr;
+        }
+        return $optionArr;
+    }
     /**
      * 额外详情信息
      */

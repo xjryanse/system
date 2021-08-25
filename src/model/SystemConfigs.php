@@ -14,7 +14,7 @@ class SystemConfigs extends Base
     {
         //上传图片
         if($data['type'] == FR_COL_TYPE_UPLIMAGE){
-            return $value ? SystemFileService::getInstance( $value )->get() : $value ;
+            return $value ? self::getImgVal($value) : $value ;
         }
         return $value;
     }

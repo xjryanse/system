@@ -6,6 +6,7 @@ use think\Db;
 use xjryanse\system\service\SystemColumnService;
 use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
+use xjryanse\system\service\SystemColumnListGroupService;
 use xjryanse\system\service\SystemColumnOperateService;
 use xjryanse\system\service\SystemColumnBlockService;
 use xjryanse\user\service\UserAuthUserRoleService;
@@ -314,6 +315,8 @@ class ColumnLogic
         $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
         //字段转换
         $res = self::scolumnCov($info2,$data);
+        //带分组字段的数据列表
+        $res['listInfoGroup'] = SystemColumnListGroupService::getColumnListInfo($columnId);        
 
         return $res;
     }
