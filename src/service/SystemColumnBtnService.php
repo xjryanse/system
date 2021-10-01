@@ -17,6 +17,15 @@ class SystemColumnBtnService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnBtn';
     
+    public static function listWithCov( $con = [],$order='',$field="*" ,$cache = -1 ){
+        $lists = self::lists($con, $order, $field, $cache);
+        foreach($lists as $k=>&$v){
+            $v = self::btnCov( $v );
+        }
+        return $lists;
+    }
+    
+    
     public static function btnCov(&$btnInfo) {
         //当前session的用户id
         $userId = session(SESSION_USER_ID) ;

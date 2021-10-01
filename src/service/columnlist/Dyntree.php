@@ -45,7 +45,8 @@ class Dyntree extends Base implements ColumnListInterface
     {
         $con   = [];
         $con[] = [$option['option']['main_field'],'=',$data['id']];
-        $rr = self::dynamicColumn( $option['option']['to_table'], $option['name'], 'id',$con );
+        //20210908修复 $option['name'] 为 $option['option']['to_field']
+        $rr = self::dynamicColumn( $option['option']['to_table'], $option['option']['to_field'], 'id',$con );
         return array_values($rr);        
     }
     /**

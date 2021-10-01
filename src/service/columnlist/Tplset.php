@@ -105,9 +105,9 @@ class Tplset extends Base implements ColumnListInterface
         if(DbOperate::getService( $tplTable )::mainModel()->hasField( 'company_id' )){
             $tplCond[] = ['company_id','=',session(SESSION_COMPANY_ID)];
         }
-        $groupKeys = Db::table( $tplTable ) ->where( $tplCond )->order('sort')->column( 'distinct '.$tplGroupKey );
+        $groupKeys = Db::table( $tplTable ) ->where( $tplCond )->column( 'distinct '.$tplGroupKey );    // ->order('sort')
         //模板表主key
-        $mainKeys = Db::table( $tplTable ) ->where(  $tplCond )->order('sort')->column( 'distinct '.$tplMainKey );
+        $mainKeys = Db::table( $tplTable ) ->where(  $tplCond )->column( 'distinct '.$tplMainKey );     // ->order('sort')
 
         $dataArr = [];
         foreach( $mainKeys as $v ){

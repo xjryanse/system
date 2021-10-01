@@ -20,9 +20,9 @@ class SystemFileService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFile';
     
-    public static function extraAfterSave(&$data, $uuid) {
-        self::getInstance($uuid)->doBase64Brief();
-    }
+//    public static function extraAfterSave(&$data, $uuid) {
+//        //self::getInstance($uuid)->doBase64Brief();
+//    }
     /**
      * 删除文件，并删除记录
      * @return boolean

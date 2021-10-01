@@ -14,6 +14,9 @@ class SystemCompanyService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompany';
+    //一经写入就不会改变的值
+    protected static $fixedFields = ['id','name','logo','key','we_app_id'
+        ,'we_pub_id','creater','create_time'];
 
     /**
      * 根据key取值

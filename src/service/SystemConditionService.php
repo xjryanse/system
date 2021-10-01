@@ -5,6 +5,9 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Debug;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Arrays;
+use xjryanse\order\service\OrderService;
+use Exception;
 use think\Db;
 
 /**
@@ -46,7 +49,7 @@ class SystemConditionService implements MainModelInterface {
     protected static function getCond( $con, $param )
     {
         //20210625不缓存
-        $lists = json_encode( self::lists($con, 'group_id','*',0) ,JSON_UNESCAPED_UNICODE);
+        $lists = json_encode( self::lists($con, 'group_id','*',86400) ,JSON_UNESCAPED_UNICODE);
         self::debug( '$param测', $param );
         self::debug( '查询结果Sql-1', $lists );
         if($param){
@@ -55,9 +58,9 @@ class SystemConditionService implements MainModelInterface {
                 self::debug( '$key', $key );
                 self::debug( '$value', $value );
                 $lists = str_replace('{$' . $key . '}', $value, $lists);
-                self::debug( '$lists', $lists );
-                self::debug( '-------------------', '' );
             }
+            self::debug( '$lists', $lists );
+            self::debug( '-------------------', '' );
         }
         self::debug( '查询结果Sql-2', $lists );
         $listsRes = json_decode($lists, true);
@@ -91,9 +94,9 @@ class SystemConditionService implements MainModelInterface {
     public static function isReachByItemKey($itemType, $itemKey, $param) {
         //条件
         $conditions = self::listsByItemKey($itemType, $itemKey, $param);
-        self::debug(__METHOD__ . '0001', $conditions);
-        $results = self::conditionsGetResult($conditions);
-        self::debug(__METHOD__ . '结果', $results);
+        self::debug(__METHOD__ .$itemKey. '0001', $conditions);
+        $results = self::conditionsGetResult($conditions, $param);
+        self::debug(__METHOD__ .$itemKey. '结果', $results);
         //相同group的数据，全部为true，则true;
         return $results;
     }
@@ -120,18 +123,23 @@ class SystemConditionService implements MainModelInterface {
     /**
      * 条件取结果
      */
-    private static function conditionsGetResult($conditions) {
+    private static function conditionsGetResult($conditions, $param = []) {
+        if(!$conditions){
+            return false;
+        }
         //结果集
         self::debug(__METHOD__ . '$conditions', $conditions);
         $res = [];
         foreach ($conditions as &$v) {
-            $tmpResult = Db::table($v['judge_table'])->where($v['judge_cond'])->field($v['judge_field'] . ' as result')->find();
-            self::debug( '$v', $v );
-            self::debug(__METHOD__ . '$tmpResultLastSql', Db::table($v['judge_table'])->getLastSql());
-            self::debug(__METHOD__ . ' eval ', "return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
-            $v['resVal'] = $tmpResult['result'];
-            $v['result'] = eval("return " . $tmpResult['result'] . ' ' . $v['judge_sign'] . ' ' . $v['judge_value'] . ';');
-            $res[$v['group_id']][] = $v['result'];
+            //校验条件字段是否存在：人性化异常，避免开发人员找半天
+            $service = DbOperate::getService($v['judge_table']);
+            foreach($v['judge_cond'] as $v2){
+                if(!$service::mainModel()->hasField($v2[0])){
+                    throw new Exception ($v['judge_table'].'表没有字段'.$v2[0]);
+                }
+            }
+            //结果
+            $res[$v['group_id']][] = self::conditionResult($v,$param);
         }
         self::debug(__METHOD__ . '$res', $res );
         foreach ($res as $value) {
@@ -141,6 +149,41 @@ class SystemConditionService implements MainModelInterface {
             }
         }
         return false;
+    }
+    /**
+     * 单条件取结果
+     * @param type $condition   条件
+     * @param type $param       入参
+     */
+    private static function conditionResult($condition,$param){
+        //结果
+        $itemType   = Arrays::value($condition,'item_type');
+        $judgeTable = Arrays::value($condition,'judge_table');
+        $judgeCond  = Arrays::value($condition,'judge_cond',[]);
+        $judgeField = Arrays::value($condition,'judge_field');
+        $judgeSign  = Arrays::value($condition,'judge_sign');
+        $judgeValue = Arrays::value($condition,'judge_value');
+        //符号替换
+        $signReplace['='] = '==';   // 等号'
+        $signReplace['<>'] = '!=';  //不等号'
+        
+        //TODO订单表，使用特殊处理；（因param参数即从订单表来，为了节约数据库io开销，尝试简化）
+        if($itemType == 'order' && $judgeTable == OrderService::mainModel()->getTable()){
+            foreach( $judgeCond as $cond){
+                //符号替换
+                $sign = Arrays::value($signReplace, $cond[1],$cond[1]);
+                if(!isset($param[$cond[0]]) || !eval('return \'' . $param[$cond[0]] . '\' ' . $sign. ' \'' . $cond[2] . '\';')){
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            $tmpResult = Db::table($judgeTable)->master()->where($judgeCond)->field($judgeField . ' as result')->find();
+//            self::debug( '$condition', $condition );
+            self::debug(__METHOD__ . '判断查询结果的sql语句', Db::table($judgeTable)->getLastSql());
+//            self::debug(__METHOD__ . ' eval ', "return " . $tmpResult['result'] . ' ' . $judgeSign . ' ' . $judgeValue . ';');
+            return  eval('return \'' . $tmpResult['result'] . '\' ' . $judgeSign . ' ' . $judgeValue . ';');
+        }
     }
 
     /*     * * */

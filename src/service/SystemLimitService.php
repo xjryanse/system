@@ -3,40 +3,22 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-use xjryanse\logic\Cachex;
+
 /**
- * 系统单线程异步实施类库
+ * 系统限制表
  */
-class SystemAsyncOperateService implements MainModelInterface {
+class SystemLimitService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAsyncOperate';
-    /**
-     * 获取操作key
-     * @return type
-     */
-    public static function operateKeys(){
-        $res = Cachex::funcGet('SystemAsyncOperateService_operateKeys', function() {
-            return self::mainModel()->cache(86400)->column('distinct operate_key');
-        });
-        return $res;
-    }
-    
-    
-    /**
-     *
-     */
-    public function fId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemLimit';
 
     /**
      *
      */
-    public function fAppId() {
+    public function fId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
@@ -48,40 +30,35 @@ class SystemAsyncOperateService implements MainModelInterface {
     }
 
     /**
-     * 表名
+     * 
      */
-    public function fTableName() {
+    public function fLimitDesc() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 末次执行取的记录id
+     * 分类key
      */
-    public function fLastTableId() {
+    public function fRuleKey() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 末次执行取值时间
-     */
-    public function fLastRunTime() {
+    public function fMinutes() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 只取最近指定秒数内的记录，防误
-     */
-    public function fWithinSeconds() {
+    public function fHours() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+    
+    public function fDays() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 操作key
-     */
-    public function fOperateKey() {
+    public function fUser() {
         return $this->getFFieldValue(__FUNCTION__);
     }
-
+    
     /**
      * 排序
      */

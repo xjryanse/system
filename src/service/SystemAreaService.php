@@ -4,28 +4,50 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Cachex;
+use think\facade\Cache;
+
 /**
- * 系统单线程异步实施类库
+ * 行政区划信息
  */
-class SystemAsyncOperateService implements MainModelInterface {
+class SystemAreaService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAsyncOperate';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemArea';
     /**
-     * 获取操作key
-     * @return type
+     * 有赞省市区列表
      */
-    public static function operateKeys(){
-        $res = Cachex::funcGet('SystemAsyncOperateService_operateKeys', function() {
-            return self::mainModel()->cache(86400)->column('distinct operate_key');
+    public static function vantAreaList(){
+        return Cachex::funcGet( __CLASS__.'_'.__METHOD__, function(){
+            //省
+            $provinceList   = self::mainModel()->where('level',1)->column('area_name','area_code');
+            //市
+            $cityList       = self::mainModel()->where('level',2)->column('area_name','area_code');
+            //县
+            $countyList     = self::mainModel()->where('level',3)->column('area_name','area_code');
+            return ['province_list'=>$provinceList, 'city_list'=>$cityList, 'county_list'=>$countyList];
         });
-        return $res;
+    }
+    /**
+     * 行政编码取省市县数组
+     * @param type $areaCode
+     */
+    public static function areaCodeGetDataArr( $areaCode ){
+        $areaLists = self::vantAreaList();
+        //省
+        $data['province'] = $areaLists['province_list'][substr($areaCode, 0, 2).'0000'];
+        //市
+        $data['city'] = $areaLists['city_list'][substr($areaCode, 0, 4).'00'];
+        //县
+        $data['county'] = $areaLists['county_list'][$areaCode];
+
+        return $data;        
     }
     
-    
+    /*     * *************************************** */
+
     /**
      *
      */
@@ -34,51 +56,23 @@ class SystemAsyncOperateService implements MainModelInterface {
     }
 
     /**
-     *
+     * 应用名称
      */
-    public function fAppId() {
+    public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     *
+     * 应用id
      */
-    public function fCompanyId() {
+    public function fAppid() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 表名
+     * 应用密钥
      */
-    public function fTableName() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 末次执行取的记录id
-     */
-    public function fLastTableId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 末次执行取值时间
-     */
-    public function fLastRunTime() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 只取最近指定秒数内的记录，防误
-     */
-    public function fWithinSeconds() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 操作key
-     */
-    public function fOperateKey() {
+    public function fSecret() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

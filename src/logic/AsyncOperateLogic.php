@@ -46,7 +46,11 @@ class AsyncOperateLogic
     protected function getTodos()
     {
         $con[] = ['status','=',1]; 
-        $lists = SystemAsyncOperateService::mainModel()->cache(1)->where($con)->select();
+        $lists = SystemAsyncOperateService::mainModel()->master()->cache(1)->where($con)->select();
+        foreach($lists as $k=>$v){
+            //存内存
+            SystemAsyncOperateService::getInstance($v['id'])->setUuData($v,true);
+        }
         return $lists;
     }
     /**
@@ -118,6 +122,9 @@ class AsyncOperateLogic
      */
     protected static function withinAdds( $tableName, $lastRunId, $thisRunId ,$con = [])
     {
+        if($lastRunId >= $thisRunId){
+            return [];
+        }
         $con[] = [ 'id','>',$lastRunId ];
         $con[] = [ 'id','<=',$thisRunId ];
         //最多只取12小时
@@ -133,7 +140,9 @@ class AsyncOperateLogic
      */
     protected static function withinUpdates( $tableName, $lastRunTime ,$thisRunTime, $con = [])
     {
-//        $con[]  = ['id','<=',$lastRunId ];
+        if($lastRunTime >= $thisRunTime){
+            return [];
+        }
         $con[]  = ['update_time','>=',$lastRunTime ];
         $con[]  = ['update_time','<',$thisRunTime ];
         //最多只取12小时

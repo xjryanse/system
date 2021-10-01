@@ -6,6 +6,8 @@ use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\DbOperate;
 use xjryanse\logic\DataCheck;
 use xjryanse\logic\SnowFlake;
+use xjryanse\logic\Debug;
+use xjryanse\system\service\SystemErrorLogService;
 use think\Db;
 use Exception;
 /**
@@ -33,25 +35,22 @@ class SystemAsyncTriggerService implements MainModelInterface {
         $data['operate_status'] = 0;
         $data['id']             = SnowFlake::generateParticle();
         DataCheck::must($data, ['method','from_table','from_table_id']);
-        return self::mainModel()->save($data);
+        $res = self::mainModel()->insert($data);
+        Debug::debug('SystemAsyncTriggerService::addTask',$data);
+        Debug::debug('SystemAsyncTriggerService::addTask的$res',$res);
+        return $res;
     }
     /**
      * 获取待执行任务列表
      */
-    public static function getTodos( $limit = 10 ){
+    public static function getTodoIds( $limit = 10 ){
         $con[] = ['operate_status','=',0];
-        return self::mainModel()->where($con)->limit($limit)->select();
+        return self::mainModel()->master()->where($con)->limit($limit)->column('id');
     }
     /**
      * 操作方法
      */
     public function operate(){
-        $con[] = ['id','=',$this->uuid];
-        $con[] = ['operate_status','=',0];  //加锁
-        $resp = self::mainModel()->where($con)->update(['operate_status'=>1]);  //处理中
-        if(!$resp){
-            throw new Exception('数据'.$this->uuid.'非待处理状态');
-        }
         //尝试进行数据处理
         try{
             $res = $this->doOperate();
@@ -59,6 +58,7 @@ class SystemAsyncTriggerService implements MainModelInterface {
             return $res;
         } catch(\Exception $e){
             $message = $e->getMessage();
+            SystemErrorLogService::exceptionLog($e);
             self::mainModel()->where('id',$this->uuid)->update(['operate_status'=>3,'result'=>$message]);  //处理失败
             throw $e;
         }
