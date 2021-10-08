@@ -3,6 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\system\logic\ConfigLogic;
 use think\facade\Request;
 
 /**
@@ -19,6 +20,9 @@ class SystemLogService implements MainModelInterface {
      * 请求本系统
      */
     public static function log() {
+        if(!ConfigLogic::config('queryLogOpen')){
+            return false;
+        }
         try {
             $data['type']       = 1;  //请求本系统
             $data['ip']         = Request::ip();

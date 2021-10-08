@@ -63,7 +63,7 @@ class AsyncOperateLogic
             $lastRunId      = $v['last_table_id'];
             $lastRunTime    = $v['last_run_time'];
             $thisRunId      = DbOperate::lastId( $v['table_name'],[],1);
-            $thisRunTime    = date('Y-m-d H:i:s');
+            $thisRunTime    = date('Y-m-d H:i:s',time() - 2);
             $tableName      = $v['table_name'];
             $operateKey     = $v['operate_key'];
             if(!$thisRunId){
@@ -129,7 +129,7 @@ class AsyncOperateLogic
         $con[] = [ 'id','<=',$thisRunId ];
         //最多只取12小时
         $con[] = ['create_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
-        return Db::table( $tableName )->where( $con )->cache(1)->select();
+        return Db::table( $tableName )->master()->where( $con )->cache(1)->select();
     }
     /**
      * 获取区间数据更新记录
@@ -147,7 +147,7 @@ class AsyncOperateLogic
         $con[]  = ['update_time','<',$thisRunTime ];
         //最多只取12小时
         $con[]  = ['update_time','>=',date('Y-m-d H:i:s',strtotime('-12 hours'))];
-        return Db::table( $tableName )->where( $con )->select();
+        return Db::table( $tableName )->master()->where( $con )->select();
     }
 
 }

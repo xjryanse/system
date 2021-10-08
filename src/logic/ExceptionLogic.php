@@ -3,6 +3,7 @@ namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\logic\Debug;
+use xjryanse\logic\DataCheck;
 use Exception;
 use think\exception\Handle;
 use think\Db;
@@ -15,8 +16,9 @@ class ExceptionLogic extends Handle
 
     public function render(Exception $e)
     {
+        $pdo = SystemErrorLogService::mainModel()->getConnection()->getPdo();
         //校验是否在事务中
-        if(SystemErrorLogService::mainModel()->inTransaction()){
+        if(!DataCheck::isEmpty($pdo) && SystemErrorLogService::mainModel()->inTransaction()){
             //事务回滚
             Db::rollback();
         }

@@ -3,6 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\system\service\SystemCompanyService;
+use xjryanse\logic\Arrays2d;
 
 /**
  * 公司用户（员工表）
@@ -19,9 +21,11 @@ class SystemCompanyUserService implements MainModelInterface {
      * @param type $con
      * @return type
      */
-    public static function companyUserIds($companyId, $con = []){
-        $con[] = ['company_id','=',$companyId];
-        return self::mainModel()->where($con)->column('distinct user_id');
+    public static function companyUserIds($companyId){
+//        $con[] = ['company_id','=',$companyId];
+//        return self::mainModel()->where($con)->column('distinct user_id');
+        $listsAll = SystemCompanyService::getInstance($companyId)->objAttrsList('systemCompanyUser');
+        return array_column($listsAll,'user_id');
     }
     /**
      * 是否公司管理员
@@ -29,9 +33,12 @@ class SystemCompanyUserService implements MainModelInterface {
      * @param type $userId
      */
     public static function isCompanyUser($companyId,$userId){
-        $con[] = ['company_id','=',$companyId];
+        $listsAll = SystemCompanyService::getInstance($companyId)->objAttrsList('systemCompanyUser');
         $con[] = ['user_id','=',$userId];
-        return self::mainModel()->where($con)->value('id');
+        return Arrays2d::listFind($listsAll, $con);        
+//        $con[] = ['company_id','=',$companyId];
+//        $con[] = ['user_id','=',$userId];
+//        return self::mainModel()->where($con)->value('id');
     }
     /**
      *

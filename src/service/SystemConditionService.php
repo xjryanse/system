@@ -17,6 +17,7 @@ class SystemConditionService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
     use \xjryanse\traits\DebugTrait;
 
     protected static $mainModel;

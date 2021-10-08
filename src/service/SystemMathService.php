@@ -13,6 +13,7 @@ class SystemMathService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemMath';
@@ -21,10 +22,12 @@ class SystemMathService implements MainModelInterface {
 
     public static function getByKey($key)
     {
-        return Cachex::funcGet(__CLASS__.'_'.__METHOD__.$key, function() use ($key){
-            $con[] = ['math_key','=',$key];
-            return self::find($con);
-        });
+        $con[] = ['math_key','=',$key];
+        return self::staticConFind($con);
+//        return Cachex::funcGet(__CLASS__.'_'.__METHOD__.$key, function() use ($key){
+//            $con[] = ['math_key','=',$key];
+//            return self::find($con);
+//        });
     }
     /**
      * 根据key，获取计算公式

@@ -11,13 +11,33 @@ class SystemCompanyService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-
+    use \xjryanse\traits\ObjectAttrTrait;
+    
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompany';
     //一经写入就不会改变的值
     protected static $fixedFields = ['id','name','logo','key','we_app_id'
         ,'we_pub_id','creater','create_time'];
 
+    ///从ObjectAttrTrait中来
+    // 定义对象的属性
+    protected $objAttrs = [];
+    // 定义对象是否查询过的属性
+    protected $hasObjAttrQuery = [];
+    // 定义对象属性的配置数组
+    protected static $objAttrConf = [
+        'systemCompanyUser'=>[
+            'class'     =>'\\xjryanse\\system\\service\\SystemCompanyUserService',
+            'keyField'  =>'company_id',
+            'master'    =>true
+        ],
+        'financeAccount'=>[
+            'class'     =>'\\xjryanse\\finance\\service\\FinanceAccountService',
+            'keyField'  =>'company_id',
+            'master'    =>true
+        ]
+    ];
+    
     /**
      * 根据key取值
      * @param type $key
@@ -74,7 +94,13 @@ class SystemCompanyService implements MainModelInterface {
     public function fLogo() {
         return $this->getFFieldValue(__FUNCTION__);
     }
-
+    /**
+     * 地区码
+     * @return type
+     */
+    public function fAreaCode() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
     /**
      * 公司编号
      */
