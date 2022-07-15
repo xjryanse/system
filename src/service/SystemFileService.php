@@ -8,7 +8,7 @@ use think\facade\Request;
 use think\Exception;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\ImgCompress;
-
+use xjryanse\logic\Oss;
 /**
  * 上传附件
  */
@@ -25,10 +25,16 @@ class SystemFileService implements MainModelInterface {
 //    }
     /**
      * 删除文件，并删除记录
+     * @param type $onlyJustUpload  是否仅删除刚上传的
      * @return boolean
      */
-    public function unlink()
+    public function unlink($onlyJustUpload = true)
     {
+        // 如果仅删除刚上传的,而文件不是刚上传，20秒判断20220315
+        if($onlyJustUpload && !$this->isJustUpload()){
+            return false;
+        }
+
         $info = self::mainModel()->where('id',$this->uuid)->field('id,is_lock,file_path as pathRaw')->find();
         if($info['is_lock']){
             return false;
@@ -160,6 +166,13 @@ class SystemFileService implements MainModelInterface {
         $con[] = ['sha1', '=', $sha1];
         $res = self::mainModel()->where($con)->field('id,is_lock,file_path,file_path as pathRaw')->find();
         return $res;
+    }
+    /**
+     * 是否刚上传的文件，一般用于删除前进行判断
+     */
+    public function isJustUpload(){
+        $info = $this->get();
+        return $info['create_time'] ? time() - strtotime($info['create_time']) < 20 : false;
     }
 
     /**

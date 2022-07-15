@@ -5,6 +5,7 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\logic\ConfigLogic;
 use think\facade\Request;
+use xjryanse\logic\Debug;
 
 /**
  * 访问日志
@@ -19,8 +20,8 @@ class SystemLogService implements MainModelInterface {
     /**
      * 请求本系统
      */
-    public static function log() {
-        if(!ConfigLogic::config('queryLogOpen')){
+    public static function log($strictLog = false) {
+        if(!ConfigLogic::config('queryLogOpen') && !$strictLog ){
             return false;
         }
         try {
@@ -32,6 +33,7 @@ class SystemLogService implements MainModelInterface {
             $data['module']     = Request::module();
             $data['controller'] = Request::controller();
             $data['action']     = Request::action();
+            Debug::debug('$data',$data);
             self::save($data);
         } catch (\Exception $e) {
             //不报异常，以免影响访问

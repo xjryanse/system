@@ -2,6 +2,7 @@
 namespace xjryanse\system\service\columnlist;
 
 use xjryanse\system\interfaces\ColumnListInterface;
+use xjryanse\logic\Arrays;
 /**
  * 枚举
  */
@@ -17,8 +18,10 @@ class Check extends Base implements ColumnListInterface
         foreach( $arr as $key=>&$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
         }
-        $con = isset($arr['con']) ? $arr['con'] : [];
-        $arr['option']  = self::dynamicLists( $arr['table_name'] ,$con);
+        $con            = isset($arr['con']) ? $arr['con'] : [];
+        $orderBy        = Arrays::value($arr, 'orderBy','');
+        $arr['option']  = self::dynamicLists( $arr['table_name'] ,$con, $orderBy);
+        //$arr['option']  = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con );
 //        dump($arr);
         return $arr;
     }

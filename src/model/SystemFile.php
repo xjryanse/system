@@ -1,6 +1,7 @@
 <?php
 namespace xjryanse\system\model;
 
+use xjryanse\logic\Debug;
 /**
  * 上传附件
  */
@@ -17,6 +18,8 @@ class SystemFile extends Base
             return self::cdnUrlEncrypt( $value);
         } else {
             $baseUrl = config('xiesemi.systemBaseUrl');
+            Debug::debug('$baseUrl',$baseUrl);
+            Debug::debug('$value',$value);
             return $value ? $baseUrl .'/'. $value : $value;
         }
     }

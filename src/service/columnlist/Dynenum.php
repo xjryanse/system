@@ -14,6 +14,9 @@ class Dynenum extends Base implements ColumnListInterface
      */
     public static function getOption( $optionStr,$data=[])
     {
+        if(!$optionStr){
+            return [];
+        }
         $arr = equalsToKeyValue( $optionStr , '&');
         foreach( $arr as &$value ){
             $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
@@ -29,19 +32,20 @@ class Dynenum extends Base implements ColumnListInterface
             }
         }
         $cache = isset($arr['cache']) ? true : false ;
-        //超过100条，通过ajax取数据
         //可以外部设置data_ajax = 0，表示全部加载
         if(!isset($arr['data_ajax'])){
-            $arr['data_ajax'] = Db::table( $arr['table_name'] )->where( $con )->count() >= 100 ? 1:0;
+            //超过100条，通过ajax取数据
+            //$arr['data_ajax'] = Db::table( $arr['table_name'] )->where( $con )->cache(1)->count() >= 100 ? 1:0;
+            //20220303新添加了数据之后，会出bug，调整为全部按接口加载
+            $arr['data_ajax'] = 1;
         }
         //需ajax取数，不出数据，否则出数据
-        if( $arr['data_ajax'] && isset($data['id'])){
+        if( $arr['data_ajax'] && isset($data['id']) && $data['id']){
+            //20220317,如果只有空id，不查
             $con[] = ['id','in',$data['id']];
         }
         //非ajax，全部查，有传id，也查，是ajax，不查
-        if(!$arr['data_ajax']){
-            $option = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con ,$cache );
-        } else if( isset($data['id']) ){
+        if(!$arr['data_ajax'] || (isset($data['id']) && $data['id'])){
             $option = self::dynamicColumn( $arr['table_name'] , $arr['value'], $arr['key'], $con ,$cache );
         } else {
             $option = [];

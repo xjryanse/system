@@ -5,6 +5,7 @@ use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\logic\Debug;
 use xjryanse\logic\DataCheck;
 use Exception;
+use think\facade\Request;
 use think\exception\Handle;
 use think\Db;
 /**

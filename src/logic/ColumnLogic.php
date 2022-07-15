@@ -4,17 +4,18 @@ namespace xjryanse\system\logic;
 use Exception;
 use think\Db;
 use xjryanse\system\service\SystemColumnService;
-use xjryanse\system\service\SystemColumnBtnService;
+//use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
-use xjryanse\system\service\SystemColumnListGroupService;
+//use xjryanse\system\service\SystemColumnListGroupService;
 use xjryanse\system\service\SystemColumnOperateService;
-use xjryanse\system\service\SystemColumnBlockService;
-use xjryanse\user\service\UserAuthUserRoleService;
-use xjryanse\user\service\UserAuthRoleColumnService;
-use xjryanse\user\service\UserAuthRoleBtnService;
+//use xjryanse\system\service\SystemColumnBlockService;
+//use xjryanse\user\service\UserAuthUserRoleService;
+//use xjryanse\user\service\UserAuthRoleColumnService;
+//use xjryanse\user\service\UserAuthRoleBtnService;
+use xjryanse\logic\ModelQueryCon;
 use xjryanse\logic\Debug;
 use xjryanse\logic\DbOperate;
-
+use xjryanse\logic\Cachex;
 /**
  * 字段逻辑
  */
@@ -34,10 +35,14 @@ class ColumnLogic
     {
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
-        if($companyId && SystemColumnService::mainModel()->hasField('company_id')){
-            $con[] = ['company_id','in',['',$companyId]];
-        }
-        $columnId     = SystemColumnService::mainModel()->cache(86400)->where($con)->value('id');
+//        if($companyId && SystemColumnService::mainModel()->hasField('company_id')){
+//            $con[] = ['company_id','in',['',$companyId]];
+//        }
+        Debug::debug('字段查询条件',$con);
+        $columnInfo = SystemColumnService::staticConFind($con);
+        Debug::debug('字段查询$columnInfo',$columnInfo);
+        $columnId = $columnInfo ? $columnInfo['id'] : "";
+        
         return self::getById($columnId,[], $cateFieldValue, $methodKey ,$data);
     }
     /**
@@ -46,12 +51,24 @@ class ColumnLogic
     public static function getSearchFields( $columnInfo ,$queryType = 'where')
     {
         $searchFields = [];
-        foreach($columnInfo['listInfo'] as $v) {
-            if($v['search_type'] >=0 && $v['query_type'] == $queryType ){
-                $searchFields[$v['search_type']][] = $v['name'];
+        if($columnInfo['listInfo']){
+            foreach($columnInfo['listInfo'] as $v) {
+                if($v['search_type'] >=0 && $v['query_type'] == $queryType ){
+                    $searchFields[$v['search_type']][] = $v['name'];
+                }
             }
         }
         return $searchFields;
+    }
+    /**
+     * 将键值对参数，转拼接为mysql 模型类查询条件
+     */
+    public static function paramToQueryCon($tableName,$param){
+        $columnInfo     = self::tableNameColumn($tableName);
+        $whereFields    = self::getSearchFields($columnInfo);
+        //【通用查询条件】
+        $con        = ModelQueryCon::queryCon($param, $whereFields);
+        return $con ;
     }
     /**
      * 可以放到表中查询的字段
@@ -63,12 +80,14 @@ class ColumnLogic
         //【1】状态为开的字段
         $con[] = ['column_id','=',$columnId];
         $con[] = ['status','=',1];
-        $res = SystemColumnListService::mainModel()->where($con)->cache(86400)->column('distinct name');
+        // $res = SystemColumnListService::mainModel()->where($con)->cache(86400)->column('distinct name');
+        $nameArr = SystemColumnListService::staticConColumn('name');
+        $res = array_unique($nameArr);
         //【2】数据表有的字段
-        $tableName = SystemColumnService::getInstance($columnId)->fTableName();
+        $tableName      = SystemColumnService::getInstance($columnId)->fTableName();
         $tableColumns   = DbOperate::columns($tableName);
         //数据表已有字段
-        $tableFields    = array_column( $tableColumns,'COLUMN_NAME');              
+        $tableFields    = array_column( $tableColumns,'Field');              
         //【3】取交集
         return array_intersect($res, $tableFields);
     }
@@ -95,7 +114,9 @@ class ColumnLogic
     public static function tableNameColumn( $tableName,$fields='' ,$methodKey = '',$data=[])
     {
         $con[]  = ['table_name','=',$tableName]     ;
-        $columnId     = SystemColumnService::mainModel()->where($con)->cache(86400)->value('id');
+        $columnInfo = SystemColumnService::staticConFind($con);
+        $columnId = $columnInfo ? $columnInfo['id'] : "";
+        //$columnId     = SystemColumnService::mainModel()->where($con)->cache(86400)->value('id');
         return self::getById($columnId,$fields,'',$methodKey,$data);
 //        没测20201228
 //        $info   = SystemColumnService::find( $con ) ;
@@ -115,7 +136,8 @@ class ColumnLogic
      */
     public static function info( $id )
     {
-        $info   = SystemColumnService::getInstance($id)->get();
+        //$info   = SystemColumnService::getInstance($id)->get();
+        $info   = SystemColumnService::getInstance($id)->staticGet();
         return self::getDetail($info);      
     }
     /*
@@ -126,7 +148,7 @@ class ColumnLogic
      * @param type $methodKey    方法id
      * @return boolean
      */
-    private static function getDetail( $info, $fields='',$conField = [],$methodKey = '')
+    private static function getDetail( $info, $fields='',$conField = [])
     {
         if(!$info){
             return false;
@@ -142,48 +164,14 @@ class ColumnLogic
         $con1[] = ['column_id','=',$info['id']];
         $con1[] = ['status','=',1];
 
-        self::debug('查询条件',array_merge($con1,[['method_key','=',$methodKey]]));
-//        //方法id存在，且有自定义值
-//        dump( array_merge($con1,[['method_key','=',$methodKey]]) );
-//        dump( SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]])) );
-        if($methodKey && $methodKey !="*" && SystemColumnListService::count(array_merge($con1,[['method_key','=',$methodKey]]))){
-            $con2[] = ['method_key', '=', $methodKey ];
-        } else {
-            $con2[] = ['method_key', '=', ''];   //没数据默认查空
-        }
         //字段查询的字段【20210330】
         $fieldStr = "id,column_id,method_key,label,name,type,query_type,option,search_type,search_show,"
                 . "is_senior_search,is_list,is_list_edit,is_add,is_edit,only_detail,is_must,is_export,is_import_must,"
                 . "is_span_company,is_linkage,list_style,list_pop,edit_btn_id,list_pop_operate,"
                 . "min_width,width,form_col,cate_field_value,flex_item_id,show_condition";
-//        $fieldStr="*";
-        
-        $roleIds        = UserAuthUserRoleService::userRoleIds( session(SESSION_USER_ID) );
-        $columnListIds  = UserAuthRoleColumnService::roleColumnIds( $roleIds, $info['table_name'] );
-        if($columnListIds){
-            $con2[] = ['id' ,'in', $columnListIds ];
-        }
-        $info['listInfo']       = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1,$con2 ) : array_merge( $con1,$con2 ),"",$fieldStr,86400 );
-        //【按钮】
-        $conBtn[]  = ['c.user_id','=',session(SESSION_USER_ID)];
-        $conBtn[]  = ['a.status','=',1];
-        $conBtn[]  = ['a.column_id','=',$info['id']];
-        $info['btnInfo']  = SystemColumnBtnService::mainModel()->alias('a')
-            ->join('user_auth_role_btn b',"a.id=b.btn_id")
-            ->join('user_auth_user_role c',"b.role_id = c.role_id")
-            ->where( $conBtn )
-            ->cache(86400)
-            ->order('a.sort')
-            ->field('distinct a.*')
-//            ->field( $fieldStr )
-            ->select();                
 
-        //操作
-        $info['operateInfo']    = SystemColumnOperateService::lists( $con1 );
-        //页面板块布局
-        $info['blockInfo']      = SystemColumnBlockService::listsInfo( $con1 );
-        //新增和编辑页面的flex布局
-        $info['flexInfo']       = isset($info['flex_id']) && $info['flex_id'] ? FlexLogic::getFlex( $info['flex_id'] ) : [];
+        $listInfo = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1 ) : $con1,"",$fieldStr,86400 );
+        $info['listInfo']       = $listInfo ? $listInfo->toArray() : [];        
 
         return $info;
     }
@@ -201,7 +189,6 @@ class ColumnLogic
         }
         //字段
         foreach($res['listInfo'] as $k=>&$v){
-//            $v['option'] = SystemColumnListService::optionCov( $v['type'], $v['option'] );
             //冗余字段，方便前端使用
             $v['table_name'] = $res['table_name'] ;
             //选项
@@ -220,10 +207,6 @@ class ColumnLogic
                 //参数
                 $v['table_info'] = self::tableNameColumn( $v['option']['table_name'] ,isset($v['option']['fields']) ? $v['option']['fields'] : []);
             }
-        }
-        //按钮
-        foreach($res['btnInfo'] as $k=>&$v){
-            $v = SystemColumnBtnService::btnCov( $v );
         }
         return $res;
     }
@@ -298,27 +281,33 @@ class ColumnLogic
      */
     public static function getById( $columnId ,$fields = [], $cateFieldValue='',$methodKey = '',$data=[])
     {
-        $info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
-        Debug::debug('ColumnLogic::getById',$info);
-        $con    = [];
-        //分类取值
-        if($info['cate_field_name'] && is_array($cateFieldValue)){
-            $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
-        }
-        //分类名
-        if($info['cate_field_name'] && $cateFieldValue){
-            //按分类名进行过滤
-            $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
-        }
-        $info2  = self::getDetail( $info, $fields, $con ,$methodKey);
-        //循环
-        $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
-        //字段转换
-        $res = self::scolumnCov($info2,$data);
-        //带分组字段的数据列表
-        $res['listInfoGroup'] = SystemColumnListGroupService::getColumnListInfo($columnId);        
-
-        return $res;
+        $key = Cachex::cacheKey($columnId ,$fields, $cateFieldValue,$methodKey,$data);
+        //20220130，增加缓存
+        return Cachex::funcGet('ColumnLogic_getById'.$key, function() use ($columnId ,$fields, $cateFieldValue,$methodKey,$data){
+            //$info   = SystemColumnService::getInstance( $columnId )->get( 86400 );
+            $info         = SystemColumnService::getInstance($columnId)->staticGet();
+            Debug::debug('ColumnLogic::getById',$info);
+            $con    = [];
+            
+            //分类取值
+            if(isset($info['cate_field_name']) && $info['cate_field_name'] && is_array($cateFieldValue)){
+                $cateFieldValue = isset($cateFieldValue[$info['cate_field_name']]) ? $cateFieldValue[$info['cate_field_name']] : '';
+            }
+            //分类名
+            if(isset($info['cate_field_name']) && $info['cate_field_name'] && $cateFieldValue){
+                //按分类名进行过滤
+                $con[] = [ 'cate_field_value','in',[ $cateFieldValue, '' ]];
+            }
+            $info2  = self::getDetail( $info, $fields, $con);
+            //循环
+            $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
+            //字段转换
+            $res = self::scolumnCov($info2,$data);
+            //带分组字段的数据列表
+            //20220306新系统无需
+            //$res['listInfoGroup'] = SystemColumnListGroupService::getColumnListInfo($columnId);      
+            return $res;
+        });
     }
     /**
      * 导入数据转换

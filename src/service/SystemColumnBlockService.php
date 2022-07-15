@@ -5,7 +5,7 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnBlockTableFieldsService;
-
+use xjryanse\logic\Cachex;
 /**
  * 系统块表
  */

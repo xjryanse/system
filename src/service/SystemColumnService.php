@@ -3,7 +3,6 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
 /**
  * 数据表
  */
@@ -11,7 +10,9 @@ class SystemColumnService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-
+    // 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
+    
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumn';
     /**
@@ -23,14 +24,17 @@ class SystemColumnService implements MainModelInterface {
     public static function paramGetId($controller,$tableKey){
         $con[] = ['controller','=',$controller];
         $con[] = ['table_key','=',$tableKey];
-        return self::mainModel()->where($con)->value('id');
+        $info = self::staticConFind($con);
+        return $info ? $info['id'] : '';
     }
     /**
      * 表名取id
      */
     public static function tableNameGetId($tableName) {
         $con[] = ['table_name', '=', $tableName];
-        $info = self::find($con);
+        //$info = self::find($con);
+        //20220303优化性能
+        $info = self::staticConFind($con);
         return $info ? $info['id'] : '';
     }
     

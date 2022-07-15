@@ -2,6 +2,8 @@
 namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemConfigsService;
+use xjryanse\logic\Debug;
+use xjryanse\logic\Cachex;
 /**
  * 配置逻辑
  */
@@ -23,13 +25,16 @@ class ConfigLogic
      */
     public static function getConfigs( $module='' )
     {
-        $con        = [];
-        if( $module ){
-            $con[]  = [ 'module', '=', $module ];
-        }
-        $configs = SystemConfigsService::lists( $con,"","*",86400 );
-
-        return array_column($configs ? $configs->toArray() : [], 'value', 'key');        
+        $key = __CLASS__.__FUNCTION__.$module;
+        return Cachex::funcGet($key, function() use ($module) {
+            $con        = [];
+            if( $module ){
+                $con[]  = [ 'module', '=', $module ];
+            }
+            $configs = SystemConfigsService::lists( $con,"","*",86400 );
+            Debug::debug('系统配置信息数组', $configs);
+            return array_column($configs ? $configs->toArray() : [], 'value', 'key');        
+        },true);
     }
     
     /******以下用于后台管理配置******/

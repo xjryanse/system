@@ -3,7 +3,12 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\system\logic\ImportLogic;
+use xjryanse\logic\DbOperate;
 use xjryanse\logic\Debug;
+use xjryanse\logic\Arrays;
+use xjryanse\logic\Arrays2d;
+use think\Db;
 /**
  * 导入临时文件
  */
@@ -14,6 +19,82 @@ class SystemImportTempService extends Base implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemImportTemp';
+    
+    /**
+     * 导入临时表的逻辑
+     * @param type $tableName   目标表名
+     * @param type $fileId      导入文件id
+     * @param type $inputVal    预写数据
+     */
+    public static function importTemp($tableName,$fileId,$inputVal=[]){
+        $importToTemp = SystemImportTempMatchService::importToTempColumns($tableName);
+        $impData    = ImportLogic::fileGetArray( $fileId, $importToTemp ,30000 );     
+        // 过滤转换一下
+        $preData = Arrays::keyReplace( $inputVal, $importToTemp );
+        $preData['table_name'] = $tableName;
+        $preData['ident_key']  = uniqid();          //唯一识别key
+        //$preData['input_val']  = json_encode($inputVal,JSON_UNESCAPED_UNICODE);   //输入值
+        
+        Db::startTrans();
+            self::saveAll( $impData, $preData ,0);
+        Db::commit();
+        return count($impData);
+    }
+    
+    public static function dataToTemp($tableName, $data, $inputVal = []){
+        $importToTemp   = SystemImportTempMatchService::importToTempColumns($tableName);
+        $shiftToKey = Arrays2d::shiftToKey( $data );
+        $impData    = Arrays2d::keyReplace( $shiftToKey, $importToTemp );
+        $preData = Arrays::keyReplace( $inputVal, $importToTemp );
+        $preData['table_name'] = $tableName;
+        $preData['ident_key']  = uniqid();          //唯一识别key
+        //$preData['input_val']  = json_encode($inputVal,JSON_UNESCAPED_UNICODE);   //输入值
+        
+        Db::startTrans();
+            self::saveAll( $impData, $preData ,0);
+        Db::commit();
+        return count($impData);
+    }
+    /**
+     * 临时表到目标表
+     */
+    public static function tempToTarget(){
+        $info = self::mainModel()->find();
+        if(!$info){
+            return false;
+        }
+        $service = DbOperate::getService($info['table_name']);
+        if(method_exists( $service, 'clearImportDuplicate')){
+            $service::clearImportDuplicate();
+        }
+        // 正式执行导入动作
+        $con[] = ['table_name','=',$info['table_name']];
+        $lists = self::mainModel()->alias('a')->master()->field('distinct a.md5, a.*')->where($con)->orderRand()->limit(50)->select();
+        $listsArr = $lists ? $lists->toArray() : [];
+
+        $tempToTarget = SystemImportTempMatchService::tempToTargetColumns($info['table_name']);
+        //存储实际导入的数据
+        $dataTemp = [];
+        foreach($listsArr as $v ){
+            $arrayReplace = Arrays::keyReplace($v, $tempToTarget);
+            $inputVal     = json_decode($v['input_val'], JSON_UNESCAPED_UNICODE);
+            $inputVal['company_id'] = $v['company_id'];
+            $dataTemp[] = array_merge($arrayReplace,$inputVal);
+        }
+        Db::startTrans();
+            // 如果有批量保存的特色方法，执行它
+            if(method_exists( $service, 'batchSave')){
+                $service::batchSave($dataTemp);
+            } else {
+                //执行通用的SAVEALL方法批量保存新数据
+                $service::saveAll($dataTemp);
+            }
+            //删除原数据
+            $ids = array_column($listsArr, 'id');
+            $cond[] = ['id','in',$ids];
+            self::mainModel()->where($cond)->delete();  
+        Db::commit();
+    }
     
     /**
      * 获取插队后的处理条件

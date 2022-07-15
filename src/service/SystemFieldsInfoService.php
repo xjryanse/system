@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Arrays2d;
 /**
  * 
  */
@@ -11,6 +11,8 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    // 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsInfo';
@@ -20,7 +22,9 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
         $con[] = ['table_name','=',$tableName];
         $con[] = ['status','=',1];
         $con[] = ['is_extra','=',1];
-        return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
+        $data = self::staticConList($con);
+        return array_column($data, 'relative_table', 'field_name');
+        // return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
     }
 
     /**
@@ -33,7 +37,10 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
         $con[] = ['relative_table','=',$relativeTable];
         $con[] = ['status','=',1];
         $con[] = ['is_relative_del','=',1];
-        return self::lists($con, '', 'id,table_name,field_name,relative_table,del_fault_msg', 86400);
+        $data = self::staticConList($con);
+        $keys = ['id','table_name','field_name','relative_table','del_fault_msg'];
+        return Arrays2d::getByKeys($data, $keys);
+        //return self::lists($con, '', 'id,table_name,field_name,relative_table,del_fault_msg', 86400);
     }
 
     /**

@@ -18,7 +18,7 @@ abstract class Base
             $con[] = ['company_id','=',session(SESSION_COMPANY_ID) ];
         }
         //替换资源链接
-        $inst = Db::table( $tableName )->where( $con );
+        $inst = Db::table( $tableName )->where( $con )->order('sort');
         //缓存
         if($cache){
             $inst->cache(86400);
@@ -35,10 +35,10 @@ abstract class Base
      * @param type $tableName
      * @param type $con
      */
-    public static function dynamicLists( $tableName ,$con = [])
+    public static function dynamicLists( $tableName ,$con = [],$orderBy = '')
     {
         $service = DbOperate::getService( $tableName );
-        $list = $service::lists( $con );
+        $list = $service::lists( $con , $orderBy);
         return $list;
     }
     /**

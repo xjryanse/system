@@ -3,7 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use think\facade\Env;
+use xjryanse\logic\File;
 /**
  * 导出日志记录
  */
@@ -15,6 +16,40 @@ class SystemExportLogService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemExportLog';
 
+    /**
+     * 添加导出任务
+     * @param type $info        文件名
+     * @param type $titleArr    标题数组
+     * @param type $sql         查询Sql
+     * @param type $data        额外数据
+     */
+    public static function addTask($info, $titleArr, $sql, $data = []){
+        $data['info']       = $info;
+        $data['filed_json'] = json_encode($titleArr,JSON_UNESCAPED_UNICODE);
+        $data['search_sql'] = $sql;
+        return self::save($data);
+    }
+    
+    /**
+     * 自动删除超过30天的文件
+     */
+    public static function deleteExpire()
+    {
+        $con[] = ['finish_time','<=',date("Y-m-d",strtotime("-30 day"))];  //30天前的数据
+        $lists = self::mainModel()->where( $con )->select();
+        foreach( $lists as $v){
+            self::getInstance($v['id'])->delete();
+        }
+    }
+    
+    /**
+     * 删除同时删除文件
+     */
+    public function extraPreDelete(){
+        $info = $this->get();
+        $pathFull = Env::get('ROOT_PATH') .'public'.$info['file_path'];
+        File::unlink($pathFull);
+    }
     /**
      *
      */

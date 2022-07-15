@@ -6,6 +6,8 @@ namespace xjryanse\system\model;
  */
 class SystemCompany extends Base
 {
+    public static $picFields = ['logo'];
+    
     public function setLogoAttr($value) {
         return self::setImgVal($value);
     }

@@ -2,6 +2,7 @@
 namespace xjryanse\system\model;
 
 use xjryanse\system\service\SystemFileService;
+use xjryanse\logic\Debug;
 /**
  * 配置表
  */
@@ -14,7 +15,12 @@ class SystemConfigs extends Base
     {
         //上传图片
         if($data['type'] == FR_COL_TYPE_UPLIMAGE){
-            return $value ? self::getImgVal($value) : $value ;
+            Debug::debug('配置上传图片',$value);
+            if($value){
+                $info   = SystemFileService::mainModel()->where('id', $value )->field('id,file_path,file_path as rawPath')->cache(86400)->find();
+                $value  = $info ? $info->toArray() : $value;
+            }
+            return $value ;
         }
         return $value;
     }

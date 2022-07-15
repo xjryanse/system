@@ -7,6 +7,7 @@ use xjryanse\system\service\SystemTimingLogService;
 use xjryanse\curl\Call;
 use think\facade\Request;
 use xjryanse\system\logic\ConfigLogic;
+use xjryanse\logic\Cachex;
 
 /**
  * 系统定时器
@@ -24,7 +25,10 @@ class SystemTimingService implements MainModelInterface {
         //超时了 ： 间隔时间 小于 当前时间减末次执行时间的秒数
         return self::mainModel()->where('spacing', 'exp', '<= TIMESTAMPDIFF(SECOND,last_run_time,now())')->where('status', 1)->column('id');
     }
-
+    /**
+     * 网络io调用
+     * @param int $id
+     */
     public static function query(int $id) {
         $info = self::mainModel()->get($id);
         //加锁更新
@@ -40,11 +44,19 @@ class SystemTimingService implements MainModelInterface {
                 //请求日志记录
                 SystemTimingLogService::save($data);
             }
-            //执行请求动作
-            Call::get($info['url']);
+            //20211016，测试，以减少io
+            //20220328;可执行服务器命令，也可跨站点调用
+            if($info['module'] && $info['controller'] && $info['action']){
+                //执行服务器命令
+                $command="cd /www/wwwroot/tenancy.xiesemi.cn/public;php index.php ".$info['module']."/".$info['controller']."/".$info['action'];
+                $fp = popen($command,"r");
+                pclose($fp);
+            } else if($info['url']) {
+                //跨站点调用，执行请求动作
+                Call::get($info['url']);
+            }
         }
     }
-
     /**
      *
      */

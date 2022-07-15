@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Arrays2d;
 /**
  * 分类表
  */
@@ -11,6 +11,8 @@ class SystemCateService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    // 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCate';
@@ -35,8 +37,15 @@ class SystemCateService implements MainModelInterface {
     public static function columnByGroup( $groupKey, $con = [])
     {
         $con[] = ['group_key','=',$groupKey];
-        $res = self::mainModel()->where( $con )->cache(86400)->column('cate_name','cate_key');
+        //$res = self::mainModel()->where( $con )->cache(86400)->column('cate_name,class','cate_key');
+        $array = self::staticConColumn('cate_name,class,cate_key', $con);
+        return Arrays2d::fieldSetKey($array, 'cate_key');   //20220405前端bug无法解决，可能有冲突？？
+        //20220322注释
+        /*
+        $res = Arrays2d::fieldSetKey($array, 'cate_key');
         return $res;
+         * 
+         */
     }
     /**
      * key取id

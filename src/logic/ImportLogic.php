@@ -22,14 +22,15 @@ class ImportLogic
     use \xjryanse\traits\DebugTrait;
     /**
      * 数据导入逻辑
-     * @param string $file
-     * @param int $sheet
-     * @param int $columnCnt
-     * @param type $options
+     * @param string $file  文件路径
+     * @param int $sheet    单元格
+     * @param int $columnCnt    起始列
+     * @param int $_row         起始行
+     * @param type $options     替换选项
      * @return type
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function importExecl(string $file = '', int $sheet = 0, int $columnCnt = 0, &$options = [])
+    public static function importExecl(string $file = '', int $sheet = 0, int $columnCnt = 0, $row = 1, &$options = [])
     {
         /* 转码 */
         $file = iconv("utf-8", "gb2312", $file);
@@ -75,7 +76,7 @@ class ImportLogic
         $data   = [];
 
         /* 读取内容 */
-        for ($_row = 1; $_row <= $rowCnt; $_row++) {
+        for ($_row = $row; $_row <= $rowCnt; $_row++) {
             $isNull = true;
 
             for ($_column = 1; $_column <= $columnCnt; $_column++) {
@@ -104,6 +105,7 @@ class ImportLogic
                     $cell->getStyle()->getNumberFormat()->setFormatCode('yyyy/mm/dd');
                 }
                 $tempValue = trim($currSheet->getCell($cellId)->getFormattedValue());
+
                 //首行为空的，后面则不取
                 if($_row == 1 && empty($tempValue)){
                     $columnCnt = $_column - 1 ;
@@ -126,6 +128,50 @@ class ImportLogic
 
         return $data;
     }
+    /**
+     * 从excel中，根据单元格提取值
+     * @param string $file
+     * @param int $sheet
+     * @param int $columnCnt
+     * @param type $options
+     * @return type
+     * @throws Exception
+     */
+    public static function excelGetByFields(string $file = '',$sheet = 0,&$options = [])
+    {
+        /* 转码 */
+        $file = iconv("utf-8", "gb2312", $file);
+
+        if (empty($file) OR !file_exists($file)) {
+            throw new \Exception('文件不存在!');
+        }
+
+        /** @var Xlsx $objRead */
+        $objRead = IOFactory::createReader('Xlsx');
+
+        if (!$objRead->canRead($file)) {
+            /** @var Xls $objRead */
+            $objRead = IOFactory::createReader('Xls');
+
+            if (!$objRead->canRead($file)) {
+                throw new \Exception('只支持导入Excel文件！');
+            }
+        }
+
+        /* 如果不需要获取特殊操作，则只读内容，可以大幅度提升读取Excel效率 */
+        empty($options) && $objRead->setReadDataOnly(true);
+        /* 建立excel对象 */
+        $obj = $objRead->load($file);
+        /* 获取指定的sheet表 */
+        $currSheet = $obj->getSheet($sheet);
+        //拼接数组
+        $data = [];
+        foreach($options as $k=>$value){
+            // $k A2 B2 C2 D2
+            $data[$value] = $currSheet->getCell($k)->getValue();
+        }
+        return $data;
+    }
 
     /**
      * 快速数据导入逻辑
@@ -136,7 +182,7 @@ class ImportLogic
      * @return type
      * @throws \Exception
      */
-    public static function importExeclFast(string $file = '', int $sheet = 0, int $columnCnt = 0, &$options = [])
+    public static function importExeclFast(string $file = '', int $sheet = 0, int $columnCnt = 0,$row=1, &$options = [])
     {
         /* 转码 */
         $file = iconv("utf-8", "gb2312", $file);
@@ -171,7 +217,7 @@ class ImportLogic
             $row_num = $currentSheet->getHighestRow(); // 当前页行数 
             $col_max = $currentSheet->getHighestColumn(); // 当前页最大列号 
             // 循环从第二行开始，第一行往往是表头 
-            for ($i = 1; $i <= $row_num; $i++) {
+            for ($i = $row; $i <= $row_num; $i++) {
                 $cell_values = array();
                 for ($j = 'A'; $j <= $col_max; $j++) {
                     $address = $j . $i; // 单元格坐标 

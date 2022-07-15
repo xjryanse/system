@@ -34,7 +34,7 @@ class SystemAsyncTriggerService implements MainModelInterface {
         $data['from_table_id']  = $fromTableId;
         $data['operate_status'] = 0;
         $data['id']             = SnowFlake::generateParticle();
-        DataCheck::must($data, ['method','from_table','from_table_id']);
+        //DataCheck::must($data, ['method','from_table','from_table_id']);
         $res = self::mainModel()->insert($data);
         Debug::debug('SystemAsyncTriggerService::addTask',$data);
         Debug::debug('SystemAsyncTriggerService::addTask的$res',$res);

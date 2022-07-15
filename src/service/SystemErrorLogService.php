@@ -3,6 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\system\logic\ConfigLogic;
 use think\facade\Request;
 use Exception;
 
@@ -22,6 +23,10 @@ class SystemErrorLogService implements MainModelInterface {
      * @param Exception $e
      */
     public static function exceptionLog(Exception $e) {
+        if(!ConfigLogic::config('errLogOpen')){
+            return false;
+        }
+
         $data['url'] = Request::url();
         $data['param'] = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
         $data['msg'] = $e->getMessage();
@@ -34,7 +39,9 @@ class SystemErrorLogService implements MainModelInterface {
         $data['o_user_id'] = session(SESSION_USER_ID);
         $data['o_ip'] = Request::ip();
         //错误日志入库
-        return self::save($data);
+        try{
+            self::save($data);
+        } catch(\Exception $e){}
     }
 
     /**

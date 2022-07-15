@@ -4,8 +4,10 @@ namespace xjryanse\system\logic;
 use xjryanse\system\service\SystemFileService;
 use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\logic\Url;
+use xjryanse\logic\Debug;
 use xjryanse\logic\Folder;
 use think\File as tpFile;
+use xjryanse\logic\Oss;
 use Exception;
 /**
  * 文件处理逻辑
@@ -23,34 +25,37 @@ class FileLogic
      */
     public static function saveUrlFile( $url , $type="image", $defaultExt="jpg", $savePath="" )
     {
+        //生成保存路径
+        if(!$savePath){
+            //读取后缀
+            $ext    = Url::getExt( $url ) ? : $defaultExt ;
+            //文件名
+            $baseDir    = $type."/".date('Ymd');
+            $dirname    = './'.$baseDir;
+            if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
+                throw new Exception('创建目录'. $dirname .'失败');
+            }
+            //保存路径
+            $fileName = $baseDir."/".uniqid();
+            //后缀
+            if( $ext ){
+                $fileName .= '.'.$ext;
+            }
+            $savePath = './'.$fileName;
+        }
         //读取文件
         try{
             $file   = file_get_contents( $url );
-            //读取后缀
-            $ext    = Url::getExt( $url ) ? : $defaultExt ;
-            //生成保存路径
-            if(!$savePath){
-                //文件名
-                $dirname    = "./".$type."/".date('Ymd');
-                if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-                    throw new Exception('创建目录'. $dirname .'失败');
-                }
-                //保存路径
-                $savePath   = $dirname ."/".uniqid();
-                //后缀
-                if( $ext ){
-                    $savePath .= '.'.$ext;
-                }
-            }
             //写入本地服务器
             file_put_contents( $savePath, $file );
+            //$res = Oss::getInstance()->uploadFile($fileName,$savePath);
         } catch (\Exception $e){ 
             SystemErrorLogService::exceptionLog($e);
             return [];
         }
-        
+        Debug::debug('进入保存状态$savePath',$savePath);
         $tpFile = new tpFile( $savePath );
-
+        
         $data['file_type'] = $type;
         //文件信息存数据库;移除点
         return SystemFileService::uplSave( $tpFile, ltrim( $savePath , './'), $data );

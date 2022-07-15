@@ -6,6 +6,8 @@ namespace xjryanse\system\model;
  */
 class SystemIcon extends Base
 {
+    public static $picFields = ['icon_img'];
+    
     public function setIconImgAttr( $value )
     {
         return self::setImgVal($value);

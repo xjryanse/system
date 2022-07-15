@@ -3,42 +3,28 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-use xjryanse\system\service\SystemCompanyService;
-use xjryanse\logic\Arrays2d;
-use xjryanse\logic\Debug;
 
 /**
- * 公司用户（员工表）
+ * 系统能力清单
  */
-class SystemCompanyUserService implements MainModelInterface {
+class SystemAbilityService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompanyUser';
-    /**
-     * 获取公司旗下员工用户id
-     * @param type $con
-     * @return type
-     */
-    public static function companyUserIds($companyId){
-//        $con[] = ['company_id','=',$companyId];
-//        return self::mainModel()->where($con)->column('distinct user_id');
-        $listsAll = SystemCompanyService::getInstance($companyId)->objAttrsList('systemCompanyUser');
-        return array_column($listsAll,'user_id');
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAbility';
+
+    public static function keyToId($key){
+        $con[] = ['key','=',$key];
+        $data = self::staticConFind($con);
+        return $data ? $data['id'] : '';
     }
-    /**
-     * 是否公司管理员
-     * @param type $companyId
-     * @param type $userId
-     */
-    public static function isCompanyUser($companyId,$userId){
-        $con[] = ['company_id','=',$companyId];
-        $con[] = ['user_id','=',$userId];
-        return self::staticConCount($con);
-    }
+    
+    /*     * *************************************** */
+
     /**
      *
      */
@@ -47,42 +33,33 @@ class SystemCompanyUserService implements MainModelInterface {
     }
 
     /**
-     * 公司名称
+     * 应用名称
      */
-    public function fCompanyId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-    public function fUserId() {
+    public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 公司编号
+     * 应用id
      */
-    public function fRole() {
+    public function fAppid() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 公司简称
+     * 应用密钥
      */
-    public function fIsManager() {
+    public function fSecret() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 公司类型
+     * 排序
      */
-    public function fRealname() {
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 成立时间
-     */
-    public function fJob() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
     /**
      * 状态(0禁用,1启用)
      */
@@ -119,14 +96,14 @@ class SystemCompanyUserService implements MainModelInterface {
     }
 
     /**
-     * 创建者
+     * 创建者，user表
      */
     public function fCreater() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 更新者
+     * 更新者，user表
      */
     public function fUpdater() {
         return $this->getFFieldValue(__FUNCTION__);

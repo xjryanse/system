@@ -3,6 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\wechat\service\WechatWeAppService;
+use xjryanse\wechat\WeApp;
 
 /**
  * 公司端口
@@ -12,6 +14,8 @@ class SystemCompanyService implements MainModelInterface {
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
     use \xjryanse\traits\ObjectAttrTrait;
+    // 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
     
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompany';
@@ -37,7 +41,8 @@ class SystemCompanyService implements MainModelInterface {
             'master'    =>true
         ]
     ];
-    
+    /***本类定义变量*****************/
+    protected $wechatWeApp = [];
     /**
      * 根据key取值
      * @param type $key
@@ -47,6 +52,18 @@ class SystemCompanyService implements MainModelInterface {
         $info = $this->get();
         return $info ? $info['key'] : '';
     }
+    /**
+     * 获取公司绑定的公众号APP
+     * @return type
+     */
+    public function getWechatWeApp(){
+        if(!$this->wechatWeApp){
+            $appId  = $this->fWeAppId();
+            $info   = WechatWeAppService::getInstance( $appId )->get();
+            $this->wechatWeApp        = new WeApp($info['appid'],$info['secret'],'./runtime/');
+        }
+        return $this->wechatWeApp;
+    }
 
     /**
      * 根据key取值
@@ -55,7 +72,8 @@ class SystemCompanyService implements MainModelInterface {
      */
     public static function getByKey($key) {
         $con[] = ['key', '=', $key];
-        return self::find($con,86400);
+        return self::staticConFind($con);
+        //return self::find($con,86400);
     }
 
     /**
