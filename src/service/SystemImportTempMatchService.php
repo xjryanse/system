@@ -3,6 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+
 /**
  * 导入临时文件
  */
@@ -13,30 +14,33 @@ class SystemImportTempMatchService extends Base implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemImportTempMatch';
+
     /**
      * 获取导入表到临时表的数据转换数组
      */
-    public static function importToTempColumns($tableName){
-        $con[] = ['table_name','=',$tableName];
-        return self::mainModel()->where($con)->column('temp_column','import_column');
+    public static function importToTempColumns($tableName) {
+        $con[] = ['table_name', '=', $tableName];
+        return self::mainModel()->where($con)->column('temp_column', 'import_column');
     }
+
     /**
      * 获取临时表到目标表的数据转换数组
      */
-    public static function tempToTargetColumns($tableName){
-        $con[] = ['table_name','=',$tableName];
-        return self::mainModel()->where($con)->column('target_column','temp_column');
+    public static function tempToTargetColumns($tableName) {
+        $con[] = ['table_name', '=', $tableName];
+        return self::mainModel()->where($con)->column('target_column', 'temp_column');
     }
+
     /**
      * 导入表到目标表的数据转换数组
      * @param type $tableName
      * @return type
      */
-    public static function importToTargetColumns($tableName){
-        $con[] = ['table_name','=',$tableName];
-        return self::mainModel()->where($con)->column('target_column','import_column');
+    public static function importToTargetColumns($tableName) {
+        $con[] = ['table_name', '=', $tableName];
+        return self::mainModel()->where($con)->column('target_column', 'import_column');
     }
-    
+
     /**
      *
      */

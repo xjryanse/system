@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Strings;
+
 /**
  * 系统文案清单
  */
@@ -11,7 +12,8 @@ class SystemTxtTplService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
@@ -22,17 +24,17 @@ class SystemTxtTplService extends Base implements MainModelInterface {
      * @param type $key
      * @return type
      */
-    public static function getByKey($key,$data=[]){
-        $con[]  = ['txt_key','=',$key];
-        $res    = self::find($con);
+    public static function getByKey($key, $data = []) {
+        $con[] = ['txt_key', '=', $key];
+        $res = self::find($con);
         $res['content'] = Strings::dataReplace($res['content'], $data);
-        for ($i=1; $i<=6; $i++) {
-            $res['text'.$i] = Strings::dataReplace($res['text'.$i], $data);
+        for ($i = 1; $i <= 6; $i++) {
+            $res['text' . $i] = Strings::dataReplace($res['text' . $i], $data);
         }
 
         return $res ? $res->toArray() : [];
     }
-    
+
     /*     * *************************************** */
 
     /**

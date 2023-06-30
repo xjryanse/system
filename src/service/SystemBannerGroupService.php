@@ -3,24 +3,37 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Arrays;
 /**
- * 
+ * 分类表
  */
-class SystemFieldsManyService extends Base implements MainModelInterface {
+class SystemBannerGroupService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
-    protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsMany';
+// 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
+    use \xjryanse\traits\ObjectAttrTrait;
 
-    public static function getManyFields( $tableName )
-    {
-        $con[] = ['table_name','=',$tableName];
-        return self::mainModel()->field('table_name,field_name,relative_table,main_field,to_field')->where($con)->cache(86400)->select();
+    protected static $mainModel;
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemBannerGroup';
+    
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+            return $lists;
+        },true);
     }
-            
+    /**
+     * 2030630:key转id
+     */
+    public static function keyToId($key){
+        $con[]  = ['key','=',$key];
+        $info   = self::staticConFind($con);
+
+        return Arrays::value($info, 'id');
+    }
+    
     /**
      *
      */
@@ -39,6 +52,34 @@ class SystemFieldsManyService extends Base implements MainModelInterface {
      *
      */
     public function fCompanyId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 分组key
+     */
+    public function fGroupKey() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 分类key
+     */
+    public function fCateKey() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 分类名
+     */
+    public function fCateName() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    /**
+     * 排序
+     */
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

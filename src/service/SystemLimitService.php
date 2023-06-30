@@ -50,7 +50,7 @@ class SystemLimitService implements MainModelInterface {
     public function fHours() {
         return $this->getFFieldValue(__FUNCTION__);
     }
-    
+
     public function fDays() {
         return $this->getFFieldValue(__FUNCTION__);
     }
@@ -58,7 +58,7 @@ class SystemLimitService implements MainModelInterface {
     public function fUser() {
         return $this->getFFieldValue(__FUNCTION__);
     }
-    
+
     /**
      * 排序
      */

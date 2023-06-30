@@ -1,4 +1,5 @@
 <?php
+
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;

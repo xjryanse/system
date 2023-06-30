@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Cachex;
+
 /**
  * 系统单线程异步实施类库
  */
@@ -14,18 +15,18 @@ class SystemAsyncOperateService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAsyncOperate';
+
     /**
      * 获取操作key
      * @return type
      */
-    public static function operateKeys(){
+    public static function operateKeys() {
         $res = Cachex::funcGet('SystemAsyncOperateService_operateKeys', function() {
-            return self::mainModel()->cache(86400)->column('distinct operate_key');
-        });
+                    return self::mainModel()->cache(86400)->column('distinct operate_key');
+                });
         return $res;
     }
-    
-    
+
     /**
      *
      */

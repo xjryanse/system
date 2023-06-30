@@ -5,15 +5,16 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 
 /**
- * 
+ * 公司管理制度
  */
-class SystemFlexService extends Base implements MainModelInterface {
+class SystemCompanyManualService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFlex';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompanyManual';
 
     /**
      *
@@ -23,30 +24,24 @@ class SystemFlexService extends Base implements MainModelInterface {
     }
 
     /**
-     *
-     */
-    public function fAppId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     *
+     * 
      */
     public function fCompanyId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 布局名称
-     */
-    public function fFlexName() {
+    public function fBindCustomerId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    public function fDeptName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 排序
+     * 
      */
-    public function fSort() {
+    public function fManagerId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
@@ -86,14 +81,14 @@ class SystemFlexService extends Base implements MainModelInterface {
     }
 
     /**
-     * 创建者，user表
+     * 创建者
      */
     public function fCreater() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 更新者，user表
+     * 更新者
      */
     public function fUpdater() {
         return $this->getFFieldValue(__FUNCTION__);

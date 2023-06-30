@@ -16,26 +16,25 @@ class SystemColumnBtnService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnBtn';
-    
-    public static function listWithCov( $con = [],$order='',$field="*" ,$cache = -1 ){
+
+    public static function listWithCov($con = [], $order = '', $field = "*", $cache = -1) {
         $lists = self::lists($con, $order, $field, $cache);
-        foreach($lists as $k=>&$v){
-            $v = self::btnCov( $v );
+        foreach ($lists as $k => &$v) {
+            $v = self::btnCov($v);
         }
         return $lists;
     }
-    
-    
+
     public static function btnCov(&$btnInfo) {
         //当前session的用户id
-        $userId = session(SESSION_USER_ID) ;
+        $userId = session(SESSION_USER_ID);
         $tmp = $btnInfo['url'];
         $tmp = str_replace('{$sessionUserId}', $userId, $tmp);
 
         $tmp .= strstr($tmp, '?') ? '&' . 'comKey=' . Request::param('comKey', '') : '/comKey/' . Request::param('comKey', '');
-        $btnInfo['url'] = in_array($btnInfo['place'],['head','list']) ? $tmp : $btnInfo['url'];
-        $btnInfo['param']           = str_replace('{$sessionUserId}', $userId, $btnInfo['param'])           ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['param']), true) : [];
-        $btnInfo['show_condition']  = str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition'])  ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition'])) : [];
+        $btnInfo['url'] = in_array($btnInfo['place'], ['head', 'list']) ? $tmp : $btnInfo['url'];
+        $btnInfo['param'] = str_replace('{$sessionUserId}', $userId, $btnInfo['param']) ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['param']), true) : [];
+        $btnInfo['show_condition'] = str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition']) ? json_decode(str_replace('{$sessionUserId}', $userId, $btnInfo['show_condition'])) : [];
 
         return $btnInfo;
     }

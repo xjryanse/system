@@ -17,28 +17,32 @@ class SystemLogService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemLog';
+
     /**
      * 请求本系统
      */
     public static function log($strictLog = false) {
-        if(!ConfigLogic::config('queryLogOpen') && !$strictLog ){
+        if (!ConfigLogic::config('queryLogOpen') && !$strictLog) {
             return false;
         }
         try {
-            $data['type']       = 1;  //请求本系统
-            $data['ip']         = Request::ip();
-            $data['url']        = Request::url();
-            $data['header']     = json_encode(Request::header(), JSON_UNESCAPED_UNICODE);
-            $data['param']      = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
-            $data['module']     = Request::module();
+            $data['type'] = 1;  //请求本系统
+            $data['ip'] = Request::ip();
+            $data['url'] = Request::url();
+            $data['header'] = json_encode(Request::header(), JSON_UNESCAPED_UNICODE);
+            $data['param'] = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
+            $data['module'] = Request::module();
             $data['controller'] = Request::controller();
-            $data['action']     = Request::action();
-            Debug::debug('$data',$data);
+            $data['action'] = Request::action();
+            // 20221012
+            $data['output'] = file_get_contents('php://input');
+            Debug::debug('$data', $data);
             self::save($data);
         } catch (\Exception $e) {
             //不报异常，以免影响访问
         }
     }
+
     /**
      * 调用其他系统
      * @param type $url         url接口
@@ -48,16 +52,17 @@ class SystemLogService implements MainModelInterface {
      */
     public static function outLog($url, $header, $param, $response, $data = []) {
         try {
-            $data['type']       = 2;  //请求本系统
-            $data['url']        = $url;
-            $data['header']     = is_array( $header ) ? json_encode($header, JSON_UNESCAPED_UNICODE) : $header;
-            $data['param']      = is_array( $param ) ? json_encode($param, JSON_UNESCAPED_UNICODE) : $param;
-            $data['response']   = is_array( $response ) ? json_encode($response, JSON_UNESCAPED_UNICODE) : $response;
+            $data['type'] = 2;  //请求本系统
+            $data['url'] = $url;
+            $data['header'] = is_array($header) ? json_encode($header, JSON_UNESCAPED_UNICODE) : $header;
+            $data['param'] = is_array($param) ? json_encode($param, JSON_UNESCAPED_UNICODE) : $param;
+            $data['response'] = is_array($response) ? json_encode($response, JSON_UNESCAPED_UNICODE) : $response;
             self::save($data);
         } catch (\Exception $e) {
             //不报异常，以免影响访问
         }
     }
+
     /**
      *
      */

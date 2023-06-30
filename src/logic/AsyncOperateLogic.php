@@ -2,6 +2,7 @@
 namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemAsyncOperateService;
+use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\logic\DbOperate;
 use xjryanse\logic\Debug;
 use think\Db;
@@ -92,7 +93,12 @@ class AsyncOperateLogic
             if(!isset( $this->classReflects[ $operateKey] )){
                 continue;
             }
-            call_user_func([ $this->classReflects[ $operateKey ] , 'asyncAddOperate'],$tableName, $v );
+            
+            try{
+                call_user_func([ $this->classReflects[ $operateKey ] , 'asyncAddOperate'],$tableName, $v );
+            }catch(\Exception $e){
+                SystemErrorLogService::exceptionLog($e);
+            }
             usleep( 50 );
         }
     }
@@ -109,7 +115,11 @@ class AsyncOperateLogic
             if(!isset( $this->classReflects[ $operateKey ] )){
                 continue;
             }
-            call_user_func([ $this->classReflects[ $operateKey ] , 'asyncUpdateOperate'],$tableName, $v );
+            try{
+                call_user_func([ $this->classReflects[ $operateKey ] , 'asyncUpdateOperate'],$tableName, $v );
+            }catch(\Exception $e){
+                SystemErrorLogService::exceptionLog($e);
+            }
             usleep( 50 );
         }
     }

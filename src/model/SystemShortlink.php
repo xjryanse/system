@@ -2,9 +2,9 @@
 namespace xjryanse\system\model;
 
 /**
- * 操作表
+ * 短链接记录
  */
-class SystemColumnOperate extends Base
+class SystemShortlink extends Base
 {
     
 

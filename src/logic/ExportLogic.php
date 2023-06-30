@@ -106,7 +106,7 @@ class ExportLogic
      * @return string
      */
     public function putIntoCsv( $rows ,array $dataTitle = [],string $filename='' ,$keys = [] )
-    {
+    {        
         if(!$filename){
             $filename = date('YmdHis') .microtime(). '.csv'; //设置文件名        
         }
@@ -120,18 +120,26 @@ class ExportLogic
             fputcsv($out, $this->utf8ToGbk($dataTitle));
         }
         foreach ($rows as $row) {
+            /*
             if(!$keys){
                 $keys = $this->getPdoKeys($row);
             }
-            if(!$dataTitle){
+             */
+            if(!$dataTitle && $keys){
                 $dataTitle = $keys;
                 fputcsv($out, $this->utf8ToGbk($dataTitle));
             }
+            Debug::debug('$keys',$keys);
 
-            $line = [];
-            foreach( $keys as &$v ){
-                $line[] = $row[$v];
+            if($keys){
+                $line = [];
+                foreach( $keys as &$v ){
+                    $line[] = $row[$v];
+                }
+            } else {
+                $line = $row;
             }
+            Debug::debug('$line',$line);
             fputcsv($out, $this->utf8ToGbk($line));
         }
         fclose($out);
@@ -185,7 +193,7 @@ class ExportLogic
         $ext = strtolower(Strings::getExt($tplPath ? : $savePath));
         if($ext =='xlsx' ){
             $reader     = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xlsx');
-        }else{
+        } else {
             $reader     = \PhpOffice\PhpSpreadsheet\IOFactory::createReader('Xls');
         }
         // 导入模板
@@ -204,7 +212,6 @@ class ExportLogic
             //0-列；1-行；2-值；
             $worksheet->setCellValueByColumnAndRow($v[0], $v[1], $v[2]);
         }
-        
         if(is_array($rowStart)){
             foreach ($rowStart as $k=>&$v){
                 //数据
@@ -214,7 +221,7 @@ class ExportLogic
             //数据
             self::writeList($info, $rowStart, $worksheet);
         }
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx'); 
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         if(!$savePath){
             $savePath = './Uploads/Download/CanDelete/'.date('YmdHis'). uniqid(). '.xlsx';
         }
@@ -222,6 +229,7 @@ class ExportLogic
         $writer->save( $savePath );        
         return $savePath;
     }
+
     private static function writeList( &$info, $rowStart ,$worksheet)
     {
         //数据
@@ -235,7 +243,9 @@ class ExportLogic
             }
             $column = 1;
             foreach ($item as $k=> &$value) {
-                $worksheet->setCellValueByColumnAndRow($column, $row, $value);
+                // 20230402:解决长数字，身份证号导出变科学计数法;结尾加上制表符
+                $valueCov = is_numeric($value) && mb_strlen($value) > 10 ? $value. "\t" : $value;
+                $worksheet->setCellValueByColumnAndRow($column, $row, $valueCov);
                 $column++;
             }
             $row++;

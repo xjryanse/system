@@ -4,6 +4,8 @@ namespace xjryanse\system\logic;
 use xjryanse\system\service\SystemConfigsService;
 use xjryanse\logic\Debug;
 use xjryanse\logic\Cachex;
+use think\facade\Request;
+use think\facade\Cache;
 /**
  * 配置逻辑
  */
@@ -25,16 +27,18 @@ class ConfigLogic
      */
     public static function getConfigs( $module='' )
     {
-        $key = __CLASS__.__FUNCTION__.$module;
-        return Cachex::funcGet($key, function() use ($module) {
-            $con        = [];
-            if( $module ){
-                $con[]  = [ 'module', '=', $module ];
-            }
-            $configs = SystemConfigsService::lists( $con,"","*",86400 );
-            Debug::debug('系统配置信息数组', $configs);
-            return array_column($configs ? $configs->toArray() : [], 'value', 'key');        
-        },true);
+        $con        = [];
+        if( $module ){
+            $con[]  = [ 'module', '=', $module ];
+        }
+        $configs = SystemConfigsService::staticConList( $con );
+        Debug::debug('系统配置信息数组', $configs);
+        $config = array_column($configs ? $configs : [], 'value', 'key');        
+        
+        // 20230327:特殊处理：尝试只使用开发的电脑，才会显示开发模式
+        $config['isDevMode'] = Request::ip() == Cache::get('devRequestIp') ? 1 : 0;        
+        
+        return $config;
     }
     
     /******以下用于后台管理配置******/

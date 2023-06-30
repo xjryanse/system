@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays2d;
+
 /**
  * 分类表
  */
@@ -11,7 +12,8 @@ class SystemCateService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
@@ -29,40 +31,40 @@ class SystemCateService implements MainModelInterface {
         $res = self::mainModel()->where($con)->field($field)->select();
         return $res;
     }
+
     /**
      * 键值对的数组
      * @param type $groupKey    key
      * @param type $con
      */
-    public static function columnByGroup( $groupKey, $con = [])
-    {
-        $con[] = ['group_key','=',$groupKey];
+    public static function columnByGroup($groupKey, $con = []) {
+        $con[] = ['group_key', '=', $groupKey];
         //$res = self::mainModel()->where( $con )->cache(86400)->column('cate_name,class','cate_key');
         $array = self::staticConColumn('cate_name,class,cate_key', $con);
         return Arrays2d::fieldSetKey($array, 'cate_key');   //20220405前端bug无法解决，可能有冲突？？
         //20220322注释
         /*
-        $res = Arrays2d::fieldSetKey($array, 'cate_key');
-        return $res;
+          $res = Arrays2d::fieldSetKey($array, 'cate_key');
+          return $res;
          * 
          */
     }
+
     /**
      * key取id
      */
-    public static function keyGetId( $groupKey, $cateKey )
-    {
-        $con[] = ['group_key','=',$groupKey];
-        $con[] = ['cate_key','=',$cateKey];
-        return self::mainModel()->where( $con )->value('id');
+    public static function keyGetId($groupKey, $cateKey) {
+        $con[] = ['group_key', '=', $groupKey];
+        $con[] = ['cate_key', '=', $cateKey];
+        return self::mainModel()->where($con)->value('id');
     }
-    
-    public static function getByGroupKeyCateKey( $groupKey, $cateKey )
-    {
-        $con[] = ['group_key','=',$groupKey];
-        $con[] = ['cate_key','=',$cateKey];
-        return self::find( $con );
+
+    public static function getByGroupKeyCateKey($groupKey, $cateKey) {
+        $con[] = ['group_key', '=', $groupKey];
+        $con[] = ['cate_key', '=', $cateKey];
+        return self::find($con);
     }
+
     /*     * ***************** */
 
     /**

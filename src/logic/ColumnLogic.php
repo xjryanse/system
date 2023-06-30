@@ -7,7 +7,7 @@ use xjryanse\system\service\SystemColumnService;
 //use xjryanse\system\service\SystemColumnBtnService;
 use xjryanse\system\service\SystemColumnListService;
 //use xjryanse\system\service\SystemColumnListGroupService;
-use xjryanse\system\service\SystemColumnOperateService;
+//use xjryanse\system\service\SystemColumnOperateService;
 //use xjryanse\system\service\SystemColumnBlockService;
 //use xjryanse\user\service\UserAuthUserRoleService;
 //use xjryanse\user\service\UserAuthRoleColumnService;
@@ -165,6 +165,7 @@ class ColumnLogic
         $con1[] = ['status','=',1];
 
         //字段查询的字段【20210330】
+        /*20220814优化
         $fieldStr = "id,column_id,method_key,label,name,type,query_type,option,search_type,search_show,"
                 . "is_senior_search,is_list,is_list_edit,is_add,is_edit,only_detail,is_must,is_export,is_import_must,"
                 . "is_span_company,is_linkage,list_style,list_pop,edit_btn_id,list_pop_operate,"
@@ -172,6 +173,9 @@ class ColumnLogic
 
         $listInfo = SystemColumnListService::lists( $conField ? array_merge( $conField, $con1 ) : $con1,"",$fieldStr,86400 );
         $info['listInfo']       = $listInfo ? $listInfo->toArray() : [];        
+         */
+        
+        $info['listInfo']       = SystemColumnListService::staticConList($conField ? array_merge( $conField, $con1 ) : $con1);        
 
         return $info;
     }
@@ -224,11 +228,16 @@ class ColumnLogic
             throw new Exception('数据表不存在，或没有字段，不能生成');
         }
         //总表
-        $tableArr = explode('_', $table);
+        // $tableArr = explode('_', $table);
+        /*
         $data['controller'] = $tableArr[1];
         unset($tableArr[0]);
         unset($tableArr[1]);
         $data['table_key']  = camelize(implode('_',$tableArr));
+         */
+        
+        $data['controller'] = DbOperate::getController($table);
+        $data['table_key']  = DbOperate::getTableKey($table);
         $data['table_name'] = $table;
         $res = SystemColumnService::save( $data );
         //字段
@@ -247,7 +256,7 @@ class ColumnLogic
             //TODO优化
             SystemColumnListService::save( $tmp[$k] );
         }
-
+        /*
         //保存默认的操作信息
         $operateKeys    = ['add'=>'添加','edit'=>'编辑','delete'=>'删除','copy'=>'复制','export'=>'导出','import'=>'导入'];
         foreach( $operateKeys as $k=>$v){
@@ -257,6 +266,7 @@ class ColumnLogic
             $tmpp['operate_name']   = $v;
             SystemColumnOperateService::save( $tmpp );
         }
+         */
         return $res;
     }
     
@@ -300,7 +310,7 @@ class ColumnLogic
             }
             $info2  = self::getDetail( $info, $fields, $con);
             //循环
-            $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
+            // $info2['color_con'] = $info2['color_con'] ? json_decode( $info2['color_con'],true ) : [];
             //字段转换
             $res = self::scolumnCov($info2,$data);
             //带分组字段的数据列表

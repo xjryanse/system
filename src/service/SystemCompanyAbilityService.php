@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use Exception;
+
 /**
  * 跨系统应用信息
  */
@@ -11,9 +12,10 @@ class SystemCompanyAbilityService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
-    
+
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompanyAbility';
 
@@ -21,24 +23,28 @@ class SystemCompanyAbilityService extends Base implements MainModelInterface {
      * 校验公司是否有指定key的权限
      * @param type $key
      */
-    public static function hasAbilityByKey($key){
-        if(!session(SESSION_COMPANY_ID)){
+    public static function hasAbilityByKey($key, $companyId = '') {
+        $cId = $companyId ?: session(SESSION_COMPANY_ID);
+        if (!$cId) {
             return false;
         }
         $id = SystemAbilityService::keyToId($key);
-        $con[] = ['ability_id','=',$id];
-        $con[] = ['company_id','=',session(SESSION_COMPANY_ID)];
+        $con[] = ['ability_id', '=', $id];
+        $con[] = ['company_id', '=', $cId];
         $data = self::staticConFind($con);
         return $data ? true : false;
     }
+
     /**
      * 20220614 校验能力
      */
-    public static function checkAbility($key){
-        if(!self::hasAbilityByKey($key)){
-            throw new Exception('该端口没有开通相关权限'.$key);
+    public static function checkAbility($key, $companyId = '') {
+        $cId = $companyId ?: session(SESSION_COMPANY_ID);
+        if (!self::hasAbilityByKey($key, $cId)) {
+            throw new Exception('该端口' . $cId . '没有开通相关权限' . $key);
         }
     }
+
     /*     * ******************************************************************************** */
 
     /**

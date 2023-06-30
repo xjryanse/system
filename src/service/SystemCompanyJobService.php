@@ -3,19 +3,32 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Arrays;
 
 /**
- * 系统块表展示字段
+ * 公司岗位表
  */
-class SystemColumnBlockTableFieldsService implements MainModelInterface {
+class SystemCompanyJobService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnBlockTableFields';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompanyJob';
 
-    /*     * **** */
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+                    $companyUserArr = SystemCompanyUserService::groupBatchSelect('job_id', $ids);
+                    foreach ($lists as &$v) {
+                        // 岗位人数
+                        $v['jobUserCount'] = count(Arrays::value($companyUserArr, $v['id'], []));
+                        // 缺编人数
+                        $v['remainUserCount'] = $v['plan_user_count'] - $v['jobUserCount'];
+                    }
+                    return $lists;
+                });
+    }
 
     /**
      *
@@ -25,58 +38,24 @@ class SystemColumnBlockTableFieldsService implements MainModelInterface {
     }
 
     /**
-     *
-     */
-    public function fAppId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     *
+     * 
      */
     public function fCompanyId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 字段id
-     */
-    public function fBlockId() {
+    public function fBindCustomerId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    public function fDeptName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 主表字段
+     * 
      */
-    public function fMainField() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 关联表名
-     */
-    public function fTableName() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 关联字段
-     */
-    public function fTableField() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 展示字段，逗号分隔
-     */
-    public function fFields() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 排序
-     */
-    public function fSort() {
+    public function fManagerId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
@@ -116,14 +95,14 @@ class SystemColumnBlockTableFieldsService implements MainModelInterface {
     }
 
     /**
-     * 创建者，user表
+     * 创建者
      */
     public function fCreater() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 更新者，user表
+     * 更新者
      */
     public function fUpdater() {
         return $this->getFFieldValue(__FUNCTION__);

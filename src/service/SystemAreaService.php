@@ -16,36 +16,38 @@ class SystemAreaService extends Base implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemArea';
+
     /**
      * 有赞省市区列表
      */
-    public static function vantAreaList(){
-        return Cachex::funcGet( __CLASS__.'_'.__METHOD__, function(){
-            //省
-            $provinceList   = self::mainModel()->where('level',1)->column('area_name','area_code');
-            //市
-            $cityList       = self::mainModel()->where('level',2)->column('area_name','area_code');
-            //县
-            $countyList     = self::mainModel()->where('level',3)->column('area_name','area_code');
-            return ['province_list'=>$provinceList, 'city_list'=>$cityList, 'county_list'=>$countyList];
-        });
+    public static function vantAreaList() {
+        return Cachex::funcGet(__CLASS__ . '_' . __METHOD__, function() {
+                    //省
+                    $provinceList = self::mainModel()->where('level', 1)->column('area_name', 'area_code');
+                    //市
+                    $cityList = self::mainModel()->where('level', 2)->column('area_name', 'area_code');
+                    //县
+                    $countyList = self::mainModel()->where('level', 3)->column('area_name', 'area_code');
+                    return ['province_list' => $provinceList, 'city_list' => $cityList, 'county_list' => $countyList];
+                });
     }
+
     /**
      * 行政编码取省市县数组
      * @param type $areaCode
      */
-    public static function areaCodeGetDataArr( $areaCode ){
+    public static function areaCodeGetDataArr($areaCode) {
         $areaLists = self::vantAreaList();
         //省
-        $data['province'] = $areaLists['province_list'][substr($areaCode, 0, 2).'0000'];
+        $data['province'] = $areaLists['province_list'][substr($areaCode, 0, 2) . '0000'];
         //市
-        $data['city'] = $areaLists['city_list'][substr($areaCode, 0, 4).'00'];
+        $data['city'] = $areaLists['city_list'][substr($areaCode, 0, 4) . '00'];
         //县
         $data['county'] = $areaLists['county_list'][$areaCode];
 
-        return $data;        
+        return $data;
     }
-    
+
     /*     * *************************************** */
 
     /**

@@ -4,8 +4,10 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\logic\ConfigLogic;
+use xjryanse\logic\Strings;
 use think\facade\Request;
 use Exception;
+use app\third\baidu\BaiduIp;
 
 /**
  * 错误日志
@@ -18,12 +20,23 @@ class SystemErrorLogService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemErrorLog';
 
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+                    foreach ($lists as &$v) {
+                        // ip地址位置
+                        $v['ipPlace'] = BaiduIp::place($v['o_ip']);
+                        $v['ipOwner'] = BaiduIp::owner($v['o_ip']);
+                    }
+                    return $lists;
+                });
+    }
+
     /**
      * 错误日志记录
      * @param Exception $e
      */
-    public static function exceptionLog(Exception $e) {
-        if(!ConfigLogic::config('errLogOpen')){
+    public static function exceptionLog(Exception $e, $strict = false) {
+        if (!$strict && !ConfigLogic::config('errLogOpen')) {
             return false;
         }
 
@@ -34,14 +47,16 @@ class SystemErrorLogService implements MainModelInterface {
         $data['function'] = $e->getTrace()[0]['function'];
         $data['line'] = $e->getLine();
         $data['code'] = $e->getCode();
-        $data['trace'] = $e->getTraceAsString();
+        $data['trace'] = Strings::keepLength($e->getTraceAsString(), 8192);
         $data['o_company_id'] = session(SESSION_COMPANY_ID);
         $data['o_user_id'] = session(SESSION_USER_ID);
         $data['o_ip'] = Request::ip();
         //错误日志入库
-        try{
+        try {
             self::save($data);
-        } catch(\Exception $e){}
+        } catch (\Exception $e) {
+            
+        }
     }
 
     /**

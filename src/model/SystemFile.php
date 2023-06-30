@@ -1,29 +1,58 @@
 <?php
 namespace xjryanse\system\model;
 
+use xjryanse\logic\Oss;
 use xjryanse\logic\Debug;
+use xjryanse\logic\Arrays;
+use think\facade\Request;
 /**
  * 上传附件
  */
 class SystemFile extends Base
 {
+//    /**
+//     * 文件路径
+//     * @param type $value
+//     * @return type
+//     */
+//    public function getFilePathAttr( $value )
+//    {
+//        if(!$value){
+//            return '';
+//        }
+////        if(session('viewSource') == 'user'){
+////            return self::cdnUrlEncrypt( $value);
+////        }
+//        $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
+//        $filePathFull   = $basePath .'/'. $value;
+//        if(file_exists( $filePathFull )){
+//            return $value ? Request::domain(true) .'/'. $value : $value;
+//        }
+//        // 2022-12-11：增加OSS的路径返回
+//        $ossPath = Oss::getInstance()->signUrl($value);
+//        return $ossPath;
+//    }
     /**
-     * 文件路径
-     * @param type $value
-     * @return type
+     * 20230516:获取完整上传url
      */
-    public function getFilePathAttr( $value )
-    {
-        if(session('viewSource') == 'user'){
-            return self::cdnUrlEncrypt( $value);
-        } else {
-            $baseUrl = config('xiesemi.systemBaseUrl');
-            Debug::debug('$baseUrl',$baseUrl);
-            Debug::debug('$value',$value);
-            return $value ? $baseUrl .'/'. $value : $value;
+    public function getFullPath($path){
+        $value = $path;
+        if(!$value){
+            return '';
         }
+//        if(session('viewSource') == 'user'){
+//            return self::cdnUrlEncrypt( $value);
+//        }
+        $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
+        $filePathFull   = $basePath .'/'. $value;
+        if(file_exists( $filePathFull )){
+            return $value ? Request::domain(true) .'/'. $value : $value;
+        }
+        // 2022-12-11：增加OSS的路径返回
+        $ossPath = Oss::getInstance()->signUrl($value);
+        return $ossPath;        
     }
-
+    
     /*
      * CNDurl加密
      */

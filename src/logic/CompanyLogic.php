@@ -49,5 +49,15 @@ class CompanyLogic
         return $info;
     }
 
+    
+    /**
+     * 20230531:可操作校验
+     */
+    public static function checkCanOperate(){
+        $id = session(SESSION_COMPANY_ID);
+        if(!SystemCompanyService::getInstance($id)->canOperate()){
+            throw new Exception('当前端口已过期，请续费');
+        }
+    }
 
 }

@@ -5,7 +5,9 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
+use xjryanse\system\service\columnlist\Dynenum;
 use think\Db;
+
 /**
  * 字段明细
  */
@@ -13,9 +15,10 @@ class SystemColumnListService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
-    
+
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnList';
 
@@ -24,43 +27,69 @@ class SystemColumnListService implements MainModelInterface {
      * @param type $columnId
      * @param type $dataArr
      */
-    public static function getDynDataListByColumnIdAndData($columnId,$dataArr){
-        $dynFields          = self::columnTypeFields($columnId, 'dynenum');
-        $dynDatas           = [];
-        foreach($dynFields as $key){
-            $dynDatas[$key] = array_unique(array_column($dataArr,$key));
-        }
-        return  self::dynDataList($columnId, $dynDatas);
+    public static function getDynDataListByColumnIdAndData($columnId, $dataArr) {
+        //        $dynFields          = self::columnTypeFields($columnId, 'dynenum');
+        //        $dynDatas           = [];
+        //        foreach($dynFields as $key){
+        //            $dynDatas[$key] = array_unique(array_column($dataArr,$key));
+        //        }
+        // $res = self::sDynDataList($columnId, $dynDatas);
+
+        $dynArrs = self::dynArrs($columnId);
+        $res = Dynenum::dynDataList($dataArr, $dynArrs);
+
+        return $res;
     }
+
+    /**
+     * 20230413：获取动态枚举配置
+     * @param type $columnId
+     * 'user_id'    =>'table_name=w_user&key=id&value=username'
+     * 'goods_id'   =>'table_name=w_goods&key=id&value=goods_name'
+     */
+    public static function dynArrs($columnId) {
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['type', '=', 'dynenum'];
+        $lists = self::staticConList($con);
+        return array_column($lists, 'option', 'name');
+        // return self::where($con)->column('option','name');
+    }
+
     /**
      * 获取动态数据，一般用于分页查询后处理
+     * 似乎可以逐步淘汰了
+     * 
+      $dynArrs = self::dynArrs($columnId);
+      $res = Dynenum::dynDataList($dataArr, $dynArrs);
+     * 
      * @param type $columnId
      * @param type $data
      * @return array
      */
-    public static function dynDataList($columnId,$data){
+    public static function sDynDataList($columnId, $data = []) {
         //20220303更优化
-        $con[] = ['column_id','=',$columnId];
-        $con[] = ['type','=','dynenum'];    //类型为动态枚举
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['type', '=', 'dynenum'];    //类型为动态枚举
         $rr = SystemColumnListService::staticConList($con);
-        $optionBase = Arrays2d::toKeyValue($rr, 'name','option');
-        
+        $optionBase = Arrays2d::toKeyValue($rr, 'name', 'option');
+
         //Debug::debug('$optionBase',$optionBase);
         $optionArr = [];
-        foreach($optionBase as $key=>$option){
-            $option     = equalsToKeyValue($option);
-            $tableName  = Arrays::value($option, 'table_name');
-            $tableKey   = Arrays::value($option, 'key');
-            $value      = Arrays::value($option, 'value');
+        foreach ($optionBase as $key => $option) {
+            $option = equalsToKeyValue($option);
+            $tableName = Arrays::value($option, 'table_name');
+            $tableKey = Arrays::value($option, 'key');
+            $value = Arrays::value($option, 'value');
             //20220131增加判断
-            if($data[$key]){
-                if(is_array($data[$key]) && count($data[$key]) == 1 && !$data[$key][0]){
+            if ($data[$key]) {
+                if (is_array($data[$key]) && count($data[$key]) == 1 && !$data[$key][0]) {
                     //20220317增加判空
                     $arr = [];
                 } else {
                     $cond = [];
-                    $cond[] = [$tableKey,'in',$data[$key]];
-                    $arr = Db::table($tableName)->where($cond)->cache(1)->column($value,$tableKey);
+                    $cond[] = [$tableKey, 'in', $data[$key]];
+                    $inst = Db::table($tableName)->where($cond);
+                    $arr = $inst->cache(1)->column($value, $tableKey);
                 }
             } else {
                 $arr = [];
@@ -69,15 +98,39 @@ class SystemColumnListService implements MainModelInterface {
         }
         return $optionArr;
     }
+
     /**
      * 额外详情信息
      */
     protected static function extraDetail(&$item, $uuid) {
-        if(!$item){ return false;}
-        self::commExtraDetail($item,$uuid );
+        if (!$item) {
+            return false;
+        }
+        self::commExtraDetail($item, $uuid);
         $columnId = isset($item['column_id']) ? $item['column_id'] : '';
         $item['cate_field_name'] = SystemColumnService::getInstance($columnId)->fCateFieldName();
         return $item;
+    }
+
+    /**
+     * 20220804:通过表名获取搜索字段
+     */
+    public static function getSearchFields($tableName, $queryType = 'where') {
+        $con[] = ['table_name', '=', $tableName];
+        $info = SystemColumnService::staticConFind($con);
+        if (!$info) {
+            return [];
+        }
+        $cone[] = ['column_id', 'in', $info['id']];
+        $lists = self::staticConList($cone);
+        // 组装
+        $searchFields = [];
+        foreach ($lists as $v) {
+            if ($v['search_type'] >= 0 && $v['query_type'] == $queryType) {
+                $searchFields[$v['search_type']][] = $v['name'];
+            }
+        }
+        return $searchFields;
     }
 
     /**
@@ -86,9 +139,9 @@ class SystemColumnListService implements MainModelInterface {
      * @param type $optionStr   选项字符串
      * @return type
      */
-    public static function getOption($type, $optionStr,$data=[]) {
+    public static function getOption($type, $optionStr, $data = []) {
         $class = self::getClassStr($type);
-        return class_exists($class) ? $class::getOption($optionStr,$data) : '';
+        return class_exists($class) ? $class::getOption($optionStr, $data) : '';
     }
 
     /**
@@ -129,32 +182,38 @@ class SystemColumnListService implements MainModelInterface {
      * @param type $typeName    指定类型
      * @param type $con
      */
-    public static function columnTypeFields( $columnId,$typeName,$con = [])
-    {
-        $con[] = ['status','=',1];
-        $con[] = ['column_id','=',$columnId];
-        $con[] = ['type','=',$typeName];
-        $array = self::staticConColumn('name',$con);
+    public static function columnTypeFields($columnId, $typeName, $con = []) {
+        $con[] = ['status', '=', 1];
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['type', '=', $typeName];
+        $array = self::staticConColumn('name', $con);
         return array_unique($array);
-//        $key = Cachex::cacheKey($columnId,$typeName,$con);
-//        return Cachex::funcGet('SystemColumnListService_columnTypeFields'.$key, function() use ($columnId,$typeName,$con ){
-//            $con[] = ['status','=',1];
-//            $con[] = ['column_id','=',$columnId];
-//            $con[] = ['type','=',$typeName];
-//            return self::column('distinct name', $con);
-//        });
     }
+
     /**
      * 获取求和字段
      */
-    public static function sumFields($columnId){
-        $con[] = ['status','=',1];
-        $con[] = ['column_id','=',$columnId];
-        $con[] = ['is_sum','=',1];
-        $array = self::staticConColumn('name',$con);
+    public static function sumFields($columnId) {
+        $con[] = ['status', '=', 1];
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['is_sum', '=', 1];
+        $array = self::staticConColumn('name', $con);
         return array_unique($array);
-        // return self::column('distinct name', $con);
     }
+
+    /**
+     * 20230225：唯一字段，用于复制时加copy
+     * @param type $columnId
+     * @return type
+     */
+    public static function uniqueFields($columnId) {
+        $con[] = ['status', '=', 1];
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['is_unique', '=', 1];
+        $array = self::staticConColumn('name', $con);
+        return array_unique($array);
+    }
+
     /*     * *********** */
 
     /**
@@ -184,6 +243,7 @@ class SystemColumnListService implements MainModelInterface {
     public function fColumnId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 方法Key
      */

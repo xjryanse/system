@@ -17,11 +17,14 @@ class ExceptionLogic extends Handle
 
     public function render(Exception $e)
     {
-        $pdo = SystemErrorLogService::mainModel()->getConnection()->getPdo();
+        // $pdo = SystemErrorLogService::mainModel()->getConnection()->getPdo();
         //校验是否在事务中
-        if(!DataCheck::isEmpty($pdo) && SystemErrorLogService::mainModel()->inTransaction()){
+        // !DataCheck::isEmpty($pdo): 可否去除？？20220903
+        if(SystemErrorLogService::mainModel()->inTransaction()){
             //事务回滚
-            Db::rollback();
+            try{
+                Db::rollback();
+            } catch (\Exception $e){}
         }
         //错误日志记录
         SystemErrorLogService::exceptionLog($e);

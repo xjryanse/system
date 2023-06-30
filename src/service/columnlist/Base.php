@@ -11,14 +11,17 @@ abstract class Base
      * @param type $tableName
      * @param type $con
      */
-    protected static function dynamicColumn( $tableName ,$field, $key ,$con = [],$cache=false)
+    protected static function dynamicColumn( $tableName ,$field, $key ,$con = [], $orderBy="" ,$cache=false)
     {
         $service = DbOperate::getService( $tableName );
         if( $service::mainModel()->hasField('company_id') ){
             $con[] = ['company_id','=',session(SESSION_COMPANY_ID) ];
         }
         //替换资源链接
-        $inst = Db::table( $tableName )->where( $con )->order('sort');
+        $inst = Db::table( $tableName )->where( $con );
+        if($orderBy){
+            $inst->order($orderBy);
+        }
         //缓存
         if($cache){
             $inst->cache(86400);

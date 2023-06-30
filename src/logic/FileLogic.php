@@ -25,6 +25,10 @@ class FileLogic
      */
     public static function saveUrlFile( $url , $type="image", $defaultExt="jpg", $savePath="" )
     {
+        //20220903:增加判断修复报错
+        if(!$url){
+            return [];
+        }
         //生成保存路径
         if(!$savePath){
             //读取后缀

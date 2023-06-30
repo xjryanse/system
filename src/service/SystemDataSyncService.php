@@ -14,37 +14,39 @@ class SystemDataSyncService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemDataSync';
+
     /**
      * 获取末次同步信息
      * @param type $tableName
      * @return type
      */
-    public function getLastSyncInfo($tableName){
-        $info = self::mainModel()->where('table_name',$tableName)->find();
+    public function getLastSyncInfo($tableName) {
+        $info = self::mainModel()->where('table_name', $tableName)->find();
         return $info;
     }
+
     /**
      * 获取末次同步信息
      * @param type $tableName
      * @return type
      */
-    public function updateLastSyncInfo($tableName,$lastSaveId = '',$lastUpdateTime = ''){
+    public function updateLastSyncInfo($tableName, $lastSaveId = '', $lastUpdateTime = '') {
         $data = [];
-        if($lastSaveId){
-            $data['last_save_id']       = $lastSaveId;
+        if ($lastSaveId) {
+            $data['last_save_id'] = $lastSaveId;
         }
-        if($lastUpdateTime){
-            $data['last_update_time']   = $lastUpdateTime;
+        if ($lastUpdateTime) {
+            $data['last_update_time'] = $lastUpdateTime;
         }
-        if(self::mainModel()->where('table_name',$tableName)->value('id')){
-            $info = self::mainModel()->where('table_name',$tableName)->update($data);
+        if (self::mainModel()->where('table_name', $tableName)->value('id')) {
+            $info = self::mainModel()->where('table_name', $tableName)->update($data);
         } else {
             $data['table_name'] = $tableName;
             $info = self::save($data);
         }
         return $info;
     }
-    
+
     /**
      *
      */

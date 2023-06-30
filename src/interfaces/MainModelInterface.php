@@ -27,7 +27,7 @@ interface MainModelInterface
     /**
      * 主表及相关连的表信息
      */
-    public function info( $cache = 5 );
+    public function info();
     /**
      * 更新项目
      */

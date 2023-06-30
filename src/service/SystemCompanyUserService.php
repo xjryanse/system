@@ -18,27 +18,30 @@ class SystemCompanyUserService implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompanyUser';
+
     /**
      * 获取公司旗下员工用户id
      * @param type $con
      * @return type
      */
-    public static function companyUserIds($companyId){
+    public static function companyUserIds($companyId) {
 //        $con[] = ['company_id','=',$companyId];
 //        return self::mainModel()->where($con)->column('distinct user_id');
         $listsAll = SystemCompanyService::getInstance($companyId)->objAttrsList('systemCompanyUser');
-        return array_column($listsAll,'user_id');
+        return array_column($listsAll, 'user_id');
     }
+
     /**
      * 是否公司管理员
      * @param type $companyId
      * @param type $userId
      */
-    public static function isCompanyUser($companyId,$userId){
-        $con[] = ['company_id','=',$companyId];
-        $con[] = ['user_id','=',$userId];
+    public static function isCompanyUser($companyId, $userId) {
+        $con[] = ['company_id', '=', $companyId];
+        $con[] = ['user_id', '=', $userId];
         return self::staticConCount($con);
     }
+
     /**
      *
      */
@@ -52,6 +55,7 @@ class SystemCompanyUserService implements MainModelInterface {
     public function fCompanyId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     public function fUserId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
@@ -83,6 +87,7 @@ class SystemCompanyUserService implements MainModelInterface {
     public function fJob() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 状态(0禁用,1启用)
      */

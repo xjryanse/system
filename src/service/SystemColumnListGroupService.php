@@ -6,6 +6,7 @@ use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays2d;
 use xjryanse\logic\Arrays;
 use Exception;
+
 /**
  * 字段分组
  */
@@ -17,52 +18,53 @@ class SystemColumnListGroupService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnListGroup';
 
-    public static function getColumnListInfo($columnId){
-        $con[] = ['column_id','=',$columnId];
-        $con[] = ['status','=',1];
-        $columnListGroup = self::lists($con,'sort','id,width,align,column_lists,group_name');
+    public static function getColumnListInfo($columnId) {
+        $con[] = ['column_id', '=', $columnId];
+        $con[] = ['status', '=', 1];
+        $columnListGroup = self::lists($con, 'sort', 'id,width,align,column_lists,group_name');
         //拼上字段
         $columnListsObj = SystemColumnListService::lists($con);
-        foreach($columnListsObj as &$v){
-            $v['option'] = SystemColumnListService::getOption( $v['type'], $v['option']);
+        foreach ($columnListsObj as &$v) {
+            $v['option'] = SystemColumnListService::getOption($v['type'], $v['option']);
         }
         $columnLists = $columnListsObj ? $columnListsObj->toArray() : [];
         $columnListArr = Arrays2d::fieldSetKey($columnLists, 'id');
         //字段组循环
-        foreach($columnListGroup as &$value){
-            $arr    = json_decode($value['column_lists'],JSON_UNESCAPED_UNICODE);
+        foreach ($columnListGroup as &$value) {
+            $arr = json_decode($value['column_lists'], JSON_UNESCAPED_UNICODE);
             $tempArr = [];
             //字段行循环
-            foreach($arr as $v){
+            foreach ($arr as $v) {
                 $temppp = [];
                 //每个字段循环
-                foreach($v as $columnListId){
-                    $temppp[] = Arrays::value($columnListArr, $columnListId,[]);
+                foreach ($v as $columnListId) {
+                    $temppp[] = Arrays::value($columnListArr, $columnListId, []);
                 }
                 $tempArr[] = $temppp;
             }
             //增加新的字段
             $value['columnListInfo'] = $tempArr;
-            
+
             $value['test'] = $arr;
         }
         return $columnListGroup;
     }
+
     /**
      * 从column_list表保存数据
      */
-    public static function addByColumnIdFromList($columnId){
-        $con[] = ['column_id','=',$columnId];
-        if(self::count($con)){
-            throw new Exception('SystemColumnListGroup的columnId'.$columnId.'已有记录');
+    public static function addByColumnIdFromList($columnId) {
+        $con[] = ['column_id', '=', $columnId];
+        if (self::count($con)) {
+            throw new Exception('SystemColumnListGroup的columnId' . $columnId . '已有记录');
         }
-        if(!SystemColumnListService::count($con)){
-            throw new Exception('SystemColumnListService的columnId'.$columnId.'没有记录');
+        if (!SystemColumnListService::count($con)) {
+            throw new Exception('SystemColumnListService的columnId' . $columnId . '没有记录');
         }
         $data = SystemColumnListService::mainModel()->where($con)->field('column_id,label as group_name,concat(\'[["\',id,\'"]]\') as column_lists')->select();
         return self::saveAll($data->toArray());
     }
-    
+
     /**
      *
      */
@@ -90,6 +92,7 @@ class SystemColumnListGroupService implements MainModelInterface {
     public function fColumnLists() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 方法Key
      */

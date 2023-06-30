@@ -16,6 +16,7 @@ class SystemRuleService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemRule';
@@ -24,35 +25,43 @@ class SystemRuleService implements MainModelInterface {
      * 规则是否达成
      * 包含了期间段内达成次数进行校验
      */
-    public function isRuleReached( $data )
-    {
-        $info       = $this->get();
-        $itemType   = Arrays::value($info, 'rule_type');
-        $itemKey    = Arrays::value($info, 'rule_key');
-        $ruleTimes  = Arrays::value($info, 'rule_times');
+    public function isRuleReached($data) {
+        $info = $this->get();
+        $itemType = Arrays::value($info, 'rule_type');
+        $itemKey = Arrays::value($info, 'rule_key');
+        $ruleTimes = Arrays::value($info, 'rule_times');
         //TODO抽离优化
-        if($info['rule_type'] == 'score'){
+        if ($info['rule_type'] == 'score') {
             $con = [];
-            $con[] = ['user_id','=',$data['userId']];
-            $con[] = ['create_time','>=',$data['fromTime']];
-            $con[] = ['create_time','<=',$data['toTime']];
-            $con[] = ['change_cate','=',$itemKey];
+            $con[] = ['user_id', '=', $data['userId']];
+            $con[] = ['create_time', '>=', $data['fromTime']];
+            $con[] = ['create_time', '<=', $data['toTime']];
+            $con[] = ['change_cate', '=', $itemKey];
             $currentCount = UserAccountLogService::count($con);
-            if($currentCount >= $ruleTimes){
+            if ($currentCount >= $ruleTimes) {
                 return false;
             }
         }
-        $res = SystemConditionService::isReachByItemKey( $itemType, $itemKey, $data );
-        Debug::debug("规则".$this->uuid."是否已达成?",$res);
-        
+        $res = SystemConditionService::isReachByItemKey($itemType, $itemKey, $data);
+        Debug::debug("规则" . $this->uuid . "是否已达成?", $res);
+
         return $res;
     }
-    
-    public static function getByTypeKey( $ruleType, $ruleKey )
-    {
-        $con[] = ['rule_type','=',$ruleType ];
-        $con[] = ['rule_key','=',$ruleKey ];
-        return self::find( $con );
+
+    public static function getByTypeKey($ruleType, $ruleKey) {
+        $con[] = ['rule_type', '=', $ruleType];
+        $con[] = ['rule_key', '=', $ruleKey];
+        return self::find($con);
+    }
+
+    /**
+     * 20220814规则取id
+     */
+    public static function ruleTypeIds($ruleType) {
+        $con[] = ['rule_type', '=', $ruleType];
+        $con[] = ['status', '=', 1];
+        $res = self::staticConList($con);
+        return array_column($res, 'id');
     }
 
     /**

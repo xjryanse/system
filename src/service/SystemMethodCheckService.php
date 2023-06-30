@@ -21,39 +21,37 @@ class SystemMethodCheckService extends Base implements MainModelInterface {
     /**
      * 根据方法id校验
      */
-    public static function checkByMethodId( $methodId, $param )
-    {
-        $tableName = SystemMethodService::getInstance( $methodId )->fTableName();
+    public static function checkByMethodId($methodId, $param) {
+        $tableName = SystemMethodService::getInstance($methodId)->fTableName();
         //有在方法列表的校验
-        $con[] = ['method_id','=',$methodId ];
-        $con[] = ['status','=',1];      //方便临时关闭校验，不使用的校验方法最好删除
-        $rules = SystemMethodCheckService::lists( $con );      
-        foreach( $rules as $rule){
+        $con[] = ['method_id', '=', $methodId];
+        $con[] = ['status', '=', 1];      //方便临时关闭校验，不使用的校验方法最好删除
+        $rules = SystemMethodCheckService::lists($con);
+        foreach ($rules as $rule) {
             //需传的值，可空
-            if($rule['check_type'] == 'require' && !isset( $param[ $rule['param'] ]) ){
-                throw new Exception( $rule['notice']);
+            if ($rule['check_type'] == 'require' && !isset($param[$rule['param']])) {
+                throw new Exception($rule['notice']);
             }
             //必填的值，不可为空
-            if($rule['check_type'] == 'must' && !Arrays::value($param, $rule['param'])){
-                throw new Exception( $rule['notice']);
+            if ($rule['check_type'] == 'must' && !Arrays::value($param, $rule['param'])) {
+                throw new Exception($rule['notice']);
             }
             //必填的值，不可为空
-            if($rule['check_type'] == 'unique' 
-                    && self::isUnique($tableName, $rule['param'], Arrays::value($param, $rule['param']), Arrays::value($param, 'id') )){
-                throw new Exception( $rule['notice']);
+            if ($rule['check_type'] == 'unique' && self::isUnique($tableName, $rule['param'], Arrays::value($param, $rule['param']), Arrays::value($param, 'id'))) {
+                throw new Exception($rule['notice']);
             }
         }
     }
-    
-    public static function isUnique($tableName, $field ,$value ,$id='')
-    {
-        $service = DbOperate::getService( $tableName );
-        $con[] = [ $field ,'=',$value ];
-        if($id){
-            $con[] = ['id' ,'<>',$id ];
+
+    public static function isUnique($tableName, $field, $value, $id = '') {
+        $service = DbOperate::getService($tableName);
+        $con[] = [$field, '=', $value];
+        if ($id) {
+            $con[] = ['id', '<>', $id];
         }
-        return $service::mainModel()->where( $con )->value('id');
+        return $service::mainModel()->where($con)->value('id');
     }
+
     /**
      *
      */

@@ -3,19 +3,54 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Arrays;
+use xjryanse\logic\DbOperate;
+use Exception;
 
 /**
- * 操作表
+ * 
  */
-class SystemColumnOperateService implements MainModelInterface {
+class SystemMethodServiceService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnOperate';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemMethodService';
 
-    /*     * ***** */
+    /**
+     * 根据方法id校验
+     */
+    public static function checkByMethodId($methodId, $param) {
+        $tableName = SystemMethodService::getInstance($methodId)->fTableName();
+        //有在方法列表的校验
+        $con[] = ['method_id', '=', $methodId];
+        $con[] = ['status', '=', 1];      //方便临时关闭校验，不使用的校验方法最好删除
+        $rules = SystemMethodCheckService::lists($con);
+        foreach ($rules as $rule) {
+            //需传的值，可空
+            if ($rule['check_type'] == 'require' && !isset($param[$rule['param']])) {
+                throw new Exception($rule['notice']);
+            }
+            //必填的值，不可为空
+            if ($rule['check_type'] == 'must' && !Arrays::value($param, $rule['param'])) {
+                throw new Exception($rule['notice']);
+            }
+            //必填的值，不可为空
+            if ($rule['check_type'] == 'unique' && self::isUnique($tableName, $rule['param'], Arrays::value($param, $rule['param']), Arrays::value($param, 'id'))) {
+                throw new Exception($rule['notice']);
+            }
+        }
+    }
+
+    public static function isUnique($tableName, $field, $value, $id = '') {
+        $service = DbOperate::getService($tableName);
+        $con[] = [$field, '=', $value];
+        if ($id) {
+            $con[] = ['id', '<>', $id];
+        }
+        return $service::mainModel()->where($con)->value('id');
+    }
 
     /**
      *
@@ -39,51 +74,37 @@ class SystemColumnOperateService implements MainModelInterface {
     }
 
     /**
-     *
+     * 方法id
      */
-    public function fColumnId() {
+    public function fMethodId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 操作key，添加，编辑，删除，导出
+     * 参数名称
      */
-    public function fOperateKey() {
+    public function fParam() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 操作名称
+     * 校验类型，1require,2must,3唯一
      */
-    public function fOperateName() {
+    public function fCheckType() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 异步地址
+     * 校验数据范围
      */
-    public function fAjaxUrl() {
+    public function fScope() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 模板文件id
+     * 校验失败返回提示
      */
-    public function fTplId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 页面告知
-     */
-    public function fPageNotice() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 请求确认告知
-     */
-    public function fAjaxNotice() {
+    public function fNotice() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

@@ -2,9 +2,9 @@
 namespace xjryanse\system\model;
 
 /**
- * info字段表
+ * 轮播分组
  */
-class SystemFieldsInfo extends Base
+class SystemBannerGroup extends Base
 {
 
 

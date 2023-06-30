@@ -5,6 +5,7 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\wechat\service\WechatWeAppService;
 use xjryanse\wechat\WeApp;
+use xjryanse\dev\logic\ProjectLogic;
 
 /**
  * 公司端口
@@ -14,15 +15,15 @@ class SystemCompanyService implements MainModelInterface {
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
     use \xjryanse\traits\ObjectAttrTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
-    
+
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemCompany';
     //一经写入就不会改变的值
-    protected static $fixedFields = ['id','name','logo','key','we_app_id'
-        ,'we_pub_id','creater','create_time'];
-
+    protected static $fixedFields = ['id', 'name', 'logo', 'key', 'we_app_id'
+        , 'we_pub_id', 'creater', 'create_time'];
     ///从ObjectAttrTrait中来
     // 定义对象的属性
     protected $objAttrs = [];
@@ -30,19 +31,20 @@ class SystemCompanyService implements MainModelInterface {
     protected $hasObjAttrQuery = [];
     // 定义对象属性的配置数组
     protected static $objAttrConf = [
-        'systemCompanyUser'=>[
-            'class'     =>'\\xjryanse\\system\\service\\SystemCompanyUserService',
-            'keyField'  =>'company_id',
-            'master'    =>true
+        'systemCompanyUser' => [
+            'class' => '\\xjryanse\\system\\service\\SystemCompanyUserService',
+            'keyField' => 'company_id',
+            'master' => true
         ],
-        'financeAccount'=>[
-            'class'     =>'\\xjryanse\\finance\\service\\FinanceAccountService',
-            'keyField'  =>'company_id',
-            'master'    =>true
+        'financeAccount' => [
+            'class' => '\\xjryanse\\finance\\service\\FinanceAccountService',
+            'keyField' => 'company_id',
+            'master' => true
         ]
     ];
-    /***本类定义变量*****************/
+    /*     * *本类定义变量**************** */
     protected $wechatWeApp = [];
+
     /**
      * 根据key取值
      * @param type $key
@@ -52,15 +54,16 @@ class SystemCompanyService implements MainModelInterface {
         $info = $this->get();
         return $info ? $info['key'] : '';
     }
+
     /**
      * 获取公司绑定的公众号APP
      * @return type
      */
-    public function getWechatWeApp(){
-        if(!$this->wechatWeApp){
-            $appId  = $this->fWeAppId();
-            $info   = WechatWeAppService::getInstance( $appId )->get();
-            $this->wechatWeApp        = new WeApp($info['appid'],$info['secret'],'./runtime/');
+    public function getWechatWeApp() {
+        if (!$this->wechatWeApp) {
+            $appId = $this->fWeAppId();
+            $info = WechatWeAppService::getInstance($appId)->get();
+            $this->wechatWeApp = new WeApp($info['appid'], $info['secret'], './runtime/');
         }
         return $this->wechatWeApp;
     }
@@ -87,6 +90,28 @@ class SystemCompanyService implements MainModelInterface {
         return $company ? $company['id'] : '';
     }
 
+    /**
+     * 20230524:关联的项目信息
+     */
+    public function projectInfo() {
+        $devProjectId = $this->fDevProjectId();
+        if (!$devProjectId) {
+            return [];
+        }
+        return ProjectLogic::getInstance($devProjectId)->info();
+    }
+
+    /**
+     * 20230531:端口是否可操作
+     * 1，购买端口，过期了仍然可以操作
+     * 2，租用端口，过期了则不能操作
+     * @return type
+     */
+    public function canOperate() {
+        $devProjectId = $this->fDevProjectId();
+        return ProjectLogic::getInstance($devProjectId)->canOperate();
+    }
+
     /*     * ***** */
 
     /**
@@ -109,9 +134,11 @@ class SystemCompanyService implements MainModelInterface {
     public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     public function fLogo() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 地区码
      * @return type
@@ -119,6 +146,7 @@ class SystemCompanyService implements MainModelInterface {
     public function fAreaCode() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 公司编号
      */
@@ -221,6 +249,10 @@ class SystemCompanyService implements MainModelInterface {
      * 公众号acid
      */
     public function fWePubId() {
+        return $this->getFFieldValue(__FUNCTION__);
+    }
+
+    public function fDevProjectId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 

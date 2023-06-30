@@ -3,44 +3,48 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-use xjryanse\logic\Arrays2d;
+
 /**
- * 
+ * 系统能力分组：业务板块
  */
-class SystemFieldsInfoService extends Base implements MainModelInterface {
+class SystemAbilityGroupDeptService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-    // 静态模型：配置式数据表
+
+// 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
+    use \xjryanse\traits\MiddleModelTrait;
 
     protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsInfo';
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAbilityGroupDept';
+    protected static $middleFieldMapping = ['ability_group_id', 'dept_id'];
 
-    public static function getInfoFields( $tableName )
-    {
-        $con[] = ['table_name','=',$tableName];
-        $con[] = ['status','=',1];
-        $con[] = ['is_extra','=',1];
-        $data = self::staticConList($con);
-        return array_column($data, 'relative_table', 'field_name');
-        // return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
+    /**
+     * 部门是否有指定能力
+     * @param type $deptId  
+     * @param type $groupId
+     * @return type
+     */
+    public static function deptHasAbilityGroup($deptId, $groupId) {
+//        $con[] = ['ability_group_id','=',$groupId];
+//        $con[] = ['dept_id','=',$deptId];
+//        $info = self::staticConFind($con);
+//        return $info? true: false;
+        return self::middleMainHasSub($groupId, $deptId);
     }
 
     /**
-     * 限制了关联表记录删除的字段
-     * @param type $relativeTable
-     * @return type
+     * 提取指定客户，指定事项的管理部门
+     * 例如：XX单位，用车管理部门。
+     * @param type $customerId      客户
+     * @param type $abilityKey      能力key
      */
-    public static function relativeDelFields( $relativeTable )
-    {
-        $con[] = ['relative_table','=',$relativeTable];
-        $con[] = ['status','=',1];
-        $con[] = ['is_relative_del','=',1];
-        $data = self::staticConList($con);
-        $keys = ['id','table_name','field_name','relative_table','del_fault_msg'];
-        return Arrays2d::getByKeys($data, $keys);
-        //return self::lists($con, '', 'id,table_name,field_name,relative_table,del_fault_msg', 86400);
+    public static function customerAbilityGroupKeyGetManageDeptId($customerId, $abilityKey) {
+        $abilityGroupId = SystemAbilityGroupService::keyToId($abilityKey);
+        $con[] = ['customer_id', '=', $customerId];
+        $lists = self::middleMainSubList($abilityGroupId, $con);
+        return $lists ? $lists[0]['dept_id'] : '';
     }
 
     /**
@@ -51,39 +55,33 @@ class SystemFieldsInfoService extends Base implements MainModelInterface {
     }
 
     /**
-     *
+     * 应用名称
      */
-    public function fAppId() {
+    public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     *
+     * 应用id
      */
-    public function fCompanyId() {
+    public function fAppid() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 布局名称
+     * 应用密钥
      */
-    public function fTableName() {
+    public function fSecret() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
      * 排序
      */
-    public function fFieldName() {
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 关联表名
-     */
-    public function fRelativeTable() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
     /**
      * 状态(0禁用,1启用)
      */

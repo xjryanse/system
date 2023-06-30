@@ -3,9 +3,9 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
 use xjryanse\system\service\SystemErrorLogService;
 use xjryanse\system\logic\ImportLogic;
+
 /**
  * 导入模板
  */
@@ -16,52 +16,52 @@ class SystemImportAsyncService extends Base implements MainModelInterface {
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemImportAsync';
+
     /**
      * 获取待执行任务列表
      */
-    public static function getTodos()
-    {
-        $con[] = ['op_status','=',XJRYANSE_OP_TODO];
-        return self::lists( $con );
+    public static function getTodos() {
+        $con[] = ['op_status', '=', XJRYANSE_OP_TODO];
+        return self::lists($con);
     }
-    
-    public function doImport()
-    {
+
+    public function doImport() {
         $info = $this->get();
         //发模板
-        if( !$info['table_name']){
+        if (!$info['table_name']) {
             $this->setRespMessage('导入失败，table_name必须');
             return false;
         }
         //更新为进行中
-        $this->update( ['op_status'=>XJRYANSE_OP_DOING] );
-        try{
-            $preData = json_decode($info['pre_data'],JSON_UNESCAPED_UNICODE);
-            $preData['app_id']      = $info['app_id'];
-            $preData['company_id']  = $info['company_id'];
-            $preData['source']      = $info['source'];
-            $preData['creater']     = $info['creater'];
-            $preData['updater']     = $info['creater'];
-            
+        $this->update(['op_status' => XJRYANSE_OP_DOING]);
+        try {
+            $preData = json_decode($info['pre_data'], JSON_UNESCAPED_UNICODE);
+            $preData['app_id'] = $info['app_id'];
+            $preData['company_id'] = $info['company_id'];
+            $preData['source'] = $info['source'];
+            $preData['creater'] = $info['creater'];
+            $preData['updater'] = $info['creater'];
+
             //执行导入到表方法
-            $res = ImportLogic::doImport( $info['table_name'] 
-                    , $info['file_id']
-                    , json_decode($info['headers'],JSON_UNESCAPED_UNICODE)
-                    , $preData
-                    ,json_decode($info['cov_data'],JSON_UNESCAPED_UNICODE)
-                    );
+            $res = ImportLogic::doImport($info['table_name']
+                            , $info['file_id']
+                            , json_decode($info['headers'], JSON_UNESCAPED_UNICODE)
+                            , $preData
+                            , json_decode($info['cov_data'], JSON_UNESCAPED_UNICODE)
+            );
 
             //更新为已完成
-            $this->update( ['op_status'=>XJRYANSE_OP_FINISH,'resp_message'=>'数据导入成功'. $res .'条'] );
-        } catch (\Exception $e){
+            $this->update(['op_status' => XJRYANSE_OP_FINISH, 'resp_message' => '数据导入成功' . $res . '条']);
+        } catch (\Exception $e) {
             //记录错误
-            SystemErrorLogService::exceptionLog($e);  
-            $data['resp_message']   = $e->getMessage();
-            $data['op_status']      = XJRYANSE_OP_FAIL;
-            $this->update( $data );
+            SystemErrorLogService::exceptionLog($e);
+            $data['resp_message'] = $e->getMessage();
+            $data['op_status'] = XJRYANSE_OP_FAIL;
+            $this->update($data);
         }
         //导入
     }
+
     /**
      * 添加导入任务
      * @param type $tableName       表名
@@ -70,25 +70,23 @@ class SystemImportAsyncService extends Base implements MainModelInterface {
      * @param array $preInputData   预写数据
      * @param type $data            额外数据
      */
-    public static function addTask( $tableName, $fileId, array $headers, array $preInputData ,$data = [])
-    {
+    public static function addTask($tableName, $fileId, array $headers, array $preInputData, $data = []) {
         $preInputData['company_id'] = session(SESSION_COMPANY_ID);
-        
+
         $data['table_name'] = $tableName;
-        $data['file_id']    = $fileId;
-        $data['headers']    = json_encode($headers, JSON_UNESCAPED_UNICODE);
-        $data['pre_data']   = json_encode($preInputData, JSON_UNESCAPED_UNICODE);
+        $data['file_id'] = $fileId;
+        $data['headers'] = json_encode($headers, JSON_UNESCAPED_UNICODE);
+        $data['pre_data'] = json_encode($preInputData, JSON_UNESCAPED_UNICODE);
         $data['table_name'] = $tableName;
-        
+
         return self::save($data);
     }
-    
-    public function setRespMessage( $message )
-    {
+
+    public function setRespMessage($message) {
         $data['resp_message'] = $message;
         return $this->update($data);
     }
-    
+
     /**
      *
      */

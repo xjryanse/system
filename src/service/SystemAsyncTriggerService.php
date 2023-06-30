@@ -10,6 +10,7 @@ use xjryanse\logic\Debug;
 use xjryanse\system\service\SystemErrorLogService;
 use think\Db;
 use Exception;
+
 /**
  * 系统单线程异步实施类库
  */
@@ -24,79 +25,82 @@ class SystemAsyncTriggerService implements MainModelInterface {
     /**
      * 添加待执行任务
      */
-    public static function addTask( $method, $fromTable, $fromTableId ){
-        $methodAllows = ['save','update','delete'];
-        if(!in_array($method, $methodAllows)){
-            throw new Exception('method只能是'.implode(',',$methodAllows).'之一');
+    public static function addTask($method, $fromTable, $fromTableId) {
+        $methodAllows = ['save', 'update', 'delete'];
+        if (!in_array($method, $methodAllows)) {
+            throw new Exception('method只能是' . implode(',', $methodAllows) . '之一');
         }
-        $data['method']         = $method;
-        $data['from_table']     = $fromTable;
-        $data['from_table_id']  = $fromTableId;
+        $data['method'] = $method;
+        $data['from_table'] = $fromTable;
+        $data['from_table_id'] = $fromTableId;
         $data['operate_status'] = 0;
-        $data['id']             = SnowFlake::generateParticle();
+        $data['id'] = SnowFlake::generateParticle();
         //DataCheck::must($data, ['method','from_table','from_table_id']);
         $res = self::mainModel()->insert($data);
-        Debug::debug('SystemAsyncTriggerService::addTask',$data);
-        Debug::debug('SystemAsyncTriggerService::addTask的$res',$res);
+        Debug::debug('SystemAsyncTriggerService::addTask', $data);
+        Debug::debug('SystemAsyncTriggerService::addTask的$res', $res);
         return $res;
     }
+
     /**
      * 获取待执行任务列表
      */
-    public static function getTodoIds( $limit = 10 ){
-        $con[] = ['operate_status','=',0];
+    public static function getTodoIds($limit = 10) {
+        $con[] = ['operate_status', '=', 0];
         return self::mainModel()->master()->where($con)->limit($limit)->column('id');
     }
+
     /**
      * 操作方法
      */
-    public function operate(){
+    public function operate() {
         //尝试进行数据处理
-        try{
+        try {
             $res = $this->doOperate();
-            self::mainModel()->where('id',$this->uuid)->update(['operate_status'=>2]);  //处理完成
+            self::mainModel()->where('id', $this->uuid)->update(['operate_status' => 2]);  //处理完成
             return $res;
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             $message = $e->getMessage();
             SystemErrorLogService::exceptionLog($e);
-            self::mainModel()->where('id',$this->uuid)->update(['operate_status'=>3,'result'=>$message]);  //处理失败
+            self::mainModel()->where('id', $this->uuid)->update(['operate_status' => 3, 'result' => $message]);  //处理失败
             throw $e;
         }
     }
+
     /**
      * 开始执行
      */
-    protected function doOperate(){
-        $info           = $this->get();
-        $service        = DbOperate::getService($info['from_table']);
-        $operateMethod  = 'extraAfter'.ucfirst($info['method']);
-        if(!$service){
-            throw new Exception('操作类不存在'.$info['from_table']);
+    protected function doOperate() {
+        $info = $this->get();
+        $service = DbOperate::getService($info['from_table']);
+        $operateMethod = 'extraAfter' . ucfirst($info['method']);
+        if (!$service) {
+            throw new Exception('操作类不存在' . $info['from_table']);
         }
-        if(!method_exists( $service, $operateMethod)){
-            throw new Exception('操作类'.$service.'的方法'.$operateMethod.'不存在');
+        if (!method_exists($service, $operateMethod)) {
+            throw new Exception('操作类' . $service . '的方法' . $operateMethod . '不存在');
         }
 
         //TODO统一
         $dataId = $info['from_table_id'];
-        if($info['method'] == 'delete'){
+        if ($info['method'] == 'delete') {
             //实例
             Db::startTrans();
-            $res = $service::getInstance( $dataId )->$operateMethod();
+            $res = $service::getInstance($dataId)->$operateMethod();
             Db::commit();
             return $res;
         } else {
             //静态
-            $data = $service::getInstance( $dataId )->get();
+            $data = $service::getInstance($dataId)->get();
             $dataArr = $data ? $data->toArray() : [];
             //数组传参处理
             Db::startTrans();
             $res = $service::$operateMethod($dataArr, $dataId);
             Db::commit();
             return $res;
-        }        
+        }
     }
-    
+
     /**
      *
      */

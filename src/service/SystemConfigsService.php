@@ -3,6 +3,8 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Arrays;
+use xjryanse\logic\Arrays2d;
 
 /**
  * 配置接口
@@ -11,25 +13,53 @@ class SystemConfigsService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemConfigs';
 
     /**
      * 键值更新
+     * 2022-12-18改造
      * @param type $key
      * @param type $value
      */
     public static function saveByKey($key, $value) {
         $con[] = ['key', '=', $key];
         $info = self::find($con);
-        if ($info) {
-            return self::getInstance($info['id'])->update(['value' => $value]);
-        } else {
-            $data['key'] = $key;
-            $data['value'] = $value;
-            return self::save($data);
+
+        $updVal = self::dataCov($info['type'], $value);
+        if (!$info || $updVal == $info['value']) {
+            return false;
         }
+
+        return self::getInstance($info['id'])->update(['value' => $updVal]);
+    }
+
+    /*
+     * 2022-12-18：存储数据转换
+     */
+
+    public static function dataCov($type, $value) {
+        if ($type == 'uplimage' && !is_string($value)) {
+            $value = Arrays::value($value, 'id');
+        }
+        return $value;
+    }
+
+    /**
+     * 获取单个配置项
+     * 20230516:初始化之前，部分配置必须从数据库提取，避免死循环
+     */
+    public static function getDbKeyValue($key) {
+//        $con[] = ['key', '=', $key];
+//        $value = self::where($con)->value('value');
+//        return $value;
+
+        $listsAll = self::staticListsAllDb();
+        $con[] = ['key', '=', $key];
+        $info = Arrays2d::listFind($listsAll, $con);
+        return Arrays::value($info, 'value');
     }
 
     /*     * * */

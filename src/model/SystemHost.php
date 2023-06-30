@@ -2,10 +2,10 @@
 namespace xjryanse\system\model;
 
 /**
- * 
+ * 域名信息
  */
-class SystemColumnBlock extends Base
+class SystemHost extends Base
 {
-    
+
 
 }

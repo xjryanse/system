@@ -4,6 +4,7 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Cachex;
+
 /**
  * 系统定时器
  */
@@ -15,28 +16,26 @@ class SystemTableCacheTimeService implements MainModelInterface {
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemTableCacheTime';
 
-    public static function tableCache( $tableName )
-    {
+    public static function tableCache($tableName) {
         //表缓存数组
-        $tableCacheTimeArr = Cachex::funcGet( 'SystemTableCacheTimeService_TableCacheTimeArr', function(){
-            return self::mainModel()->column('cache_time','table_name');
-        });
+        $tableCacheTimeArr = Cachex::funcGet('SystemTableCacheTimeService_TableCacheTimeArr', function() {
+                    return self::mainModel()->column('cache_time', 'table_name');
+                });
         //判断是否黑
-        if($tableCacheTimeArr && in_array($tableName, $tableCacheTimeArr)){
+        if ($tableCacheTimeArr && in_array($tableName, $tableCacheTimeArr)) {
             return $tableCacheTimeArr[$tableName];
         } else {
             //默认缓存为2s
             return 2;
         }
     }
-    
-    public static function tableHasLog( $tableName )
-    {
-        $con[]  = ['table_name','=',$tableName ];
-        $count   = self::mainModel()->where( $con )->cache( 86400 )->count(); //每天查一下就行
+
+    public static function tableHasLog($tableName) {
+        $con[] = ['table_name', '=', $tableName];
+        $count = self::mainModel()->where($con)->cache(86400)->count(); //每天查一下就行
         return $count ? true : false; //默认缓存为2s
     }
-    
+
     /**
      *
      */
@@ -57,6 +56,7 @@ class SystemTableCacheTimeService implements MainModelInterface {
     public function fCompanyId() {
         return $this->getFFieldValue(__FUNCTION__);
     }
+
     /**
      * 排序
      */

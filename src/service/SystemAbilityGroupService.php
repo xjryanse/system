@@ -3,25 +3,49 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
+use xjryanse\logic\Arrays;
 
 /**
- * 
+ * 系统能力分组：业务板块
  */
-class SystemFieldsLogService extends Base implements MainModelInterface {
+class SystemAbilityGroupService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
 
-    protected static $mainModel;
-    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFieldsLog';
+// 静态模型：配置式数据表
+    use \xjryanse\traits\StaticModelTrait;
 
-    public static function getInfoFields( $tableName )
-    {
-        $con[] = ['table_name','=',$tableName];
-        $con[] = ['status','=',1];
-        return self::mainModel()->where($con)->cache(86400)->column('relative_table','field_name');
+    protected static $mainModel;
+    protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAbilityGroup';
+    // KeyModelTrait
+    protected static $keyFieldName = 'group_key';
+
+    use \xjryanse\traits\KeyModelTrait;
+
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+                    $abilityGroupDeptCount = SystemAbilityGroupDeptService::groupBatchCount('ability_group_id', $ids);
+                    foreach ($lists as &$v) {
+                        // 部门能力数
+                        $v['abilityGroupDeptCount'] = Arrays::value($abilityGroupDeptCount, $v['ability_group_id'], 0);
+                    }
+
+                    return $lists;
+                });
     }
-            
+
+    /**
+     * 20230425:查询部门是否指定事项的管理者
+     * @param type $deptId      部门
+     * @param type $groupKey    分组key
+     * @return type
+     */
+    public static function isDeptKeyManage($deptId, $groupKey) {
+        $groupId = self::keyToId($groupKey);
+        return SystemAbilityGroupDeptService::deptHasAbilityGroup($deptId, $groupId);
+    }
+
     /**
      *
      */
@@ -30,39 +54,33 @@ class SystemFieldsLogService extends Base implements MainModelInterface {
     }
 
     /**
-     *
+     * 应用名称
      */
-    public function fAppId() {
+    public function fName() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     *
+     * 应用id
      */
-    public function fCompanyId() {
+    public function fAppid() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
-     * 布局名称
+     * 应用密钥
      */
-    public function fTableName() {
+    public function fSecret() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
     /**
      * 排序
      */
-    public function fFieldName() {
+    public function fSort() {
         return $this->getFFieldValue(__FUNCTION__);
     }
 
-    /**
-     * 关联表名
-     */
-    public function fRelativeTable() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
     /**
      * 状态(0禁用,1启用)
      */

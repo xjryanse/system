@@ -48,7 +48,9 @@ class SystemTimingService implements MainModelInterface {
             //20220328;可执行服务器命令，也可跨站点调用
             if($info['module'] && $info['controller'] && $info['action']){
                 //执行服务器命令
-                $command="cd /www/wwwroot/tenancy.xiesemi.cn/public;php index.php ".$info['module']."/".$info['controller']."/".$info['action'];
+                // $command="cd /www/wwwroot/tenancy.xiesemi.cn/public;php index.php ".$info['module']."/".$info['controller']."/".$info['action'];
+                // dirname(__DIR__,3) 打印结果 "/www/wwwroot/tenancy.xiesemi.cn"
+                $command="cd ".dirname(__DIR__,5)."/public;php index.php ".$info['module']."/".$info['controller']."/".$info['action'];
                 $fp = popen($command,"r");
                 pclose($fp);
             } else if($info['url']) {

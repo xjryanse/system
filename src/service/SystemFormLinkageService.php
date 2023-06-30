@@ -23,31 +23,29 @@ class SystemFormLinkageService extends Base implements MainModelInterface {
      * @param type $linkField   联表字段
      * @param type $item        数据
      */
-    public static function getLinkage( $tableName, $linkField, &$item ){
-        if(!isset($item[$linkField])){
+    public static function getLinkage($tableName, $linkField, &$item) {
+        if (!isset($item[$linkField])) {
             return false;
         }
         $linkages = self::tableFieldLinkages($tableName, $linkField);
-        Debug::debug('$linkages',$linkages);
+        Debug::debug('$linkages', $linkages);
 
-        foreach( $linkages as $linkage){
-            $con    = $item['condition'] ? json_decode($item['condition'],JSON_UNESCAPED_UNICODE) : [];
-            $con[]  = [$linkage['source_link_field'],'=',$item[$linkField]];
-            
+        foreach ($linkages as $linkage) {
+            $con = $item['condition'] ? json_decode($item['condition'], JSON_UNESCAPED_UNICODE) : [];
+            $con[] = [$linkage['source_link_field'], '=', $item[$linkField]];
+
             $sourceService = DbOperate::getService($linkage['source_table']);
-            if( !$sourceService ){
-                continue;                    
+            if (!$sourceService) {
+                continue;
             }
-            Debug::debug('查询条件',$con);
+            Debug::debug('查询条件', $con);
             $sourceInfo = $sourceService::find($con);
             //来源信息
-            Debug::debug('$sourceInfo',$sourceInfo);
-            Debug::debug('source_field',$linkage['source_field']);
-            Debug::debug('target_field',$linkage['target_field']);
+            Debug::debug('$sourceInfo', $sourceInfo);
+            Debug::debug('source_field', $linkage['source_field']);
+            Debug::debug('target_field', $linkage['target_field']);
             //当前表目标字段，赋值为来源表来源字段
-            $item[ $linkage['target_field'] ]   = $sourceInfo && isset($sourceInfo[ $linkage['source_field']]) 
-                    ? $sourceInfo[ $linkage['source_field']]
-                    : "";
+            $item[$linkage['target_field']] = $sourceInfo && isset($sourceInfo[$linkage['source_field']]) ? $sourceInfo[$linkage['source_field']] : "";
         }
         return $item;
     }
@@ -57,13 +55,12 @@ class SystemFormLinkageService extends Base implements MainModelInterface {
      * @param type $tableName   表名
      * @param type $linkField   字段
      */
-    protected static function tableFieldLinkages($tableName, $linkField )
-    {
-        $con[] = ['table_name','=',$tableName];
-        $con[] = ['link_field','=',$linkField];
-        return self::lists( $con );
+    protected static function tableFieldLinkages($tableName, $linkField) {
+        $con[] = ['table_name', '=', $tableName];
+        $con[] = ['link_field', '=', $linkField];
+        return self::lists($con);
     }
-    
+
     /**
      *
      */
