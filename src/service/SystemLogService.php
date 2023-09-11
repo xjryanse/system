@@ -6,6 +6,9 @@ use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\logic\ConfigLogic;
 use think\facade\Request;
 use xjryanse\logic\Debug;
+use xjryanse\logic\Cachex;
+use xjryanse\logic\Arrays2d;
+use xjryanse\logic\Arrays;
 
 /**
  * 访问日志
@@ -14,7 +17,9 @@ class SystemLogService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
-
+    use \xjryanse\traits\MainModelQueryTrait;
+    use \xjryanse\traits\RedisModelTrait;
+    
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemLog';
 
@@ -37,7 +42,8 @@ class SystemLogService implements MainModelInterface {
             // 20221012
             $data['output'] = file_get_contents('php://input');
             Debug::debug('$data', $data);
-            self::save($data);
+            // self::save($data);
+            self::redisLog($data);
         } catch (\Exception $e) {
             //不报异常，以免影响访问
         }
@@ -62,7 +68,44 @@ class SystemLogService implements MainModelInterface {
             //不报异常，以免影响访问
         }
     }
+    
+    
+    /*********/
+    /**
+     * 服务类方法统计
+     */
+    public static function allCount(){
+        return Cachex::funcGet(__METHOD__, function(){
+            $res = self::where()->group('module,controller,action')->field('module,controller,action,count(1) as number')->select();
+            return $res ? $res->toArray() : [];
+        },false,60);
+    }
+    /**
+     * 类名+方法名提取统计次数
+     * @param type $service 类名
+     * @param type $method  方法名
+     * @return type
+     */
+    public static function controllerMethodCount($module, $controller, $action){
+        $arr = self::allCount();
 
+        $con[] = ['module','=',$module];
+        $con[] = ['controller','=',$controller];
+        $con[] = ['action','=',$action];
+
+        $info = Arrays2d::listFind($arr, $con);
+        return Arrays::value($info, 'number', 0);
+    }
+
+    /**
+     * 20230717
+     * @param array $data
+     * @param type $uuid
+     */
+    public static function extraPreSave(&$data, $uuid) {
+        $data['header'] = addslashes(Arrays::value($data,'header'));
+    }
+    
     /**
      *
      */

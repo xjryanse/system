@@ -5,6 +5,7 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\system\logic\ConfigLogic;
 use xjryanse\logic\Strings;
+use xjryanse\logic\Arrays;
 use think\facade\Request;
 use Exception;
 use app\third\baidu\BaiduIp;
@@ -16,6 +17,7 @@ class SystemErrorLogService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemErrorLog';
@@ -39,18 +41,19 @@ class SystemErrorLogService implements MainModelInterface {
         if (!$strict && !ConfigLogic::config('errLogOpen')) {
             return false;
         }
-
         $data['url'] = Request::url();
         $data['param'] = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
         $data['msg'] = $e->getMessage();
-        $data['file'] = $e->getTrace()[0]['class'];
-        $data['function'] = $e->getTrace()[0]['function'];
-        $data['line'] = $e->getLine();
-        $data['code'] = $e->getCode();
-        $data['trace'] = Strings::keepLength($e->getTraceAsString(), 8192);
+//        $data['file'] = $e->getTrace()[0]['class'];
+//        $data['function'] = $e->getTrace()[0]['function'];
+        $data['file']       = Arrays::value($e->getTrace()[0], 'class');
+        $data['function']   = Arrays::value($e->getTrace()[0], 'function');
+        $data['line']       = $e->getLine();
+        $data['code']       = $e->getCode();
+        $data['trace']      = Strings::keepLength($e->getTraceAsString(), 8192);
         $data['o_company_id'] = session(SESSION_COMPANY_ID);
-        $data['o_user_id'] = session(SESSION_USER_ID);
-        $data['o_ip'] = Request::ip();
+        $data['o_user_id']  = session(SESSION_USER_ID);
+        $data['o_ip']       = Request::ip();
         //错误日志入库
         try {
             self::save($data);

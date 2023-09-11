@@ -6,6 +6,9 @@ namespace xjryanse\system\model;
  */
 class SystemColumnList extends Base
 {
+    //20230728 是否将数据缓存到文件
+    public static $cacheToFile = true;
+    
     public function setIsListAttr( $value )
     {
         //非布尔值时转布尔值

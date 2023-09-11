@@ -4,9 +4,14 @@ namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\wechat\service\WechatWeAppService;
+use xjryanse\customer\service\CustomerUserService;
 use xjryanse\wechat\WeApp;
 use xjryanse\dev\logic\ProjectLogic;
+use xjryanse\curl\Query;
 
+use xjryanse\logic\DbOperate;
+use xjryanse\system\logic\RedisLogic;
+use xjryanse\logic\Cachex;
 /**
  * 公司端口
  */
@@ -14,6 +19,7 @@ class SystemCompanyService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
     use \xjryanse\traits\ObjectAttrTrait;
 
 // 静态模型：配置式数据表
@@ -44,6 +50,12 @@ class SystemCompanyService implements MainModelInterface {
     ];
     /*     * *本类定义变量**************** */
     protected $wechatWeApp = [];
+
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+                    return $lists;
+                },true);
+    }
 
     /**
      * 根据key取值
@@ -112,6 +124,45 @@ class SystemCompanyService implements MainModelInterface {
         return ProjectLogic::getInstance($devProjectId)->canOperate();
     }
 
+    /**
+     * 用户id，反查管理的公司id端口
+     */
+    public static function userCompanyIds($userId){
+        $customerIds    = CustomerUserService::userManageCustomerIds($userId);
+        $conComp[]  = ['bind_customer_id','in',$customerIds];
+        return self::ids($conComp);
+    }
+
+    /**
+     * 20230819:跨端清理缓存
+     */
+    public function crossCacheClear(){
+        $info = $this->get();
+        if($info['base_url']){
+            // 清理本站
+            self::cacheClear();
+            // 跨端清理
+            $clearUrl = $info['base_url'].'index/index/cacheClear';
+            // 调用清缓存链接，例如：https://axsl.xiesemi.cn/index/index/cacheClear
+            Query::geturl($clearUrl);
+        }
+    }
+    
+    /**
+     * 
+     */
+    public static function cacheClear(){
+        // 20221026
+        RedisLogic::writeToDbAll();
+        // 存放在redis的聊天记录需要搬到数据库，否则会造成数据丢失
+        // ChatLogic::writeToDbAll();
+        //清除缓存
+        $excepKeys = ['devRequestIp'];
+        Cachex::clearExcept($excepKeys);
+        //数据库字段重新缓存一下,避免初次查询卡死
+        $tableName = self::getTable();
+        DbOperate::columns($tableName);
+    }
     /*     * ***** */
 
     /**

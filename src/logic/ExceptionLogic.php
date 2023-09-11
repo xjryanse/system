@@ -32,7 +32,16 @@ class ExceptionLogic extends Handle
         if(Debug::isDebug()){
             return parent::render($e);
         } else {
-            return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() );
+            // 20230727
+            $trace = [];
+            if(Debug::isDevIp()){
+                $trace['msg']     = $e->getMessage();
+                $trace['file']    = $e->getFile();
+                $trace['line']    = $e->getLine();
+                $trace['trace']   = $e->getTrace();
+            }
+
+            return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() ,[], $trace);
         }
     }
 }

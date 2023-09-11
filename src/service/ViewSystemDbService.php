@@ -5,12 +5,9 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\universal\service\UniversalPageService;
 use xjryanse\system\service\SystemColumnListService;
-use xjryanse\logic\Arrays;
-use xjryanse\logic\Arrays2d;
 use xjryanse\logic\FrameCode;
 use xjryanse\logic\DbOperate;
-use xjryanse\logic\Cachex;
-
+use xjryanse\logic\Runtime;
 /**
  * 
  */
@@ -18,6 +15,8 @@ class ViewSystemDbService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
+    use \xjryanse\traits\ObjectAttrTrait;
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
@@ -40,7 +39,7 @@ class ViewSystemDbService extends Base implements MainModelInterface {
                         $conCL                  = [['column_id','=',$v['columnId']]];
                         $v['columnListCount']   = SystemColumnListService::staticConCount($conCL);
 
-                        $v['hasColumn']         = $v['columnId'] ? 1 : 0;
+                        // $v['hasColumn']         = $v['columnId'] ? 1 : 0;
                         // 是否有列表页面
                         $listKey                = UniversalPageService::defaultListKey($tableName);
                         $v['pageKeyList']       = $listKey;
@@ -80,10 +79,19 @@ class ViewSystemDbService extends Base implements MainModelInterface {
                         // 20230615：统计数据表中的方法数
                         $methodList = self::tableServiceMethodList($tableName);
                         $v['serviceMethodCount'] = count($methodList);                        
+                        // 20230728:控制前端显示
+                        $v['status'] = 1;
+                        
+                        // 字段缓存                        
+                        $columnCacheFile    = Runtime::tableColumnFileName($tableName);
+                        $v['hasColumnFile'] = is_file($columnCacheFile) ? 1 : 0;
+                        // 表全量缓存
+                        $dataCacheFile    = Runtime::tableFullCacheFileName($tableName);
+                        $v['hasDataFile']   = is_file($dataCacheFile) ? 1 : 0;
                     }
 
                     return $lists;
-                });
+                },true);
     }
     
     /*

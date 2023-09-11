@@ -15,7 +15,9 @@ class RedisLogic
         $redisClasses = Cache::get('redisLogClasses') ? : [];
         Debug::debug('$redisClasses', $redisClasses);
         foreach($redisClasses as $class){
-            $class::redisToDb();
+            if (method_exists($class, 'redisToDb')) {
+                $class::redisToDb();
+            }
         }
     }
 

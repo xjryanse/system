@@ -5,6 +5,8 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
+use xjryanse\logic\DataList;
+use xjryanse\logic\DbOperate;
 use xjryanse\system\service\columnlist\Dynenum;
 use think\Db;
 
@@ -15,13 +17,16 @@ class SystemColumnListService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumnList';
-
+    // 动态枚举选框数组
+    protected static $sDynDataListArr = [];
+    
     /**
      * 字段id，和原始数据数组，取动态枚举列表（list查询的dynDataList值）
      * @param type $columnId
@@ -86,10 +91,8 @@ class SystemColumnListService implements MainModelInterface {
                     //20220317增加判空
                     $arr = [];
                 } else {
-                    $cond = [];
-                    $cond[] = [$tableKey, 'in', $data[$key]];
-                    $inst = Db::table($tableName)->where($cond);
-                    $arr = $inst->cache(1)->column($value, $tableKey);
+                    // 20230730:改造后
+                    $arr = self::sDynDataQuery($tableName, $tableKey, $data[$key], $value);
                 }
             } else {
                 $arr = [];
@@ -97,6 +100,38 @@ class SystemColumnListService implements MainModelInterface {
             $optionArr[$key] = $arr;
         }
         return $optionArr;
+    }
+    /**
+     * 20230730:查询数据
+     * @param type $tableName       w_user
+     * @param type $tableKey        id
+     * @param type $dataIds         [1,2,3]
+     * @param type $valueField      namePhone
+     * @return type
+     */
+    public static function sDynDataQuery($tableName, $tableKey, $dataIds, $valueField){
+        // 拼接识别key：表名+id+值字段名
+        $key = $tableName.'.'.$tableKey.'.'.$valueField;
+        if(!isset(self::$sDynDataListArr[$key]) || !self::$sDynDataListArr[$key]){
+            self::$sDynDataListArr[$key] = [];
+        }
+        // 20230730改造优化性能
+        return DataList::dataObjAdd(self::$sDynDataListArr[$key], $dataIds, function($qIds) use ($tableName, $tableKey, $valueField){
+            $cond = [];
+            $cond[] = [$tableKey, 'in', $qIds];
+            // 20230730:如果是静态表，不用查了
+            $service = DbOperate::getService($tableName);
+            if (method_exists($service, 'staticConList')) {
+                // 20230730:如果是静态表，不用查了
+                $lists = $service::staticConList($cond);
+                $arr = array_column($lists, $valueField, $tableKey);
+            } else {
+                // 20230730原来的逻辑
+                $inst = Db::table($tableName)->where($cond);
+                $arr = $inst->cache(1)->column($valueField, $tableKey);
+            }
+            return $arr;
+        });
     }
 
     /**

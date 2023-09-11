@@ -7,6 +7,9 @@ use xjryanse\system\service\SystemFileService;
  */
 class SystemColumn extends Base
 {
+    //20230728 是否将数据缓存到文件
+    public static $cacheToFile = true;
+
     /**
      * 用户头像图标
      * @param type $value

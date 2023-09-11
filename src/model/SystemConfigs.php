@@ -8,6 +8,9 @@ use xjryanse\logic\Debug;
  */
 class SystemConfigs extends Base
 {
+    //20230728 是否将数据缓存到文件
+    public static $cacheToFile = true;
+
     //tKey:判断的key，tVal:当tKey为该值，对cKey的值进行转换
     public static $mixPicFields = [['tKey'=>'type','tVal'=>'uplimage','cKey'=>['value']]];
     

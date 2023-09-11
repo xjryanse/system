@@ -3,7 +3,7 @@
 namespace xjryanse\system\service;
 
 use xjryanse\system\interfaces\MainModelInterface;
-
+use xjryanse\logic\Arrays;
 /**
  * 系统能力清单
  */
@@ -11,19 +11,41 @@ class SystemAbilityService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
+    use \xjryanse\traits\ObjectAttrTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemAbility';
 
+    public static function extraDetails($ids) {
+        return self::commExtraDetails($ids, function($lists) use ($ids) {
+                    return $lists;
+                }, true);
+    }
+    
     public static function keyToId($key) {
         $con[] = ['key', '=', $key];
         $data = self::staticConFind($con);
         return $data ? $data['id'] : '';
     }
+    /**
+     * 20320809：已授权能力key
+     * @param type $companyId
+     * @return type
+     */
+    public static function thisKeyArr($companyId){
+        // companyId提取abilityid,
+        // 20230809:优化
+        $abilityIds     = SystemCompanyAbilityService::canOperateAbilityIds($companyId);
 
+        $conAbi[]       = ['id','in',$abilityIds];
+        $abiKeys = array_unique(self::column('key',$conAbi));
+        return array_values(Arrays::unsetEmpty($abiKeys));
+    }
+    
     /*     * *************************************** */
 
     /**

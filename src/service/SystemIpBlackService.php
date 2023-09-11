@@ -14,6 +14,8 @@ class SystemIpBlackService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
+    use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemIpBlack';
@@ -24,10 +26,7 @@ class SystemIpBlackService implements MainModelInterface {
     public static function checkIpBlackExist() {
         $ip = Request::ip();
 
-        //黑名单数组
-        $ipBlacks = Cachex::funcGet('SystemIpBlackService_IpBlackArr', function() {
-                    return self::mainModel()->column('ip');
-                });
+        $ipBlacks = self::staticConColumn('ip');
 
         //判断是否黑
         if ($ipBlacks && in_array($ip, $ipBlacks)) {

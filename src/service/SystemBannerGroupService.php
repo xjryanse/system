@@ -11,6 +11,7 @@ class SystemBannerGroupService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;

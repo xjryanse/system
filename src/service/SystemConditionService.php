@@ -17,6 +17,7 @@ class SystemConditionService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelQueryTrait;
     use \xjryanse\traits\StaticModelTrait;
     use \xjryanse\traits\DebugTrait;
 
@@ -60,6 +61,9 @@ class SystemConditionService implements MainModelInterface {
             foreach ($param as $key => $value) {
                 self::debug('$key', $key);
                 self::debug('$value', $value);
+                if(is_array($value) || is_object($value)){
+                    continue;
+                }
                 $lists = str_replace('{$' . $key . '}', $value, $lists);
             }
             self::debug('$lists', $lists);
@@ -185,11 +189,15 @@ class SystemConditionService implements MainModelInterface {
             }
             return true;
         } else {
-            $tmpResult = Db::table($judgeTable)->master()->where($judgeCond)->field($judgeField . ' as result')->find();
-//            self::debug( '$condition', $condition );
-            self::debug(__METHOD__ . '判断查询结果的sql语句', Db::table($judgeTable)->getLastSql());
-//            self::debug(__METHOD__ . ' eval ', "return " . $tmpResult['result'] . ' ' . $judgeSign . ' ' . $judgeValue . ';');
-            return eval('return \'' . $tmpResult['result'] . '\' ' . $judgeSign . ' ' . $judgeValue . ';');
+            try{
+                $tmpResult = Db::table($judgeTable)->master()->where($judgeCond)->field($judgeField . ' as result')->find();
+                self::debug(__METHOD__ . '判断查询结果的sql语句', Db::table($judgeTable)->getLastSql());
+            } catch(\Exception $e){
+                Debug::dump(Db::table($judgeTable)->getLastSql());
+                throw $e;
+            }
+            $code = 'return \'' . $tmpResult['result'] . '\' ' . $judgeSign . ' ' . $judgeValue . ';';
+            return eval($code);
         }
     }
 

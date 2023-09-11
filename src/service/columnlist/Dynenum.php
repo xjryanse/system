@@ -2,6 +2,7 @@
 namespace xjryanse\system\service\columnlist;
 
 use xjryanse\system\interfaces\ColumnListInterface;
+use xjryanse\logic\Debug;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\DbOperate;
 use think\Db;
@@ -19,9 +20,17 @@ class Dynenum extends Base implements ColumnListInterface
         if(!$optionStr){
             return [];
         }
-        $arr = equalsToKeyValue( $optionStr , '&');
+        // 20230715:Cannot use object of type stdClass as array
+        if(is_object($optionStr)){
+            $arr = get_object_vars($optionStr);
+        } else {
+            $arr = is_string($optionStr) ? equalsToKeyValue( $optionStr , '&') : $optionStr;
+        }
+        
         foreach( $arr as &$value ){
-            $value = json_decode($value,JSON_UNESCAPED_UNICODE ) ? : $value;
+            $value = is_string($value) && json_decode($value,JSON_UNESCAPED_UNICODE ) 
+                    ? json_decode($value,JSON_UNESCAPED_UNICODE ) 
+                    : $value;
         }
         $con = [];
         if(isset( $arr['con']) && is_array($arr['con'])){

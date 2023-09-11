@@ -46,7 +46,12 @@ class SystemFile extends Base
         $basePath       = Arrays::value($_SERVER, 'DOCUMENT_ROOT');
         $filePathFull   = $basePath .'/'. $value;
         if(file_exists( $filePathFull )){
-            return $value ? Request::domain(true) .'/'. $value : $value;
+            $port = Arrays::value($_SERVER, 'SERVER_PORT');
+            $urlBase = $port && !in_array($port,[80,443])
+                    ? Request::domain(true).':'.$port 
+                    : Request::domain(true);
+            
+            return $value ? $urlBase .'/'. $value : $value;
         }
         // 2022-12-11：增加OSS的路径返回
         $ossPath = Oss::getInstance()->signUrl($value);

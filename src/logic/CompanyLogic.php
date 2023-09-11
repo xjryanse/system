@@ -4,6 +4,7 @@ namespace xjryanse\system\logic;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\WxBrowser;
 use xjryanse\system\service\SystemCompanyService;
+use xjryanse\system\service\SystemHostBindService;
 use xjryanse\wechat\service\WechatWeAppService;
 use think\facade\Request;
 use Exception;
@@ -20,22 +21,29 @@ class CompanyLogic
      */
     public static function hasCompany()
     {
-        //先取路由参数
+        //优先级1：先取路由参数
         $comKey     = Request::route('comKey');
-        //再取请求参数
+        //优先级2：再取请求参数
         if(!$comKey || mb_strlen($comKey) != 8){
             $comKey     = Request::param('comKey','') ? : session(SESSION_COMPANY_KEY);
         }
-        // 取请求头参数
+        //优先级3：取请求头参数
         if(!$comKey || mb_strlen($comKey) != 8){
             $comKey     = Request::header('comkey','') ? : session(SESSION_COMPANY_KEY);
         }
-        //20210723，微信环境下，有传appid（小程序），拿一下公司key
+        //优先级4：20210723，微信环境下，有传appid（小程序），拿一下公司key
         if(!$comKey && WxBrowser::isWxBrowser() && Request::header('appid','')){
-        //if(!$comKey && Request::header('appid','')){
             // 兼容前端放在请求头
             $comKey = WechatWeAppService::appidGetComKey(Request::header('appid',''));
         }
+        //优先级5：查询当前域名是否有绑定端口，有的话提取
+//        if(!$comKey){
+//            $companyId = SystemHostBindService::getBindCompanyIdByHost(Request::host());
+//            if($companyId){
+//                $comKey = SystemCompanyService::getInstance( $companyId )->fKey();
+//            }
+//        }
+
         if( !$comKey ){
             throw new Exception('请求入口错误');
         }
