@@ -1,32 +1,29 @@
 <?php
 namespace xjryanse\system\model;
 
-use xjryanse\system\service\SystemFileService;
 /**
  * 导入模板
  */
 class SystemImportTemplate extends Base
 {
+    public static $picFields = ['file_id'];
     
     /**
      * 用户头像图标
      * @param type $value
      * @return type
      */
-    public function getFileIdAttr( $value )
-    {
-        return $value ? SystemFileService::getInstance( $value )->get() : $value ;
+    public function getFileIdAttr($value) {
+        return self::getImgVal($value);
     }
+
     /**
-     * 修改器，文件带id只取id
+     * 图片修改器，图片带id只取id
      * @param type $value
      * @throws \Exception
      */
-    public function setFileIdAttr( $value )
-    {
-        if((is_array($value)|| is_object($value)) && isset( $value['id'])){
-            $value = $value['id'];
-        }
-        return $value;
+    public function setFileIdAttr($value) {
+        return self::setImgVal($value);
     }
+
 }

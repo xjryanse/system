@@ -10,6 +10,7 @@ use think\File as tpFile;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\Arrays2d;
 use xjryanse\logic\DataCheck;
+use xjryanse\logic\DbOperate;
 use xjryanse\logic\ImgCompress;
 use xjryanse\logic\Oss;
 use xjryanse\logic\Url;
@@ -25,11 +26,18 @@ class SystemFileService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
 
     protected static $mainModel;
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemFile';
     protected static $getCache = true;
+    
+    use \xjryanse\system\service\file\FieldTraits;
+    use \xjryanse\system\service\file\MigTraits;
 
     public static function extraDetails($ids) {
         return self::commExtraDetails($ids, function($lists) use($ids) {
@@ -40,9 +48,35 @@ class SystemFileService implements MainModelInterface {
                         $v['useCount'] = Arrays::value($useCountArr, $v['id'], 0);
                         // 20230525:完整的路径
                         $v['fullPath'] = self::mainModel()->getFullPath($v['file_path']);
+                        
+                        // 提取异常结果
+                        $hasLocalArr          = self::calcHasLocal($v['file_path'], $v);
+                        $v = array_merge($v, $hasLocalArr);
                     }
+                    
+                    // 20240713批量提交：is_error字段的更新
+                    DbOperate::dealGlobal();
                     return $lists;
                 });
+    }
+    /**
+     * 计算是否有本地文件
+     * @param type $filePath
+     * @param type $data
+     * @return type
+     */
+    protected static function calcHasLocal($filePath, $data = []){
+        // dump($data);
+        // sql查询结果
+        $v = [];
+        $v['hasLocal']    = file_exists($filePath) ? 1 : 0;
+        if($v['hasLocal'] != Arrays::value($data, 'has_local')){
+            // 更新
+            $id = Arrays::value($data, 'id');
+            self::getInstance($id)->updateRam(['has_local'=>$v['hasLocal']]);
+        }
+
+        return $v;
     }
 
 //    public static function extraAfterSave(&$data, $uuid) {
@@ -363,6 +397,7 @@ class SystemFileService implements MainModelInterface {
         if (!is_array($ids)) {
             $ids = explode(',', $ids);
         }
+        $ids = array_unique($ids);
         //20230516：先从本地提取：
         $lists = self::files($ids);
         //【远端】本地如果没有，从远端提取；
@@ -470,144 +505,5 @@ class SystemFileService implements MainModelInterface {
 
     /*     * **** */
 
-    /**
-     *
-     */
-    public function fId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 应用id
-     */
-    public function fAppid() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公司id
-     */
-    public function fCompanyId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * image图片；file文件
-     */
-    public function fFileType() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * idcard身份证
-     */
-    public function fSubType() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 是否加密 0无加密，1加密
-     */
-    public function fIsEncrypt() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 路径
-     */
-    public function fFilePath() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 图片链接
-     */
-    public function fUrl() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 文件md5
-     */
-    public function fMd5() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 文件 sha1编码
-     */
-    public function fSha1() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 排序
-     */
-    public function fSort() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 状态(0禁用,1启用)
-     */
-    public function fStatus() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 有使用(0否,1是)
-     */
-    public function fHasUsed() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 锁定（0：未锁，1：已锁）
-     */
-    public function fIsLock() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 锁定（0：未删，1：已删）
-     */
-    public function fIsDelete() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 备注
-     */
-    public function fRemark() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 创建者，user表
-     */
-    public function fCreater() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 更新者，user表
-     */
-    public function fUpdater() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 创建时间
-     */
-    public function fCreateTime() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 更新时间
-     */
-    public function fUpdateTime() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
 
 }

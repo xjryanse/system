@@ -13,7 +13,7 @@ class RedisLogic
      */
     public static function writeToDbAll(){
         $redisClasses = Cache::get('redisLogClasses') ? : [];
-        Debug::debug('$redisClasses', $redisClasses);
+        Debug::dump('$redisClasses', $redisClasses);
         foreach($redisClasses as $class){
             if (method_exists($class, 'redisToDb')) {
                 $class::redisToDb();

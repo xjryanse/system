@@ -14,7 +14,12 @@ class SystemServiceMethodLogService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\RedisModelTrait;
     use \xjryanse\traits\LogModelTrait;
     
@@ -61,7 +66,9 @@ class SystemServiceMethodLogService implements MainModelInterface {
             $cone[] = ['id','>',$v['id']];
             $cone[] = ['sort','<',$v['sort']];
             $pid = self::where($cone)->order('sort desc')->value('id');
-            self::getInstance($v['id'])->update(['pid'=>$pid]);
+            if($pid){
+                self::getInstance($v['id'])->update(['pid'=>$pid]);
+            }
         }
     }
     

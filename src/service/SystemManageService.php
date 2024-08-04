@@ -7,12 +7,19 @@ use xjryanse\wechat\service\WechatWePubFansUserService;
 
 /**
  * 事项管理员
+ * baoApply:包车申请
+ * busFixApply:维修申请
  */
 class SystemManageService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;

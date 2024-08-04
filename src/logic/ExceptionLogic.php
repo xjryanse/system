@@ -17,6 +17,8 @@ class ExceptionLogic extends Handle
 
     public function render(Exception $e)
     {
+        // 20231123:全局返回data
+        global $glRespData;
         // $pdo = SystemErrorLogService::mainModel()->getConnection()->getPdo();
         //校验是否在事务中
         // !DataCheck::isEmpty($pdo): 可否去除？？20220903
@@ -40,8 +42,7 @@ class ExceptionLogic extends Handle
                 $trace['line']    = $e->getLine();
                 $trace['trace']   = $e->getTrace();
             }
-
-            return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() ,[], $trace);
+            return $this->codeReturn( $e->getCode() ? : 1 , $e->getMessage() ,$glRespData, $trace);
         }
     }
 }

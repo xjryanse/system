@@ -5,13 +5,18 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\wechat\service\WechatWeAppService;
 use xjryanse\customer\service\CustomerUserService;
+use xjryanse\customer\service\CustomerService;
+use xjryanse\user\service\UserService;
 use xjryanse\wechat\WeApp;
 use xjryanse\dev\logic\ProjectLogic;
 use xjryanse\curl\Query;
-
 use xjryanse\logic\DbOperate;
-use xjryanse\system\logic\RedisLogic;
+use xjryanse\logic\Arrays;
 use xjryanse\logic\Cachex;
+use xjryanse\logic\Strings;
+use xjryanse\system\logic\RedisLogic;
+use Exception;
+
 /**
  * 公司端口
  */
@@ -19,7 +24,12 @@ class SystemCompanyService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\ObjectAttrTrait;
 
 // 静态模型：配置式数据表
@@ -48,6 +58,9 @@ class SystemCompanyService implements MainModelInterface {
             'master' => true
         ]
     ];
+    
+    use \xjryanse\system\service\company\FieldTraits;
+    
     /*     * *本类定义变量**************** */
     protected $wechatWeApp = [];
 
@@ -55,6 +68,15 @@ class SystemCompanyService implements MainModelInterface {
         return self::commExtraDetails($ids, function($lists) use ($ids) {
                     return $lists;
                 },true);
+    }
+    /**
+     * 提取当前公司的信息
+     * 20231119
+     */
+    public static function current(){
+        $companyId = session(SESSION_COMPANY_ID);
+        $info = self::getInstance($companyId)->get();
+        return $info;
     }
 
     /**
@@ -90,7 +112,18 @@ class SystemCompanyService implements MainModelInterface {
         return self::staticConFind($con);
         //return self::find($con,86400);
     }
-
+    /**
+     * 公司全称取端口
+     * 20231117
+     * @param type $name
+     * @return type
+     */
+    public static function getByComp($name) {
+        $con[] = ['name', '=', $name];
+        return self::staticConFind($con);
+        //return self::find($con,86400);
+    }
+    
     /**
      * key转id
      * @param type $comKey
@@ -164,217 +197,32 @@ class SystemCompanyService implements MainModelInterface {
         DbOperate::columns($tableName);
     }
     /*     * ***** */
-
     /**
-     *
+     * 端口初始化
+     * 20231117
      */
-    public function fId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
+    public static function init($compName, $data = []){
+        if(self::getByComp($compName)){
+            throw new Exception($compName.'已有端口');
+        }
 
-    /**
-     *
-     */
-    public function fAppId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
+        $data['name']   = $compName;
+        // 随机8位当key
+        $data['key']    = Strings::rand(8);
+        // 20231117:id,数字
+        $maxId          = self::where()->order('id desc')->value('id');
+        $data['id']     = $maxId + 1;
 
-    /**
-     * 公司名称
-     */
-    public function fName() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    public function fLogo() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 地区码
-     * @return type
-     */
-    public function fAreaCode() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公司编号
-     */
-    public function fCompanyNo() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公司简称
-     */
-    public function fShortName() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公司类型
-     */
-    public function fCompanyCate() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 成立时间
-     */
-    public function fLaunchTime() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 经营范围
-     */
-    public function fManagementContent() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 省
-     */
-    public function fProvince() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 市
-     */
-    public function fCity() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 县
-     */
-    public function fDistrict() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公司地址
-     */
-    public function fAddress() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 营业执照编号
-     */
-    public function fLicence() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 法人姓名
-     */
-    public function fFrName() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 法人手机
-     */
-    public function fFrMobile() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 接口访问key
-     */
-    public function fKey() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 小程序appid
-     */
-    public function fWeAppId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 公众号acid
-     */
-    public function fWePubId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    public function fDevProjectId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 创建公司
-     */
-    public function fCreateCompanyId() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 状态(0禁用,1启用)
-     */
-    public function fStatus() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 有使用(0否,1是)
-     */
-    public function fHasUsed() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 锁定（0：未锁，1：已锁）
-     */
-    public function fIsLock() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 锁定（0：未删，1：已删）
-     */
-    public function fIsDelete() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 备注
-     */
-    public function fRemark() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 创建者
-     */
-    public function fCreater() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 更新者
-     */
-    public function fUpdater() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 创建时间
-     */
-    public function fCreateTime() {
-        return $this->getFFieldValue(__FUNCTION__);
-    }
-
-    /**
-     * 更新时间
-     */
-    public function fUpdateTime() {
-        return $this->getFFieldValue(__FUNCTION__);
+        $res            = self::saveRam($data);
+        //【2】账号初始化 TODO
+        $phone = Arrays::value($data, 'fr_mobile');
+        if($phone){
+            UserService::compUserInit($data['id'], $phone);
+        }
+        // 初始化一些固定客户
+        CustomerService::compCustomerInit($data['id']);
+        
+        return $res;
     }
 
 }

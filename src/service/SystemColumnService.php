@@ -14,7 +14,12 @@ class SystemColumnService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
@@ -23,7 +28,7 @@ class SystemColumnService implements MainModelInterface {
     protected static $mainModelClass = '\\xjryanse\\system\\model\\SystemColumn';
 
     use \xjryanse\system\service\column\FieldTraits;
-    
+
     public static function extraDetails($ids) {
         return self::commExtraDetails($ids, function($lists) use ($ids) {
                     $columnListCounts = SystemColumnListService::groupBatchCount('column_id', $ids);

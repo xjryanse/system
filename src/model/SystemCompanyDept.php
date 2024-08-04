@@ -6,5 +6,13 @@ namespace xjryanse\system\model;
  */
 class SystemCompanyDept extends Base
 {
-
+    use \xjryanse\traits\ModelUniTrait;    
+    public static $uniFields = [
+        [
+            'field'     =>'bind_customer_id',
+            // 去除prefix的表名
+            'uni_name'  =>'customer',
+            'uni_field' =>'id',
+        ],
+    ];
 }

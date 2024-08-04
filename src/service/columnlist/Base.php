@@ -1,7 +1,9 @@
 <?php
 namespace xjryanse\system\service\columnlist;
 
+use xjryanse\system\service\SystemCompanyService;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Arrays;
 use think\Db;
 
 abstract class Base
@@ -42,7 +44,15 @@ abstract class Base
     {
         $service = DbOperate::getService( $tableName );
         $list = $service::lists( $con , $orderBy);
-        return $list;
+        $arr = $list ? $list->toArray() : [];
+        // 20231207:增加类型和版本控制
+        if($service::mainModel()->hasField('comp_cate')){
+            // 20231208:封装
+            $tmpArr = $service::comCateLevelListArr();
+            $arr = array_merge($arr, $tmpArr);
+        }
+        
+        return $arr;
     }
     /**
      * 关联表先删除后保存（角色，权限等）

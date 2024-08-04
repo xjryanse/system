@@ -17,7 +17,12 @@ class SystemLogService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\RedisModelTrait;
     
     protected static $mainModel;
@@ -26,24 +31,25 @@ class SystemLogService implements MainModelInterface {
     /**
      * 请求本系统
      */
-    public static function log($strictLog = false) {
+    public static function log($strictLog = false, $data = []) {
         if (!ConfigLogic::config('queryLogOpen') && !$strictLog) {
             return false;
         }
         try {
-            $data['type'] = 1;  //请求本系统
-            $data['ip'] = Request::ip();
-            $data['url'] = Request::url();
-            $data['header'] = json_encode(Request::header(), JSON_UNESCAPED_UNICODE);
-            $data['param'] = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
-            $data['module'] = Request::module();
+            $data['type']       = 1;  //请求本系统
+            $data['ip']         = Request::ip();
+            $data['url']        = Request::url();
+            $data['header']     = json_encode(Request::header(), JSON_UNESCAPED_UNICODE);
+            $data['param']      = json_encode(Request::param(), JSON_UNESCAPED_UNICODE);
+            $data['module']     = Request::module();
             $data['controller'] = Request::controller();
-            $data['action'] = Request::action();
+            $data['action']     = Request::action();
             // 20221012
-            $data['output'] = file_get_contents('php://input');
+            $data['output']     = file_get_contents('php://input');
             Debug::debug('$data', $data);
             // self::save($data);
             self::redisLog($data);
+            return $data;
         } catch (\Exception $e) {
             //不报异常，以免影响访问
         }

@@ -3,7 +3,6 @@ namespace xjryanse\system\logic;
 
 use xjryanse\system\service\SystemConfigsService;
 use xjryanse\logic\Debug;
-use xjryanse\logic\Cachex;
 use think\facade\Request;
 use think\facade\Cache;
 /**
@@ -31,9 +30,15 @@ class ConfigLogic
         if( $module ){
             $con[]  = [ 'module', '=', $module ];
         }
-        $configs = SystemConfigsService::staticConList( $con );
+        // 20230919:发现没传时串配置
+        $con[] = ['company_id','=',session(SESSION_COMPANY_ID)];
+        $configArr = SystemConfigsService::staticConList( $con );
+        // 20231208:增加类型+版本的通用配置
+        $configCP = SystemConfigsService::comCateLevelListArr();
+        $configs = array_merge($configArr,$configCP);
+        
         Debug::debug('系统配置信息数组', $configs);
-        $config = array_column($configs ? $configs : [], 'value', 'key');        
+        $config = array_column($configs ? $configs : [], 'value', 'key');
         
         // 20230327:特殊处理：尝试只使用开发的电脑，才会显示开发模式
         $config['isDevMode'] = Request::ip() == Cache::get('devRequestIp') ? 1 : 0;        

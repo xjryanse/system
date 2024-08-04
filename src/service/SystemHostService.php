@@ -5,6 +5,7 @@ namespace xjryanse\system\service;
 use xjryanse\system\interfaces\MainModelInterface;
 use xjryanse\logic\Arrays;
 use xjryanse\logic\Debug;
+use think\facade\Request;
 
 /**
  * 域名信息
@@ -13,7 +14,12 @@ class SystemHostService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
@@ -32,6 +38,18 @@ class SystemHostService implements MainModelInterface {
         Debug::debug(__CLASS__ . '$info', $info);
 
         return $info;
+    }
+    /**
+     * 域名主公司key
+     * 20231116
+     * @param type $host
+     */
+    public static function hostMainComKey($host = ''){
+        if(!$host){
+            $host = Request::host();
+        }
+        $info = self::getByHost($host);
+        return $info ? $info['main_comkey'] : '';
     }
 
 }

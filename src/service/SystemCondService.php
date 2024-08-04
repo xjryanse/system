@@ -15,7 +15,12 @@ class SystemCondService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
@@ -32,7 +37,7 @@ class SystemCondService implements MainModelInterface {
         $con[] = ['item_type', 'in', $itemType];
         $con[] = ['item_key', 'in', $itemKey];
         $con[] = ['status', '=', 1];
-        Debug::debug('listsByItemKey查询条件', $con);
+        // Debug::debug('listsByItemKey查询条件', $con);
         return self::getCond($con, $param);
     }
     
@@ -68,6 +73,24 @@ class SystemCondService implements MainModelInterface {
         return $listsRes;
     }
     /**
+     * 20240803:多个key,需同时满足才算过：
+     * 用于流程的预提取下一节点（当前节点未批，流程未过，但是要提取下一节点来前端展示）
+     * @param type $itemType
+     * @param type $itemKeys
+     * @param type $dataId
+     * @param type $param
+     * @return type
+     */
+    public static function isReachByItemKeyMulti($itemType, $itemKeys, $dataId, $param = []) {
+        foreach($itemKeys as $itemKey){
+            // 一个没过就是没过
+            if($itemKey && !self::isReachByItemKey($itemType, $itemKey,$dataId, $param)){
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
      * 根据itemKey，判断条件是否达成
      * @param type $itemType
      * @param type $itemKey
@@ -78,6 +101,7 @@ class SystemCondService implements MainModelInterface {
     public static function isReachByItemKey($itemType, $itemKey, $dataId, $param = []) {
         //条件
         $conditions = self::listsByItemKey($itemType, $itemKey, $param);
+
         $results = self::conditionsGetResult($conditions, $dataId);
         return $results;
     }
@@ -86,10 +110,17 @@ class SystemCondService implements MainModelInterface {
         if (!$conditions) {
             return false;
         }
+        // dump($conditions);
         $res = [];
         foreach ($conditions as &$v) {
+            $result = self::conditionResult($v, $dataId);
+            // Debug::dump($v);
+            // Debug::dump($result);
+            if(!$result && Arrays::value($v, 'false_throw_msg')){
+                throw new Exception($v['false_throw_msg']);
+            }
             //结果
-            $res[$v['group_id']][] = self::conditionResult($v, $dataId);
+            $res[$v['group_id']][] = $result;
         }
 
         foreach ($res as $value) {
@@ -121,7 +152,7 @@ class SystemCondService implements MainModelInterface {
         
         // 获取用于判断的二维数组
         $dataArr = self::getDataArr($judgeTable, $dataId, $dataType, $dataField);
-        //dump($dataArr);
+        // Debug::dump($dataArr);
         // 【核心】数据过滤
         $dataFilter = Arrays2d::listFilter($dataArr, $judgeCond);
         //dump($condition);
@@ -142,15 +173,25 @@ class SystemCondService implements MainModelInterface {
         if(!$service){
             throw new Exception('条件数据表未配置'.$judgeTable);
         }
+        // 20240802:改info
+        $data       = $service::getInstance($dataId)->info();
         // 数据
         if($dataType == 'data'){
-            $data       = $service::getInstance($dataId)->get();
             $dataArr    = [$data];
         }
         // 属性
         if($dataType == 'attr'){
             $dataArr    = $service::getInstance($dataId)->objAttrsList($dataField);
         }
+        // 20240802子数据
+        if($dataType == 'subArray'){
+            $dataArr    = $data[$dataField];
+        }
+        // 20240802子数据
+        if($dataType == 'subData'){
+            $dataArr    = [$data[$dataField]];
+        }
+        // Debug::dump($data);
         return $dataArr;
     }
     /**

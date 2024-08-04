@@ -18,7 +18,12 @@ class SystemCompanyAbilityService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\ObjectAttrTrait;
 
 // 静态模型：配置式数据表
@@ -56,6 +61,10 @@ class SystemCompanyAbilityService extends Base implements MainModelInterface {
         $hasTry             = $this->calHasTry();
         $res = $this->objAttrsList('financeStatementOrder');
         foreach($res as $v){
+            // 20231030:增加,只提取能力项目
+            if($v['statement_type'] != 'companyAbility'){
+                continue;
+            }
             if($hasTry){
                 FinanceStatementOrderService::getInstance($v['id'])->setNeedPayRam();
             } else {

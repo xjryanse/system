@@ -7,6 +7,7 @@ use xjryanse\universal\service\UniversalPageService;
 use xjryanse\system\service\SystemColumnListService;
 use xjryanse\logic\FrameCode;
 use xjryanse\logic\DbOperate;
+use xjryanse\logic\Arrays;
 use xjryanse\logic\Runtime;
 /**
  * 
@@ -15,7 +16,12 @@ class ViewSystemDbService extends Base implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\ObjectAttrTrait;
 
 // 静态模型：配置式数据表
@@ -33,6 +39,8 @@ class ViewSystemDbService extends Base implements MainModelInterface {
                     // $columnListCount = SystemColumnListService::groupBatchCount('column_id', $ids);
                     foreach ($lists as &$v) {
                         $tableName = $v['table_name'];
+                        $v['controller']        = DbOperate::getController($tableName);
+                        $v['tableKey']          = DbOperate::getTableKey($tableName);
                         // 是否有数据表配置
                         $v['columnId']          = SystemColumnService::tableNameGetId($tableName);
                         // $v['columnListCount'] = Arrays::value($columnListCount, $v['columnId']);
@@ -88,6 +96,11 @@ class ViewSystemDbService extends Base implements MainModelInterface {
                         // 表全量缓存
                         $dataCacheFile    = Runtime::tableFullCacheFileName($tableName);
                         $v['hasDataFile']   = is_file($dataCacheFile) ? 1 : 0;
+                        // 20240318:新增接口；更新接口；删除接口
+                        $v['saveApiUrl']    = '/admin/'.$v['controller'].'/saveGetInfoRam?admKey='.$v['tableKey'];
+                        $v['updateApiUrl']  = '/admin/'.$v['controller'].'/updateRam?admKey='.$v['tableKey'];
+                        $v['delApiUrl']     = '/admin/'.$v['controller'].'/delRam?admKey='.$v['tableKey'];
+                        $v['getApiUrl']     = '/admin/'.$v['controller'].'/get?admKey='.$v['tableKey'];
                     }
 
                     return $lists;
@@ -120,5 +133,26 @@ class ViewSystemDbService extends Base implements MainModelInterface {
         $res['createTableSql'] = DbOperate::createTableSql($res['table_name']);
         return $res;
     }
+    /**
+     * 20240311
+     * @param type $param
+     * @return type
+     */
+    public static function doColumnGenerate($param){
+        $tableName = Arrays::value($param, 'table_name');
+        return Runtime::tableColumnGenerate($tableName);
+    }
 
+    /**
+     * 20240311
+     * @param type $param
+     * @return type
+     */
+    public static function doTableFullCache($param){
+        $tableName = Arrays::value($param, 'table_name');
+        return Runtime::tableFullCache($tableName);
+    }
+    
+    
+    
 }

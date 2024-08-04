@@ -13,13 +13,13 @@ trait ListTraits {
      * 20230806：uniqid，组织树状
      */
     public static function listUniqidTree($param) {
-        $uniqid = Arrays::value($param,'uniqid');
+        $uniqid = Arrays::value($param,'uniqid') ? : '65ef02238bafd';
         $con    = [];
         $con[]  = ['uniqid','=',$uniqid];
 
         $all    = self::where($con)->select();
         $allArr = $all ? $all->toArray() : [];
-
+        // dump($allArr);
         return Arrays2d::makeTree($allArr,'','pid','subLists');
     }
 }

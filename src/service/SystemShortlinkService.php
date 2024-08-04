@@ -18,7 +18,12 @@ class SystemShortlinkService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
     use \xjryanse\traits\StaticModelTrait;
 
     protected static $mainModel;
@@ -61,9 +66,9 @@ class SystemShortlinkService implements MainModelInterface {
 
         $data['belong_table'] = $belongTable;
         $data['belong_table_id'] = $belongTableId;
-        $data['link_name'] = $linkName;
-        $data['link_key'] = Strings::rand(6);
-        $data['long_link'] = $longLink;
+        $data['link_name']  = $linkName;
+        $data['link_key']   = Strings::rand(6);
+        $data['long_link']  = $longLink;
         return self::save($data);
     }
 

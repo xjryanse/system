@@ -12,7 +12,12 @@ class SystemCateService implements MainModelInterface {
 
     use \xjryanse\traits\InstTrait;
     use \xjryanse\traits\MainModelTrait;
+    use \xjryanse\traits\MainModelRamTrait;
+    use \xjryanse\traits\MainModelCacheTrait;
+    use \xjryanse\traits\MainModelCheckTrait;
+    use \xjryanse\traits\MainModelGroupTrait;
     use \xjryanse\traits\MainModelQueryTrait;
+
 
 // 静态模型：配置式数据表
     use \xjryanse\traits\StaticModelTrait;
@@ -41,7 +46,7 @@ class SystemCateService implements MainModelInterface {
     public static function columnByGroup($groupKey, $con = []) {
         $con[] = ['group_key', '=', $groupKey];
         //$res = self::mainModel()->where( $con )->cache(86400)->column('cate_name,class','cate_key');
-        $array = self::staticConColumn('cate_name,class,cate_key', $con);
+        $array = self::staticConColumn('cate_name,class,cate_key,default_selected,cate_img', $con);
         return Arrays2d::fieldSetKey($array, 'cate_key');   //20220405前端bug无法解决，可能有冲突？？
         //20220322注释
         /*
@@ -49,6 +54,18 @@ class SystemCateService implements MainModelInterface {
           return $res;
          * 
          */
+    }
+    /**
+     * 20230912：提取键值对
+     * @param type $groupKey
+     * @param type $con
+     * @return type
+     */
+    public static function keyValueByGroup($groupKey, $con = []){
+        $con[] = ['group_key', '=', $groupKey];
+        //$res = self::mainModel()->where( $con )->cache(86400)->column('cate_name,class','cate_key');
+        $array = self::staticConColumn('cate_name,class,cate_key', $con);
+        return array_column($array, 'cate_name','cate_key');   
     }
 
     /**

@@ -79,10 +79,13 @@ class ExportLogic
     public static function dataExportExcel(array $data, array $dataTitle = [], $savePath='',$rowStart=2){
         $dataImport[] = $dataTitle;
         foreach($data as $v){
+            // $dataImport[] = array_intersect_key($v, $dataTitle);
             $dataImport[] = array_intersect_key($v, $dataTitle);
         }
         $tplPath = "";
         return self::writeToExcel($dataImport, $rowStart, $tplPath, $savePath);
+        // 20240108:反馈开票无法导出调整
+        // return self::writeToExcel($data, $rowStart, $tplPath, $savePath);
     }
     
     /**

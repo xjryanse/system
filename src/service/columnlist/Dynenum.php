@@ -97,13 +97,14 @@ class Dynenum extends Base implements ColumnListInterface
     public static function dataResArr2d($lists,$fieldId,$tableField, $uniCov = []){
         $dataArr = [];
         foreach($lists as &$value){
-            $dataArr[] = [
+            $key = $value[$fieldId].'_'.$value[$tableField];
+            $dataArr[$key] = [
                 'id'            => $value[$fieldId],
                 'text'          => $value[$tableField],
                 'uniSetValue'   => Arrays::keyReplace($value, $uniCov)
             ];
         }
-        return $dataArr;
+        return array_values($dataArr);
     }
     /**
      * 2022-12-18 普通键值对数组的返回方式封装
